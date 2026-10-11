@@ -112,7 +112,12 @@ const Page = () => {
     <View style={styles.page}>
       <View style={styles.container}>
 
-        <TouchableOpacity style={styles.closeButton} onPress={() => router.back()}>
+        <TouchableOpacity
+          style={styles.closeButton}
+          onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel="Close"
+          hitSlop={4}>
           <Ionicons name="close" size={24} color="#000" />
         </TouchableOpacity>
 

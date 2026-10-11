@@ -34,7 +34,10 @@ const Layout = () => {
           headerRight: () => (
             <TouchableOpacity
               style={{ padding: 4, borderRadius: 20, backgroundColor: Colors.light }}
-              onPress={() => router.dismiss()}>
+              onPress={() => router.dismiss()}
+              accessibilityRole="button"
+              accessibilityLabel="Close"
+              hitSlop={8}>
               <Ionicons name="close-sharp" size={28} />
             </TouchableOpacity>
           ),
@@ -55,7 +58,10 @@ const Layout = () => {
           headerRight: () => (
             <TouchableOpacity
               style={{ padding: 4, borderRadius: 20, backgroundColor: Colors.light }}
-              onPress={() => router.dismiss()}>
+              onPress={() => router.dismiss()}
+              accessibilityRole="button"
+              accessibilityLabel="Close"
+              hitSlop={8}>
               <Ionicons name="close-sharp" size={28} />
             </TouchableOpacity>
           ),

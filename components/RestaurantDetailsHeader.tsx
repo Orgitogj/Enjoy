@@ -137,7 +137,12 @@ const RestaurantDetailsHeader = ({
   return (
     <Animated.View style={[styles.headerContainer, headerStyle, { paddingTop: insets.top }]}>
       <View style={[styles.headerContent]}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
+          hitSlop={4}>
           <Ionicons name="chevron-back" size={25} />
         </TouchableOpacity>
 

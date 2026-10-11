@@ -175,13 +175,21 @@ const Page = () => {
 
           <TouchableOpacity
             style={[styles.backFloating, { top: insets.top + 8 }]}
-            onPress={() => router.back()}>
+            onPress={() => router.back()}
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
+            hitSlop={4}>
             <Ionicons name="chevron-back" size={22} color="#000" />
           </TouchableOpacity>
         </View>
       ) : (
         <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-          <TouchableOpacity style={styles.iconButton} onPress={() => router.back()}>
+          <TouchableOpacity
+          style={styles.iconButton}
+          onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
+          hitSlop={4}>
             <Ionicons name="chevron-back" size={24} color="#000" />
           </TouchableOpacity>
           <View style={styles.headerText}>

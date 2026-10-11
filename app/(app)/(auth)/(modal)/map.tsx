@@ -102,7 +102,12 @@ const Page = () => {
   return (
     <>
       <View style={[styles.header, { paddingTop: insets.top }]}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.dismiss()}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.dismiss()}
+          accessibilityRole="button"
+          accessibilityLabel="Close map"
+          hitSlop={4}>
           <Ionicons name="chevron-back" size={22} color={Colors.muted} />
         </TouchableOpacity>
         <View style={styles.headerRight}>
