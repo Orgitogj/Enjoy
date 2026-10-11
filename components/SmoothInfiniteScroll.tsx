@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Animated, {
+  cancelAnimation,
   scrollTo,
   useAnimatedReaction,
   useAnimatedRef,
@@ -73,7 +74,11 @@ const SmoothInfiniteScroll = ({
         false
       );
     }
-  }, [scrollDirection, totalWrapHeight]);
+
+    return () => {
+      cancelAnimation(scrollY);
+    };
+  }, [scrollDirection, totalWrapHeight, scrollY]);
 
   useAnimatedReaction(
     () => scrollY.value,

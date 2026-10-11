@@ -5,6 +5,8 @@ import { StripeProvider } from '@stripe/stripe-react-native';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Slot } from 'expo-router';
 import {useFonts} from 'expo-font'
+import * as SplashScreen from 'expo-splash-screen';
+import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -29,6 +31,8 @@ Sentry.init({
   ],
 });
 const STRIPE_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+
+void SplashScreen.preventAutoHideAsync();
 
 const AppShell = () => {
   useSessionIsolation();
@@ -61,14 +65,20 @@ const queryClient=new QueryClient(
 );
 export default Sentry.wrap(function RootLayout() {
 
-  let [fontsLoaded]=useFonts({
+  const [fontsLoaded, fontError] = useFonts({
     Nunito_400Regular,
     Nunito_700Bold,
     Nunito_900Black,
-
   });
 
-  if (!fontsLoaded) return null;
+  const isReady = fontsLoaded || !!fontError;
+
+  useEffect(() => {
+    if (isReady) void SplashScreen.hideAsync();
+  }, [isReady]);
+
+  if (!isReady) return null;
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
