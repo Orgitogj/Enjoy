@@ -3,11 +3,11 @@ import { mergeChatTimeline, useOrderChat } from '@/hooks/useOrderChat';
 import { MESSAGE_MAX_LENGTH } from '@/services/chatService';
 import type { OrderMessage, OutgoingMessage } from '@/types/database';
 import { Ionicons } from '@expo/vector-icons';
+import { FlashList, type FlashListRef, type ListRenderItemInfo } from '@shopify/flash-list';
 import { Stack, useLocalSearchParams } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  FlatList,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
@@ -37,11 +37,13 @@ const UNAVAILABLE_COPY: Record<string, { title: string; body: string }> = {
 const formatTime = (value: string) =>
   new Date(value).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
+const BubbleSeparator = () => <View style={styles.bubbleSeparator} />;
+
 const Page = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
   const orderId = id ?? '';
   const insets = useSafeAreaInsets();
-  const listRef = useRef<FlatList<TimelineEntry>>(null);
+  const listRef = useRef<FlashListRef<TimelineEntry>>(null);
   const [draft, setDraft] = useState('');
 
   const {
@@ -71,7 +73,21 @@ const Page = () => {
     if (canRead) void markRead();
   }, [canRead, markRead, messages.length]);
 
-  const timeline = mergeChatTimeline(messages, outgoing);
+  const timeline = useMemo(
+    () => [...mergeChatTimeline(messages, outgoing)].reverse(),
+    [messages, outgoing]
+  );
+
+  const keyExtractor = useCallback(
+    (item: TimelineEntry) =>
+      isPending(item) ? `pending-${item.client_message_id}` : `message-${item.id}`,
+    []
+  );
+
+  const getItemType = useCallback(
+    (item: TimelineEntry) => (isPending(item) ? 'pending' : 'delivered'),
+    []
+  );
 
   if (isAccessLoading) {
     return (
@@ -111,7 +127,7 @@ const Page = () => {
     );
   }
 
-  const renderItem = ({ item }: { item: TimelineEntry }) => {
+  const renderItem = ({ item }: ListRenderItemInfo<TimelineEntry>) => {
     if (isPending(item)) {
       return (
         <View style={[styles.bubbleRow, styles.bubbleRowMine]}>
@@ -205,23 +221,26 @@ const Page = () => {
         </View>
       )}
 
-      <FlatList
+      <FlashList
         ref={listRef}
         testID="chat-list"
         data={timeline}
-        inverted={timeline.length > 0}
-        keyExtractor={(item) =>
-          isPending(item) ? `pending-${item.client_message_id}` : `message-${item.id}`
-        }
+        keyExtractor={keyExtractor}
+        getItemType={getItemType}
         renderItem={renderItem}
         ListEmptyComponent={renderEmpty}
         contentContainerStyle={timeline.length ? styles.listContent : styles.emptyContent}
+        ItemSeparatorComponent={BubbleSeparator}
         keyboardShouldPersistTaps="handled"
-        onEndReached={loadOlder}
-        onEndReachedThreshold={0.4}
+        maintainVisibleContentPosition={{
+          startRenderingFromBottom: true,
+          autoscrollToBottomThreshold: 0.2,
+        }}
+        onStartReached={loadOlder}
+        onStartReachedThreshold={0.4}
         refreshing={false}
         onRefresh={refetch}
-        ListFooterComponent={
+        ListHeaderComponent={
           isLoadingOlder ? (
             <View style={styles.olderState} testID="chat-loading-older">
               <ActivityIndicator color={Colors.secondary} />
@@ -236,7 +255,7 @@ const Page = () => {
             </TouchableOpacity>
           ) : hasOlder ? (
             <View style={styles.olderState}>
-              <Text style={styles.mutedText}>Pull up for earlier messages</Text>
+              <Text style={styles.mutedText}>Pull down for earlier messages</Text>
             </View>
           ) : null
         }
@@ -259,6 +278,7 @@ const Page = () => {
             onPress={() => {
               send(draft);
               setDraft('');
+              listRef.current?.scrollToEnd({ animated: true });
             }}
             accessibilityRole="button"
             accessibilityLabel="Send message"
@@ -291,7 +311,8 @@ const styles = StyleSheet.create({
   },
   stateTitle: { fontSize: 17, fontWeight: '700', color: '#000' },
   mutedText: { fontSize: 14, color: Colors.muted, textAlign: 'center' },
-  listContent: { padding: 16, gap: 10 },
+  listContent: { padding: 16 },
+  bubbleSeparator: { height: 10 },
   emptyContent: { flexGrow: 1 },
   bubbleRow: { flexDirection: 'row' },
   bubbleRowMine: { justifyContent: 'flex-end' },
