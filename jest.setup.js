@@ -37,6 +37,16 @@ jest.mock('expo-secure-store', () => {
   };
 });
 
+jest.mock('@shopify/flash-list/dist/recyclerview/utils/measureLayout', () => {
+  const actual = jest.requireActual('@shopify/flash-list/dist/recyclerview/utils/measureLayout');
+  return {
+    ...actual,
+    measureParentSize: () => ({ x: 0, y: 0, width: 400, height: 900 }),
+    measureFirstChildLayout: () => ({ x: 0, y: 0, width: 400, height: 900 }),
+    measureItemLayout: () => ({ x: 0, y: 0, width: 400, height: 100 }),
+  };
+});
+
 jest.mock('expo-linking', () => ({
   createURL: (path) => `wolt://${path}`,
 }));
