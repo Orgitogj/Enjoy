@@ -6,16 +6,10 @@ import { useOrderHistory } from '@/hooks/useOrderHistory';
 import { useMyReviews } from '@/hooks/useReviews';
 import type { OrderWithItems } from '@/types/database';
 import { Ionicons } from '@expo/vector-icons';
+import { FlashList, type ListRenderItemInfo } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
-import { useMemo } from 'react';
-import {
-  ActivityIndicator,
-  FlatList,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { useCallback, useMemo } from 'react';
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface OrderHistoryPageProps {
@@ -24,6 +18,8 @@ interface OrderHistoryPageProps {
 }
 
 type Row = { kind: 'section'; title: string } | { kind: 'order'; order: OrderWithItems };
+
+const RowSeparator = () => <View style={styles.rowSeparator} />;
 
 const OrderHistoryPage = ({
   title = 'Your orders',
@@ -51,8 +47,88 @@ const OrderHistoryPage = ({
     return result;
   }, [orders]);
 
-  const reviewFor = (orderId: string) =>
-    (myReviews ?? []).find((review) => review.order_id === orderId);
+  const reviewFor = useCallback(
+    (orderId: string) => (myReviews ?? []).find((review) => review.order_id === orderId),
+    [myReviews]
+  );
+
+  const keyExtractor = useCallback(
+    (row: Row) => (row.kind === 'section' ? `section-${row.title}` : `order-${row.order.id}`),
+    []
+  );
+
+  const getItemType = useCallback((row: Row) => row.kind, []);
+
+  const renderRow = useCallback(
+    ({ item }: ListRenderItemInfo<Row>) => {
+      if (item.kind === 'section') {
+        return <Text style={styles.sectionTitle}>{item.title}</Text>;
+      }
+
+      const order = item.order;
+      const review = reviewFor(order.id);
+
+      return (
+        <TouchableOpacity
+          style={styles.card}
+          testID={`order-row-${order.id}`}
+          onPress={() => router.push(`/order/track?id=${order.id}`)}>
+          <View style={styles.cardHeader}>
+            <Text style={styles.restaurantName}>{order.restaurant?.name ?? 'Restaurant'}</Text>
+            <Text style={styles.amount}>{order.total.toFixed(2)} €</Text>
+          </View>
+          <Text style={styles.meta}>
+            {order.delivery_mode === 'pickup' ? 'Pickup' : 'Delivery'} •{' '}
+            {new Date(order.created_at).toLocaleDateString()}
+          </Text>
+          <View style={styles.statusRow}>
+            <OrderStatusBadge status={order.status} />
+          </View>
+
+          <View style={styles.reorderRow}>
+            <TouchableOpacity
+              onPress={() => router.push(`/order/reorder?id=${order.id}`)}
+              accessibilityRole="button"
+              testID={`reorder-${order.id}`}>
+              <Text style={styles.reorderAction}>Order again</Text>
+            </TouchableOpacity>
+            {order.status === 'delivered' && (
+              <TouchableOpacity
+                onPress={() => router.push(`/order/support?id=${order.id}`)}
+                accessibilityRole="button"
+                testID={`report-problem-${order.id}`}>
+                <Text style={styles.reorderAction}>Report a problem</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {order.status === 'delivered' && (
+            <View style={styles.reviewRow}>
+              {review ? (
+                <>
+                  <RatingStars rating={review.rating} size={13} />
+                  <TouchableOpacity
+                    onPress={() => router.push(`/order/review?id=${order.id}`)}
+                    accessibilityRole="button"
+                    testID={`edit-review-${order.id}`}>
+                    <Text style={styles.reviewAction}>Edit review</Text>
+                  </TouchableOpacity>
+                </>
+              ) : (
+                <TouchableOpacity
+                  onPress={() => router.push(`/order/review?id=${order.id}`)}
+                  accessibilityRole="button"
+                  testID={`rate-order-${order.id}`}>
+                  <Text style={styles.reviewAction}>Rate your order</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          )}
+        </TouchableOpacity>
+      );
+    },
+    [reviewFor, router]
+  );
 
   const renderBody = () => {
     if (isLoading) {
@@ -98,80 +174,16 @@ const OrderHistoryPage = ({
     }
 
     return (
-      <FlatList
+      <FlashList
         data={rows}
         testID="orders-list"
-        keyExtractor={(row, index) =>
-          row.kind === 'section' ? `section-${row.title}` : `order-${row.order.id}-${index}`
-        }
+        keyExtractor={keyExtractor}
+        getItemType={getItemType}
         contentContainerStyle={styles.listContent}
+        ItemSeparatorComponent={RowSeparator}
         refreshing={isRefetching}
         onRefresh={refetch}
-        renderItem={({ item }) => {
-          if (item.kind === 'section') {
-            return <Text style={styles.sectionTitle}>{item.title}</Text>;
-          }
-
-          const order = item.order;
-          return (
-            <TouchableOpacity
-              style={styles.card}
-              testID={`order-row-${order.id}`}
-              onPress={() => router.push(`/order/track?id=${order.id}`)}>
-              <View style={styles.cardHeader}>
-                <Text style={styles.restaurantName}>{order.restaurant?.name ?? 'Restaurant'}</Text>
-                <Text style={styles.amount}>{order.total.toFixed(2)} €</Text>
-              </View>
-              <Text style={styles.meta}>
-                {order.delivery_mode === 'pickup' ? 'Pickup' : 'Delivery'} •{' '}
-                {new Date(order.created_at).toLocaleDateString()}
-              </Text>
-              <View style={styles.statusRow}>
-                <OrderStatusBadge status={order.status} />
-              </View>
-
-              <View style={styles.reorderRow}>
-                <TouchableOpacity
-                  onPress={() => router.push(`/order/reorder?id=${order.id}`)}
-                  accessibilityRole="button"
-                  testID={`reorder-${order.id}`}>
-                  <Text style={styles.reorderAction}>Order again</Text>
-                </TouchableOpacity>
-                {order.status === 'delivered' && (
-                  <TouchableOpacity
-                    onPress={() => router.push(`/order/support?id=${order.id}`)}
-                    accessibilityRole="button"
-                    testID={`report-problem-${order.id}`}>
-                    <Text style={styles.reorderAction}>Report a problem</Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-
-              {order.status === 'delivered' && (
-                <View style={styles.reviewRow}>
-                  {reviewFor(order.id) ? (
-                    <>
-                      <RatingStars rating={reviewFor(order.id)!.rating} size={13} />
-                      <TouchableOpacity
-                        onPress={() => router.push(`/order/review?id=${order.id}`)}
-                        accessibilityRole="button"
-                        testID={`edit-review-${order.id}`}>
-                        <Text style={styles.reviewAction}>Edit review</Text>
-                      </TouchableOpacity>
-                    </>
-                  ) : (
-                    <TouchableOpacity
-                      onPress={() => router.push(`/order/review?id=${order.id}`)}
-                      accessibilityRole="button"
-                      testID={`rate-order-${order.id}`}>
-                      <Text style={styles.reviewAction}>Rate your order</Text>
-                    </TouchableOpacity>
-                  )}
-                </View>
-              )}
-            </TouchableOpacity>
-          );
-        }}
+        renderItem={renderRow}
       />
     );
   };
@@ -231,7 +243,9 @@ const styles = StyleSheet.create({
   },
   listContent: {
     padding: 16,
-    gap: 12,
+  },
+  rowSeparator: {
+    height: 12,
   },
   sectionTitle: {
     fontSize: 13,
