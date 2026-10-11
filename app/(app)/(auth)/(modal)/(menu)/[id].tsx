@@ -185,11 +185,24 @@ const Page = () => {
       <View style={[styles.bottomBar, { paddingBottom: 24 + insets.bottom }]}>
 
         <View style={styles.quantityControls}>
-          <TouchableOpacity style={styles.quantityButton} onPress={handleDecrement}>
+          <TouchableOpacity
+            style={styles.quantityButton}
+            onPress={handleDecrement}
+            accessibilityRole="button"
+            accessibilityLabel="One fewer"
+            accessibilityState={{ disabled: quantity <= 1 }}
+            testID="dish-quantity-decrease"
+            hitSlop={4}>
             <Text style={styles.quantityButtonText}>−</Text>
           </TouchableOpacity>
           <Text style={styles.quantityText}>{quantity}</Text>
-          <TouchableOpacity style={styles.quantityButton} onPress={handleIncrement}>
+          <TouchableOpacity
+            style={styles.quantityButton}
+            onPress={handleIncrement}
+            accessibilityRole="button"
+            accessibilityLabel="One more"
+            testID="dish-quantity-increase"
+            hitSlop={4}>
             <Text style={styles.quantityButtonText}>+</Text>
           </TouchableOpacity>
         </View>

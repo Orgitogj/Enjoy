@@ -112,11 +112,20 @@ const Page = () => {
         </TouchableOpacity>
         <View style={styles.headerRight}>
           <Link href={'/(app)/(auth)/(modal)/filter'} asChild>
-            <TouchableOpacity style={styles.backButton}>
+            <TouchableOpacity
+              style={styles.backButton}
+              accessibilityRole="button"
+              accessibilityLabel="Filter restaurants"
+              hitSlop={4}>
               <Ionicons name="filter" size={22} />
             </TouchableOpacity>
           </Link>
-          <TouchableOpacity style={styles.backButton} onPress={locateMe}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={locateMe}
+            accessibilityRole="button"
+            accessibilityLabel="Center on my location"
+            hitSlop={4}>
             <Ionicons name="locate-outline" size={22} />
           </TouchableOpacity>
         </View>

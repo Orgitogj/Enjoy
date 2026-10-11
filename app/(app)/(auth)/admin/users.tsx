@@ -204,7 +204,11 @@ const Page = () => {
           autoCapitalize="none"
         />
         {search.length > 0 && (
-          <TouchableOpacity onPress={() => setSearch('')}>
+          <TouchableOpacity
+            onPress={() => setSearch('')}
+            accessibilityRole="button"
+            accessibilityLabel="Clear search"
+            hitSlop={12}>
             <Ionicons name="close-circle" size={18} color={Colors.muted} />
           </TouchableOpacity>
         )}
