@@ -298,6 +298,9 @@ const Page = () => {
                 key={`sticky-${index}`}
                 onPress={() => handleCategoryPress(category.sectionIndex)}
                 testID={`menu-category-${category.sectionIndex}`}
+                accessibilityRole="tab"
+                accessibilityLabel={category.label}
+                accessibilityState={{ selected: activeCategory === category.sectionIndex }}
                 style={[styles.categoryTab, activeCategory === category.sectionIndex && styles.categoryTabActive]}>
                 <Text
                   style={[
@@ -369,7 +372,11 @@ const Page = () => {
                   <Ionicons name="bicycle-outline" size={16} color="#666" />
                   <Text style={styles.infoText}>{restaurant.delivery_fee.toFixed(2)} €</Text>
                   <Text style={styles.infoDot}>•</Text>
-                  <TouchableOpacity onPress={() => showMoreInfo(restaurant)}>
+                  <TouchableOpacity
+                    onPress={() => showMoreInfo(restaurant)}
+                    accessibilityRole="button"
+                    accessibilityLabel="More about this restaurant"
+                    hitSlop={8}>
                     <Text style={styles.moreLink}>More</Text>
                   </TouchableOpacity>
                 </View>
@@ -382,7 +389,11 @@ const Page = () => {
                     Delivery {restaurant.delivery_time_min}-{restaurant.delivery_time_max} min
                   </Text>
                 </View>
-                <TouchableOpacity style={styles.iconButtonSmall} onPress={() => shareVenue(restaurant)}>
+                <TouchableOpacity
+                  style={styles.iconButtonSmall}
+                  onPress={() => shareVenue(restaurant)}
+                  accessibilityRole="button"
+                  accessibilityLabel="Share this restaurant">
                   <Ionicons name="share-social-outline" size={20} color="#009de0" />
                 </TouchableOpacity>
               </View>

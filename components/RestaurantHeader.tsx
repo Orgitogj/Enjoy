@@ -92,12 +92,20 @@ const RestaurantHeader = ({ title, scrollOffset }: RestaurantHeaderProps) => {
 
         <View style={styles.rightIcons}>
           <Link href={'/(app)/(auth)/(modal)/filter'} asChild>
-            <TouchableOpacity style={styles.iconButton}>
+            <TouchableOpacity
+              style={styles.iconButton}
+              accessibilityRole="button"
+              accessibilityLabel="Filter restaurants"
+              hitSlop={4}>
               <Ionicons name="filter" size={20} />
             </TouchableOpacity>
           </Link>
           <Link href={'/(app)/(auth)/(modal)/map'} asChild>
-            <TouchableOpacity style={styles.iconButton}>
+            <TouchableOpacity
+              style={styles.iconButton}
+              accessibilityRole="button"
+              accessibilityLabel="Open the map"
+              hitSlop={4}>
               <Ionicons name="map-outline" size={20} />
             </TouchableOpacity>
           </Link>
@@ -116,7 +124,11 @@ const RestaurantHeader = ({ title, scrollOffset }: RestaurantHeaderProps) => {
         </View>
         <View style={styles.rightIcons}>
           <Link href={'/(app)/(auth)/(modal)/filter'} asChild>
-            <TouchableOpacity style={styles.iconButton}>
+            <TouchableOpacity
+              style={styles.iconButton}
+              accessibilityRole="button"
+              accessibilityLabel="Filter restaurants"
+              hitSlop={4}>
               <Ionicons name="filter" size={20} />
             </TouchableOpacity>
           </Link>

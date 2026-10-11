@@ -163,13 +163,22 @@ const RestaurantDetailsHeader = ({
         <View style={{ width: 40, height: 40 }} />
 
         <Animated.View style={[styles.iconButton, buttonStyle]}>
-          <TouchableOpacity onPress={() => restaurant && toggleFavorite(restaurant)}>
+          <TouchableOpacity
+            onPress={() => restaurant && toggleFavorite(restaurant)}
+            accessibilityRole="button"
+            accessibilityLabel={favorite ? 'Remove from favorites' : 'Add to favorites'}
+            accessibilityState={{ selected: favorite }}
+            hitSlop={8}>
             <Ionicons name={favorite ? 'heart' : 'heart-outline'} size={24} color={favorite ? '#ff4d4f' : '#000'} />
           </TouchableOpacity>
         </Animated.View>
 
         <Animated.View style={[styles.iconButton, buttonStyle2]}>
-          <TouchableOpacity onPress={() => setMenuVisible(true)}>
+          <TouchableOpacity
+            onPress={() => setMenuVisible(true)}
+            accessibilityRole="button"
+            accessibilityLabel="More options"
+            hitSlop={8}>
             <Ionicons name="ellipsis-horizontal" size={24} />
           </TouchableOpacity>
         </Animated.View>

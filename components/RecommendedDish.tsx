@@ -39,7 +39,12 @@ export const RecommendedDish = ({ dish }: RecommendedDishProps) => {
     <View style={styles.container}>
       <View style={styles.imageContainer}>
         <Image source={{ uri: dish.image_url ?? undefined }} style={styles.image} />
-        <TouchableOpacity style={styles.addButton} onPress={handleAddToCart} activeOpacity={0.9}>
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={handleAddToCart}
+          activeOpacity={0.9}
+          accessibilityRole="button"
+          accessibilityLabel={`Add ${dish.name} to your order`}>
           <Ionicons name="add" size={22} color={Colors.secondary} style={styles.addButtonIcon} />
         </TouchableOpacity>
       </View>
