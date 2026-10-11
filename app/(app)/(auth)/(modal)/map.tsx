@@ -102,16 +102,30 @@ const Page = () => {
   return (
     <>
       <View style={[styles.header, { paddingTop: insets.top }]}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.dismiss()}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.dismiss()}
+          accessibilityRole="button"
+          accessibilityLabel="Close map"
+          hitSlop={4}>
           <Ionicons name="chevron-back" size={22} color={Colors.muted} />
         </TouchableOpacity>
         <View style={styles.headerRight}>
           <Link href={'/(app)/(auth)/(modal)/filter'} asChild>
-            <TouchableOpacity style={styles.backButton}>
+            <TouchableOpacity
+              style={styles.backButton}
+              accessibilityRole="button"
+              accessibilityLabel="Filter restaurants"
+              hitSlop={4}>
               <Ionicons name="filter" size={22} />
             </TouchableOpacity>
           </Link>
-          <TouchableOpacity style={styles.backButton} onPress={locateMe}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={locateMe}
+            accessibilityRole="button"
+            accessibilityLabel="Center on my location"
+            hitSlop={4}>
             <Ionicons name="locate-outline" size={22} />
           </TouchableOpacity>
         </View>

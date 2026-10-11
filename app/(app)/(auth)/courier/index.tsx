@@ -126,14 +126,24 @@ const Page = () => {
 
   const header = (
     <View style={[styles.header, { paddingTop: top + 8 }]}>
-      <TouchableOpacity style={styles.iconButton} onPress={() => router.back()}>
+      <TouchableOpacity
+        style={styles.iconButton}
+        onPress={() => router.back()}
+        accessibilityRole="button"
+        accessibilityLabel="Go back"
+        hitSlop={4}>
         <Ionicons name="chevron-back" size={24} color="#000" />
       </TouchableOpacity>
       <View style={styles.headerText}>
         <Text style={styles.title}>Courier</Text>
         <Text style={styles.subtitle}>{courier?.full_name ?? 'Get started'}</Text>
       </View>
-      <TouchableOpacity style={styles.iconButton} onPress={() => router.push('/courier/earnings')}>
+      <TouchableOpacity
+        style={styles.iconButton}
+        onPress={() => router.push('/courier/earnings')}
+        accessibilityRole="button"
+        accessibilityLabel="Your earnings"
+        hitSlop={4}>
         <Ionicons name="wallet-outline" size={22} color={Colors.secondary} />
       </TouchableOpacity>
     </View>

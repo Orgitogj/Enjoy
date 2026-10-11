@@ -109,7 +109,12 @@ const Layout = () => {
             backgroundColor: '#fff',
           },
           headerRight: () => (
-            <TouchableOpacity style={styles.closeButton} onPress={() => router.dismiss()}>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => router.dismiss()}
+              accessibilityRole="button"
+              accessibilityLabel="Close"
+              hitSlop={8}>
               <Ionicons name="close" size={28} color={'#000'} />
             </TouchableOpacity>
           ),

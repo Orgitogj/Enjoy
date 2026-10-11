@@ -1,11 +1,12 @@
 import { Colors } from '@/constants/theme';
 import { useNotifications } from '@/hooks/useNotifications';
+import type { AppNotification } from '@/types/database';
 import { Ionicons } from '@expo/vector-icons';
+import { FlashList, type ListRenderItemInfo } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import {
   ActivityIndicator,
-  FlatList,
   RefreshControl,
   StyleSheet,
   Text,
@@ -24,6 +25,8 @@ const relativeTime = (iso: string): string => {
   return new Date(iso).toLocaleDateString();
 };
 
+const RowSeparator = () => <View style={styles.rowSeparator} />;
+
 const Page = () => {
   const router = useRouter();
   const { top } = useSafeAreaInsets();
@@ -34,10 +37,47 @@ const Page = () => {
     if (unreadCount > 0) markRead(undefined).catch(() => undefined);
   }, [unreadCount, markRead]);
 
+  const keyExtractor = useCallback((item: AppNotification) => item.id, []);
+
+  const renderItem = useCallback(
+    ({ item }: ListRenderItemInfo<AppNotification>) => (
+      <TouchableOpacity
+        style={[styles.row, !item.read_at && styles.rowUnread]}
+        disabled={!item.order_id}
+        onPress={() => item.order_id && router.push(`/order/track?id=${item.order_id}`)}>
+        <View style={styles.rowIcon}>
+          <Ionicons
+            name={
+              item.audience === 'restaurant'
+                ? 'storefront-outline'
+                : item.audience === 'courier'
+                  ? 'bicycle-outline'
+                  : 'receipt-outline'
+            }
+            size={18}
+            color={Colors.secondary}
+          />
+        </View>
+        <View style={styles.rowBody}>
+          <Text style={styles.rowTitle}>{item.title}</Text>
+          <Text style={styles.rowText}>{item.body}</Text>
+          <Text style={styles.rowTime}>{relativeTime(item.created_at)}</Text>
+        </View>
+        {!item.read_at && <View style={styles.unreadDot} />}
+      </TouchableOpacity>
+    ),
+    [router]
+  );
+
   return (
     <View style={styles.container}>
       <View style={[styles.header, { paddingTop: top + 8 }]}>
-        <TouchableOpacity style={styles.iconButton} onPress={() => router.back()}>
+        <TouchableOpacity
+          style={styles.iconButton}
+          onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
+          hitSlop={4}>
           <Ionicons name="chevron-back" size={24} color="#000" />
         </TouchableOpacity>
         <View style={styles.headerText}>
@@ -51,10 +91,12 @@ const Page = () => {
           <ActivityIndicator size="large" color={Colors.secondary} />
         </View>
       ) : (
-        <FlatList
+        <FlashList
           data={notifications}
-          keyExtractor={(item) => item.id}
+          testID="notifications-list"
+          keyExtractor={keyExtractor}
           contentContainerStyle={styles.list}
+          ItemSeparatorComponent={RowSeparator}
           refreshControl={
             <RefreshControl
               refreshing={isRefetching}
@@ -62,32 +104,7 @@ const Page = () => {
               tintColor={Colors.secondary}
             />
           }
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              style={[styles.row, !item.read_at && styles.rowUnread]}
-              disabled={!item.order_id}
-              onPress={() => item.order_id && router.push(`/order/track?id=${item.order_id}`)}>
-              <View style={styles.rowIcon}>
-                <Ionicons
-                  name={
-                    item.audience === 'restaurant'
-                      ? 'storefront-outline'
-                      : item.audience === 'courier'
-                        ? 'bicycle-outline'
-                        : 'receipt-outline'
-                  }
-                  size={18}
-                  color={Colors.secondary}
-                />
-              </View>
-              <View style={styles.rowBody}>
-                <Text style={styles.rowTitle}>{item.title}</Text>
-                <Text style={styles.rowText}>{item.body}</Text>
-                <Text style={styles.rowTime}>{relativeTime(item.created_at)}</Text>
-              </View>
-              {!item.read_at && <View style={styles.unreadDot} />}
-            </TouchableOpacity>
-          )}
+          renderItem={renderItem}
           ListEmptyComponent={
             <View style={styles.centered}>
               <Ionicons name="notifications-outline" size={48} color={Colors.muted} />
@@ -124,7 +141,8 @@ const styles = StyleSheet.create({
   iconButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   headerText: { flex: 1, alignItems: 'center' },
   title: { fontSize: 17, fontWeight: '700', color: '#000' },
-  list: { padding: 16, gap: 10, paddingBottom: 40 },
+  list: { padding: 16, paddingBottom: 40 },
+  rowSeparator: { height: 10 },
   row: {
     flexDirection: 'row',
     alignItems: 'flex-start',

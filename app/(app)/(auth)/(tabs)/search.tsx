@@ -161,7 +161,11 @@ const Search = () => {
           testID="search-input"
         />
         {query.length > 0 && (
-          <TouchableOpacity onPress={() => setQuery('')} accessibilityLabel="Clear search">
+          <TouchableOpacity
+            onPress={() => setQuery('')}
+            accessibilityRole="button"
+            accessibilityLabel="Clear search"
+            hitSlop={12}>
             <Ionicons name="close-circle" size={18} color={Colors.muted} />
           </TouchableOpacity>
         )}

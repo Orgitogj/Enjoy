@@ -39,7 +39,12 @@ const Page = () => {
 
       <View style={[styles.header, { paddingTop: top }]}>
         <View style={styles.restaurantInfo}>
-          <TouchableOpacity style={styles.backButton} onPress={() => router.dismiss()}>
+          <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => router.dismiss()}
+        accessibilityRole="button"
+        accessibilityLabel="Close basket"
+        hitSlop={4}>
             <Ionicons name="chevron-down" size={24} />
           </TouchableOpacity>
           <View style={styles.restaurantTextContainer}>

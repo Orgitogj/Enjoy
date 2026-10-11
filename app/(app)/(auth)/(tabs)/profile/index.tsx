@@ -84,7 +84,12 @@ const Page = () => {
           </View>
           <TouchableOpacity
             style={styles.bellButton}
-            onPress={() => router.push('/notifications')}>
+            onPress={() => router.push('/notifications')}
+            accessibilityRole="button"
+            accessibilityLabel={
+              unreadCount > 0 ? `Notifications, ${unreadCount} unread` : 'Notifications'
+            }
+            hitSlop={8}>
             <Ionicons name="notifications-outline" size={22} color={Colors.secondary} />
             {unreadCount > 0 && (
               <View style={styles.badge}>
@@ -92,7 +97,12 @@ const Page = () => {
               </View>
             )}
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => setIsEditingProfile((v) => !v)}>
+          <TouchableOpacity
+            onPress={() => setIsEditingProfile((v) => !v)}
+            accessibilityRole="button"
+            accessibilityLabel={isEditingProfile ? 'Stop editing your profile' : 'Edit your profile'}
+            accessibilityState={{ selected: isEditingProfile }}
+            hitSlop={12}>
             <Ionicons name={isEditingProfile ? 'close' : 'pencil'} size={20} color={Colors.secondary} />
           </TouchableOpacity>
         </View>

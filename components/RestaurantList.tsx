@@ -2,8 +2,9 @@ import RestaurantCard from '@/components/RestaurantCard';
 import { Colors } from '@/constants/theme';
 import type { Restaurant } from '@/types/database';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { FlashList, type FlashListProps } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
-import type { ReactElement } from 'react';
+import type { ComponentType, ReactElement } from 'react';
 import { useCallback } from 'react';
 import {
   ActivityIndicator,
@@ -18,6 +19,10 @@ import Animated, {
   useAnimatedScrollHandler,
   type SharedValue,
 } from 'react-native-reanimated';
+
+const AnimatedFlashList = Animated.createAnimatedComponent(
+  FlashList as ComponentType<FlashListProps<Restaurant>>
+);
 
 interface RestaurantListProps {
   restaurants: Restaurant[];
@@ -83,7 +88,7 @@ const RestaurantList = ({
 
   const keyExtractor = useCallback((item: Restaurant) => item.id, []);
 
-  const listEmpty = () => {
+  const listEmpty = useCallback(() => {
     if (isLoading) {
       return (
         <View style={styles.stateContainer} testID="restaurant-list-loading">
@@ -102,9 +107,9 @@ const RestaurantList = ({
         <Text style={styles.stateBody}>{emptyMessage ?? 'No restaurants match right now.'}</Text>
       </View>
     );
-  };
+  }, [emptyMessage, error, isLoading, onRetry]);
 
-  const renderFooter = () => {
+  const renderFooter = useCallback(() => {
     if (isFetchingNextPage) {
       return (
         <View style={styles.footer} testID="restaurant-list-next-page-loading">
@@ -130,10 +135,10 @@ const RestaurantList = ({
     }
 
     return null;
-  };
+  }, [isFetchNextPageError, isFetchingNextPage, onRetryNextPage]);
 
   return (
-    <Animated.FlatList
+    <AnimatedFlashList
       data={restaurants}
       renderItem={renderItem}
       keyExtractor={keyExtractor}
@@ -146,7 +151,7 @@ const RestaurantList = ({
       onEndReached={onEndReached}
       onEndReachedThreshold={0.5}
       testID="restaurant-list"
-      ListFooterComponent={renderFooter()}
+      ListFooterComponent={renderFooter}
     />
   );
 };

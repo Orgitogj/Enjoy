@@ -112,7 +112,12 @@ const Page = () => {
     <View style={styles.page}>
       <View style={styles.container}>
 
-        <TouchableOpacity style={styles.closeButton} onPress={() => router.back()}>
+        <TouchableOpacity
+          style={styles.closeButton}
+          onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel="Close"
+          hitSlop={4}>
           <Ionicons name="close" size={24} color="#000" />
         </TouchableOpacity>
 
@@ -180,11 +185,24 @@ const Page = () => {
       <View style={[styles.bottomBar, { paddingBottom: 24 + insets.bottom }]}>
 
         <View style={styles.quantityControls}>
-          <TouchableOpacity style={styles.quantityButton} onPress={handleDecrement}>
+          <TouchableOpacity
+            style={styles.quantityButton}
+            onPress={handleDecrement}
+            accessibilityRole="button"
+            accessibilityLabel="One fewer"
+            accessibilityState={{ disabled: quantity <= 1 }}
+            testID="dish-quantity-decrease"
+            hitSlop={4}>
             <Text style={styles.quantityButtonText}>−</Text>
           </TouchableOpacity>
           <Text style={styles.quantityText}>{quantity}</Text>
-          <TouchableOpacity style={styles.quantityButton} onPress={handleIncrement}>
+          <TouchableOpacity
+            style={styles.quantityButton}
+            onPress={handleIncrement}
+            accessibilityRole="button"
+            accessibilityLabel="One more"
+            testID="dish-quantity-increase"
+            hitSlop={4}>
             <Text style={styles.quantityButtonText}>+</Text>
           </TouchableOpacity>
         </View>

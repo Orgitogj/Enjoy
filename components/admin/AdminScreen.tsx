@@ -20,7 +20,12 @@ export const AdminScreen = ({ title, subtitle, children }: AdminScreenProps) => 
   return (
     <View style={styles.container}>
       <View style={[styles.header, { paddingTop: top + 8 }]}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
+          hitSlop={4}>
           <Ionicons name="chevron-back" size={24} color="#000" />
         </TouchableOpacity>
         <View style={styles.headerText}>

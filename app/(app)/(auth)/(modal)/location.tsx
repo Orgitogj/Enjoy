@@ -109,7 +109,12 @@ const Page = () => {
             {address.id === selectedAddressId && (
               <Ionicons name="checkmark-circle" size={20} color={Colors.secondary} />
             )}
-            <TouchableOpacity onPress={() => removeAddress(address.id)} style={styles.deleteButton}>
+            <TouchableOpacity
+              onPress={() => removeAddress(address.id)}
+              style={styles.deleteButton}
+              accessibilityRole="button"
+              accessibilityLabel={`Remove ${address.label}`}
+              hitSlop={8}>
               <Ionicons name="trash-outline" size={18} color={Colors.muted} />
             </TouchableOpacity>
           </View>

@@ -7,15 +7,22 @@ import { useMenu } from '@/hooks/useMenu';
 import { useRestaurant } from '@/hooks/useRestaurants';
 import { useReviewSummary } from '@/hooks/useReviews';
 import { Ionicons } from '@expo/vector-icons';
+import {
+  FlashList,
+  type FlashListProps,
+  type FlashListRef,
+  type ListRenderItemInfo,
+  type ViewToken,
+} from '@shopify/flash-list';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { ComponentType, Ref } from 'react';
 import {
   ActivityIndicator,
   Alert,
   Dimensions,
   ScrollView,
-  SectionList,
   Share,
   StyleSheet,
   Text,
@@ -64,13 +71,19 @@ function shareVenue(restaurant: Restaurant) {
   Share.share({ message: `Check out ${restaurant.name} on Wolt!` });
 }
 
-const AnimatedSectionList = Animated.createAnimatedComponent(SectionList<Dish>);
+type MenuRow =
+  | { kind: 'section'; sectionIndex: number; title: string; subtitle: string | null }
+  | { kind: 'dish'; sectionIndex: number; dish: Dish };
+
+const AnimatedMenuList = Animated.createAnimatedComponent(
+  FlashList as ComponentType<FlashListProps<MenuRow> & { ref?: Ref<FlashListRef<MenuRow>> }>
+);
 
 const Page = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [activeCategory, setActiveCategory] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
-  const sectionListRef = useRef<SectionList>(null);
+  const listRef = useRef<FlashListRef<MenuRow>>(null);
   const categoryScrollRef = useRef<ScrollView>(null);
   const scrollOffset = useSharedValue(0);
   const insets = useSafeAreaInsets();
@@ -123,8 +136,27 @@ const Page = () => {
     }));
   }, [filteredSections, menu, normalizedQuery]);
 
-  const sectionsRef = useRef(sections);
-  sectionsRef.current = sections;
+  const rows = useMemo<MenuRow[]>(
+    () =>
+      filteredSections.flatMap((section, sectionIndex) => [
+        {
+          kind: 'section' as const,
+          sectionIndex,
+          title: section.title,
+          subtitle: section.subtitle,
+        },
+        ...section.data.map((dish) => ({ kind: 'dish' as const, sectionIndex, dish })),
+      ]),
+    [filteredSections]
+  );
+
+  const sectionRowIndices = useMemo(() => {
+    const starts: number[] = [];
+    rows.forEach((row, index) => {
+      if (row.kind === 'section') starts[row.sectionIndex] = index;
+    });
+    return starts;
+  }, [rows]);
 
   useEffect(() => {
     setActiveCategory(0);
@@ -158,35 +190,54 @@ const Page = () => {
 
   const handleCategoryPress = (sectionIndex: number) => {
     setActiveCategory(sectionIndex);
-    sectionListRef.current?.scrollToLocation({
-      sectionIndex,
-      itemIndex: 0,
-      animated: true,
-      viewOffset: insets.top + 100,
-    });
+    const rowIndex = sectionRowIndices[sectionIndex];
+    if (rowIndex !== undefined) {
+      void listRef.current?.scrollToIndex({
+        index: rowIndex,
+        animated: true,
+        viewOffset: -(insets.top + 100),
+      });
+    }
     scrollCategoryTabIntoView(sectionIndex);
   };
 
   const onViewableItemsChanged = useRef(
-    ({ viewableItems }: { viewableItems: any[] }) => {
-      if (viewableItems.length === 0) return;
-
-      const firstVisibleSection = viewableItems[0].section;
-      const sectionIndex = sectionsRef.current.findIndex(
-        (s) => s.title === firstVisibleSection.title
-      );
-
-      if (sectionIndex === -1) return;
+    ({ viewableItems }: { viewableItems: ViewToken<MenuRow>[] }) => {
+      const firstVisible = viewableItems[0]?.item;
+      if (!firstVisible) return;
 
       setActiveCategory((prev) => {
-        if (sectionIndex !== prev) {
-          scrollCategoryTabIntoView(sectionIndex);
-          return sectionIndex;
+        if (firstVisible.sectionIndex !== prev) {
+          scrollCategoryTabIntoView(firstVisible.sectionIndex);
+          return firstVisible.sectionIndex;
         }
         return prev;
       });
     }
   ).current;
+
+  const keyExtractor = useCallback(
+    (row: MenuRow) =>
+      row.kind === 'section'
+        ? `section-${row.sectionIndex}`
+        : `dish-${row.sectionIndex}-${row.dish.id}`,
+    []
+  );
+
+  const getItemType = useCallback((row: MenuRow) => row.kind, []);
+
+  const renderItem = useCallback(({ item }: ListRenderItemInfo<MenuRow>) => {
+    if (item.kind === 'section') {
+      return (
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>{item.title}</Text>
+          {item.subtitle && <Text style={styles.sectionSubtitle}>{item.subtitle}</Text>}
+        </View>
+      );
+    }
+
+    return <MenuItem dish={item.dish} />;
+  }, []);
 
   const viewabilityConfig = useRef({
     itemVisiblePercentThreshold: 10,
@@ -246,6 +297,10 @@ const Page = () => {
               <TouchableOpacity
                 key={`sticky-${index}`}
                 onPress={() => handleCategoryPress(category.sectionIndex)}
+                testID={`menu-category-${category.sectionIndex}`}
+                accessibilityRole="tab"
+                accessibilityLabel={category.label}
+                accessibilityState={{ selected: activeCategory === category.sectionIndex }}
                 style={[styles.categoryTab, activeCategory === category.sectionIndex && styles.categoryTabActive]}>
                 <Text
                   style={[
@@ -259,13 +314,15 @@ const Page = () => {
           </ScrollView>
         </View>
       </Animated.View>
-      <AnimatedSectionList
-        ref={sectionListRef}
-        sections={filteredSections}
+      <AnimatedMenuList
+        ref={listRef}
+        data={rows}
+        testID="menu-list"
+        keyExtractor={keyExtractor}
+        getItemType={getItemType}
         onScroll={scrollHandler}
         scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
-        stickySectionHeadersEnabled={false}
         onViewableItemsChanged={onViewableItemsChanged}
         viewabilityConfig={viewabilityConfig}
         ListEmptyComponent={
@@ -274,13 +331,7 @@ const Page = () => {
             <Text style={styles.emptyStateText}>Try another dish or ingredient.</Text>
           </View>
         }
-        renderSectionHeader={({ section }: { section: any }) => (
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>{section.title}</Text>
-            {section.subtitle && <Text style={styles.sectionSubtitle}>{section.subtitle}</Text>}
-          </View>
-        )}
-        renderItem={({ item }) => <MenuItem dish={item} />}
+        renderItem={renderItem}
         ListHeaderComponent={
           <>
             <View style={styles.imageSpacer} />
@@ -321,7 +372,11 @@ const Page = () => {
                   <Ionicons name="bicycle-outline" size={16} color="#666" />
                   <Text style={styles.infoText}>{restaurant.delivery_fee.toFixed(2)} €</Text>
                   <Text style={styles.infoDot}>•</Text>
-                  <TouchableOpacity onPress={() => showMoreInfo(restaurant)}>
+                  <TouchableOpacity
+                    onPress={() => showMoreInfo(restaurant)}
+                    accessibilityRole="button"
+                    accessibilityLabel="More about this restaurant"
+                    hitSlop={8}>
                     <Text style={styles.moreLink}>More</Text>
                   </TouchableOpacity>
                 </View>
@@ -334,7 +389,11 @@ const Page = () => {
                     Delivery {restaurant.delivery_time_min}-{restaurant.delivery_time_max} min
                   </Text>
                 </View>
-                <TouchableOpacity style={styles.iconButtonSmall} onPress={() => shareVenue(restaurant)}>
+                <TouchableOpacity
+                  style={styles.iconButtonSmall}
+                  onPress={() => shareVenue(restaurant)}
+                  accessibilityRole="button"
+                  accessibilityLabel="Share this restaurant">
                   <Ionicons name="share-social-outline" size={20} color="#009de0" />
                 </TouchableOpacity>
               </View>

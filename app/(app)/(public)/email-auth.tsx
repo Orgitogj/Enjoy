@@ -63,7 +63,12 @@ const Page = () => {
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <TouchableOpacity style={styles.closeBtn} onPress={() => router.dismiss()}>
+      <TouchableOpacity
+        style={styles.closeBtn}
+        onPress={() => router.dismiss()}
+        accessibilityRole="button"
+        accessibilityLabel="Close"
+        hitSlop={4}>
         <Ionicons name="close" size={24} color={'#000'} />
       </TouchableOpacity>
 
