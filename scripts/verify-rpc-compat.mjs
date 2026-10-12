@@ -171,6 +171,23 @@ values ('eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaa
 
 insert into public.promotions (code, discount_type, discount_value, max_per_customer)
 values ('COMPAT10', 'percentage', 10, 5);
+
+insert into auth.users (id, email) values
+  ('33333333-3333-4333-8333-333333333333', 'compat-merchant@test.local');
+
+insert into public.restaurants (id, name, min_order, is_open, latitude, longitude)
+values ('ffffffff-ffff-4fff-8fff-ffffffffffff', 'Compat Bistro', 0, true, 51.9625, 7.6257);
+
+insert into public.menu_categories (id, restaurant_id, name, subtitle)
+values ('aaaaaaaa-1111-4aaa-8aaa-aaaaaaaaaaaa', 'ffffffff-ffff-4fff-8fff-ffffffffffff',
+        'Bistro mains', 'Served all day');
+
+insert into public.dishes (id, restaurant_id, menu_category_id, name, price, is_available)
+values ('bbbbbbbb-1111-4bbb-8bbb-bbbbbbbbbbbb', 'ffffffff-ffff-4fff-8fff-ffffffffffff',
+        'aaaaaaaa-1111-4aaa-8aaa-aaaaaaaaaaaa', 'Bistro Dish', 11.00, true);
+
+insert into public.restaurant_members (restaurant_id, user_id, role)
+values ('ffffffff-ffff-4fff-8fff-ffffffffffff', '33333333-3333-4333-8333-333333333333', 'owner');
 `);
 
 console.log('Starting PostgREST...');
@@ -185,6 +202,9 @@ execFileSync('docker', [
 ]);
 
 const USER = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+const MERCHANT = '33333333-3333-4333-8333-333333333333';
+const MERCHANT_RESTAURANT = 'ffffffff-ffff-4fff-8fff-ffffffffffff';
+const MERCHANT_DISH = 'bbbbbbbb-1111-4bbb-8bbb-bbbbbbbbbbbb';
 const ADMIN = '11111111-1111-4111-8111-111111111111';
 const OTHER = '22222222-2222-4222-8222-222222222222';
 
@@ -466,6 +486,126 @@ const run = async () => {
       token
     );
     assert(claim.status >= 400, 'a client cannot claim worker jobs through the api');
+  }
+
+  console.log('\nmerchant: managing a menu and a store through the api');
+  {
+    const merchantToken = mintJwt(MERCHANT);
+
+    const menu = await callRpc(
+      'merchant_menu',
+      { p_restaurant_id: MERCHANT_RESTAURANT },
+      merchantToken
+    );
+    assert(menu.status === 200, `the menu request is accepted (got ${menu.status})`);
+    assert(Array.isArray(menu.body), 'the menu comes back as an array of categories');
+    assert(menu.body?.[0]?.name === 'Bistro mains', 'the category keeps its name');
+    assert(
+      Array.isArray(menu.body?.[0]?.dishes) && menu.body[0].dishes.length === 1,
+      'the category carries its dishes'
+    );
+    assert(
+      menu.body?.[0]?.dishes?.[0]?.is_available === true,
+      'the dish reports whether it is on the menu'
+    );
+
+    const off = await callRpc(
+      'merchant_set_dish_available',
+      { p_dish_id: MERCHANT_DISH, p_is_available: false },
+      merchantToken
+    );
+    assert(off.status === 200, `taking a dish off is accepted (got ${off.status})`);
+    assert(off.body?.is_available === false, 'the dish comes back as a single row');
+
+    const priceOnly = await callRpc(
+      'merchant_update_dish',
+      { p_dish_id: MERCHANT_DISH, p_price: 12.75 },
+      merchantToken
+    );
+    assert(priceOnly.status === 200, `a partial dish edit is accepted (got ${priceOnly.status})`);
+    assert(Number(priceOnly.body?.price) === 12.75, 'the partial edit stores the new price');
+    assert(priceOnly.body?.name === 'Bistro Dish', 'the partial edit keeps the name');
+    assert(
+      priceOnly.body?.is_available === false,
+      'the partial edit keeps the availability it was given earlier'
+    );
+
+    const badPrice = await callRpc(
+      'merchant_update_dish',
+      { p_dish_id: MERCHANT_DISH, p_price: 0 },
+      merchantToken
+    );
+    assert(badPrice.status >= 400, `a price of zero is refused (got ${badPrice.status})`);
+
+    const hours = await callRpc(
+      'merchant_set_restaurant_hours',
+      {
+        p_restaurant_id: MERCHANT_RESTAURANT,
+        p_hours: [{ day_of_week: 1, opens_at: '09:00', closes_at: '17:00' }],
+      },
+      merchantToken
+    );
+    assert(hours.status === 200, `setting the hours is accepted (got ${hours.status})`);
+    assert(Array.isArray(hours.body) && hours.body.length === 1, 'the hours come back as rows');
+    assert(hours.body?.[0]?.day_of_week === 1, 'the stored row keeps its day');
+    assert(
+      typeof hours.body?.[0]?.opens_at === 'string' && hours.body[0].opens_at.startsWith('09:00'),
+      'the stored row keeps its opening time'
+    );
+
+    const paused = await callRpc(
+      'merchant_set_store_paused',
+      {
+        p_restaurant_id: MERCHANT_RESTAURANT,
+        p_paused: true,
+        p_until: new Date(Date.now() + 1800000).toISOString(),
+      },
+      merchantToken
+    );
+    assert(paused.status === 200, `pausing the store is accepted (got ${paused.status})`);
+    assert(paused.body?.is_paused === true, 'the restaurant comes back paused');
+
+    const pausedOrder = await callRpc(
+      'create_order',
+      {
+        p_restaurant_id: MERCHANT_RESTAURANT,
+        p_items: [{ dish_id: MERCHANT_DISH, quantity: 1, addon_ids: [] }],
+        p_delivery_mode: 'delivery',
+        p_address_id: ADDRESS,
+        p_payment_method: 'cash',
+        p_idempotency_key: crypto.randomUUID(),
+      },
+      token
+    );
+    assert(
+      pausedOrder.status >= 400,
+      `a paused store refuses a checkout through the api (got ${pausedOrder.status})`
+    );
+
+    const prep = await callRpc(
+      'merchant_set_prep_time',
+      { p_restaurant_id: MERCHANT_RESTAURANT, p_minutes: 35 },
+      merchantToken
+    );
+    assert(prep.status === 200, `setting the preparation time is accepted (got ${prep.status})`);
+    assert(prep.body?.avg_prep_minutes === 35, 'the new preparation time comes back');
+
+    const strangerOff = await callRpc(
+      'merchant_set_dish_available',
+      { p_dish_id: MERCHANT_DISH, p_is_available: true },
+      token
+    );
+    assert(
+      strangerOff.status >= 400,
+      `a customer cannot edit a menu through the api (got ${strangerOff.status})`
+    );
+
+    const strangerMenu = await callRpc(
+      'merchant_menu',
+      { p_restaurant_id: MERCHANT_RESTAURANT },
+      token
+    );
+    assert(strangerMenu.status >= 400, 'a customer cannot read a management menu through the api');
   }
 };
 

@@ -90,7 +90,10 @@ two admins taking or resolving one ticket, two refunds racing the last of the ba
 approval, a support refund racing the automatic reconciliation, and two workers settling one refund.
 
 `npm run verify:rpc-compat` starts PostgREST against the same container and calls the RPCs the way
-the app does, so a parameter rename or a lost grant is caught before it reaches a client.
+the app does, so a parameter rename or a lost grant is caught before it reaches a client. It also
+pins the shapes the client reads back: `merchant_menu` as an array of categories carrying their
+dishes, `merchant_set_restaurant_hours` as a row per range, the single-row returns, and a dish edit
+that sends only the fields it wants to change.
 
 ## Scheduled jobs
 
