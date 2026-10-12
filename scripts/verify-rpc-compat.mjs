@@ -607,6 +607,67 @@ const run = async () => {
     );
     assert(strangerMenu.status >= 400, 'a customer cannot read a management menu through the api');
   }
+
+  console.log('\nestimates: reading a delivery estimate through the api');
+  {
+    const ordered = await callRpc('create_order', legacyBody(crypto.randomUUID()), token);
+    assert(ordered.status === 200, `the estimate fixture order is created (got ${ordered.status})`);
+    assert(ordered.body?.eta_at != null, 'a new order already carries a stored estimate');
+    assert(ordered.body?.eta_min_at != null, 'a new order carries the start of its window');
+    assert(ordered.body?.eta_max_at != null, 'a new order carries the end of its window');
+
+    const estimate = await callRpc(
+      'estimate_delivery_eta',
+      { p_order_id: ordered.body.id },
+      token
+    );
+    assert(estimate.status === 200, `the estimate request is accepted (got ${estimate.status})`);
+    assert(!Array.isArray(estimate.body), 'the estimate comes back as a single row');
+    assert(estimate.body?.stage === 'waiting_for_restaurant', 'the estimate names the stage');
+    assert(
+      Number(estimate.body?.total_minutes) ===
+        Number(estimate.body?.prep_minutes) + Number(estimate.body?.travel_minutes),
+      'the estimate totals the kitchen and the ride'
+    );
+
+    const stranger = await callRpc(
+      'estimate_delivery_eta',
+      { p_order_id: ordered.body.id },
+      mintJwt(OTHER)
+    );
+    assert(stranger.status >= 400, `another customer cannot read the estimate (got ${stranger.status})`);
+
+    const quote = await callRpc(
+      'quote_delivery_estimate',
+      { p_restaurant_id: RESTAURANT, p_address_id: ADDRESS },
+      token
+    );
+    assert(quote.status === 200, `the quote request is accepted (got ${quote.status})`);
+    assert(Array.isArray(quote.body) && quote.body.length === 1, 'the quote comes back as one row');
+    assert(Number(quote.body[0].prep_minutes) > 0, 'the quote carries the preparation time');
+    assert(Number(quote.body[0].eta_max_minutes) > Number(quote.body[0].eta_min_minutes),
+      'the quote carries a range');
+
+    const quotes = await callRpc(
+      'quote_delivery_estimates',
+      { p_restaurant_ids: [RESTAURANT, MERCHANT_RESTAURANT], p_address_id: ADDRESS },
+      token
+    );
+    assert(quotes.status === 200, `the batch quote is accepted (got ${quotes.status})`);
+    assert(Array.isArray(quotes.body) && quotes.body.length === 2,
+      'the batch quote answers for every restaurant in one request');
+    assert(
+      quotes.body.every((row) => row.restaurant_id && row.total_minutes != null),
+      'every batch row names its restaurant'
+    );
+
+    const anonymous = await fetch(`http://127.0.0.1:${API_PORT}/rpc/quote_delivery_estimate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ p_restaurant_id: RESTAURANT }),
+    });
+    assert(anonymous.status === 200, `a signed out quote is allowed (got ${anonymous.status})`);
+  }
 };
 
 run()
