@@ -243,6 +243,7 @@ import ChatScreen from '@/app/(app)/(auth)/order/chat';
 import OrderHistoryPage from '@/components/screens/OrderHistoryPage';
 import RestaurantListPage from '@/components/screens/RestaurantListPage';
 import { Ionicons } from '@expo/vector-icons';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render } from '@testing-library/react-native';
 import type { ReactElement } from 'react';
 import { Text, TouchableOpacity } from 'react-native';
@@ -251,6 +252,11 @@ import {
   pressableNames,
   unnamedPressables,
 } from './helpers/accessibility';
+
+const withQueries = (element: ReactElement) => {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  return render(<QueryClientProvider client={queryClient}>{element}</QueryClientProvider>);
+};
 
 const screens: [string, () => ReactElement][] = [
   ['the restaurant feed', () => <RestaurantListPage title="Restaurants" />],
@@ -262,7 +268,7 @@ const screens: [string, () => ReactElement][] = [
 
 describe('every pressable on a key screen has a name', () => {
   it.each(screens)('%s', (_name, element) => {
-    render(element());
+    withQueries(element());
 
     expect(pressableNames().length).toBeGreaterThan(1);
     expectEveryPressableToBeNamed();
@@ -271,7 +277,7 @@ describe('every pressable on a key screen has a name', () => {
 
 describe('the helper', () => {
   it('actually finds the pressables it is checking', () => {
-    render(<RestaurantListPage title="Restaurants" />);
+    withQueries(<RestaurantListPage title="Restaurants" />);
 
     expect(pressableNames().length).toBeGreaterThan(3);
     expect(unnamedPressables()).toEqual([]);

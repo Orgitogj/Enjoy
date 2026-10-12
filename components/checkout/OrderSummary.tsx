@@ -5,14 +5,22 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export interface OrderSummaryProps {
   summary: CheckoutSummary;
+  etaLabel?: string | null;
 }
 
-export const OrderSummary = ({ summary }: OrderSummaryProps) => (
+export const OrderSummary = ({ summary, etaLabel }: OrderSummaryProps) => (
   <View style={styles.section}>
     <TouchableOpacity style={styles.summaryHeader} onPress={summary.explainFees}>
       <Text style={styles.summaryHeaderText}>How fees work</Text>
       <Ionicons name="chevron-forward" size={16} color={Colors.secondary} />
     </TouchableOpacity>
+
+    {!!etaLabel && (
+      <View style={styles.summaryRow} testID="checkout-eta">
+        <Text style={styles.summaryLabel}>Arrives in</Text>
+        <Text style={styles.summaryValue}>{etaLabel}</Text>
+      </View>
+    )}
 
     <View style={styles.summaryRow}>
       <Text style={styles.summaryLabel}>Item subtotal</Text>

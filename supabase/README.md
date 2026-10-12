@@ -34,6 +34,7 @@ re-running the whole folder against an existing project is safe.
 | `0027_support.sql` | `support_tickets`, `support_ticket_items`, `support_messages`, `support_refunds`, `support_message_reads`; reporting eligibility, the ticket and conversation RPCs, the admin workflow RPCs, full and partial refunds through the reconciliation worker, the cash refund confirmation, `post_ledger_delta()` and the ledger reversal rules, and the support tables added to the realtime publication |
 | `0028_cart_validation.sql` | `price_cart_line()` becomes the one place a cart line is priced, `create_order` calls it instead of repeating the logic, and `validate_cart()` reports current prices, availability, missing add-ons, opening hours and the minimum order so a restored basket can be checked before it is submitted |
 | `0029_merchant_management.sql` | `restaurants.is_paused`, `paused_until` and `avg_prep_minutes`, the `merchant_actions` audit log, and the merchant RPCs for dish availability, dish edits, opening hours, the store pause, the preparation time and the storefront. Menu and store writes stop being direct table updates: `anon` and `authenticated` lose insert, update and delete on `dishes`, `menu_categories`, `dish_addons`, `restaurant_hours` and `restaurants`, and `is_restaurant_open()` reports a paused store as closed so `create_order` and `validate_cart` both refuse it |
+| `0030_delivery_eta.sql` | `orders.eta_at`, `eta_min_at`, `eta_max_at` and `deliveries.eta_at`, `compute_delivery_eta()` and the `estimate_delivery_eta()` read for the order's own people, `refresh_order_eta()` with a thirty second throttle, the triggers that recompute on an order or delivery status change, a recompute on every courier position, and `quote_delivery_estimate()` / `quote_delivery_estimates()` for an estimate before an order exists |
 
 ## Applying
 
@@ -59,6 +60,10 @@ platform-settings allow list, manual dispatch and the audit log.
 `cart_checks.sql` covers a price that moved, a dish taken off the menu, a deleted add-on, a closed
 restaurant, a dish id belonging to another restaurant, invalid quantities, the minimum order, an empty
 basket, and that `validate_cart` and `create_order` agree on the price of the same line.
+`eta_checks.sql` covers the vehicle speeds and the travel arithmetic, the estimate at every status
+from placed to delivered, the remaining preparation time as a kitchen runs late, the courier leg to
+the restaurant and then to the customer, a pickup order with no ride, the stored columns, the thirty
+second throttle and a forced refresh, who may read an estimate, and the quote before an order exists.
 `merchant_checks.sql` covers the manager guard on every merchant RPC, a member of one restaurant
 reaching into another, a signed out caller, price and length validation, the dietary tag limits,
 a week of opening hours being replaced rather than appended, the preparation time bounds, a pause
