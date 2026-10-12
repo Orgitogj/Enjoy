@@ -2,6 +2,7 @@ import { AddressSection } from '@/components/checkout/AddressSection';
 import { CartValidationBanner } from '@/components/checkout/CartValidationBanner';
 import { DeliveryOptionsSection } from '@/components/checkout/DeliveryOptionsSection';
 import { OrderSummary } from '@/components/checkout/OrderSummary';
+import { quoteLabel, useDeliveryQuote } from '@/hooks/useDeliveryEta';
 import { PaymentSection } from '@/components/checkout/PaymentSection';
 import { PlaceOrderBar } from '@/components/checkout/PlaceOrderBar';
 import { PromoSection } from '@/components/checkout/PromoSection';
@@ -24,6 +25,9 @@ const MAP_HEIGHT = 250;
 
 const Page = () => {
   const checkout = useCheckout();
+  const quote = useDeliveryQuote(checkout.restaurant?.id, {
+    addressId: checkout.delivery.mode === 'delivery' ? checkout.address.selectedId : null,
+  });
   const scrollOffset = useSharedValue(0);
 
   const scrollHandler = useAnimatedScrollHandler({
@@ -84,7 +88,7 @@ const Page = () => {
           />
           <TipSection tip={checkout.tip} />
           <PromoSection promo={checkout.promo} />
-          <OrderSummary summary={checkout.summary} />
+          <OrderSummary summary={checkout.summary} etaLabel={quoteLabel(quote.data ?? null)} />
 
           <View style={{ height: 100 }} />
         </View>

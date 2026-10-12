@@ -7,9 +7,10 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 interface RestaurantCardProps {
   restaurant: Restaurant;
   onPress: () => void;
+  etaLabel?: string | null;
 }
 
-const RestaurantCard = ({ restaurant, onPress }: RestaurantCardProps) => (
+const RestaurantCard = ({ restaurant, onPress, etaLabel }: RestaurantCardProps) => (
   <TouchableOpacity
     style={styles.card}
     onPress={onPress}
@@ -28,8 +29,8 @@ const RestaurantCard = ({ restaurant, onPress }: RestaurantCardProps) => (
       <Text style={styles.metadataText}>{restaurant.rating.toFixed(1)}</Text>
       <Text style={styles.dot}>•</Text>
       <Ionicons name="time-outline" size={16} color={Colors.muted} />
-      <Text style={styles.metadataText}>
-        {restaurant.delivery_time_min}-{restaurant.delivery_time_max} min
+      <Text style={styles.metadataText} testID={`restaurant-eta-${restaurant.id}`}>
+        {etaLabel ?? `${restaurant.delivery_time_min}-${restaurant.delivery_time_max} min`}
       </Text>
       <Text style={styles.dot}>•</Text>
       <Ionicons name="bicycle-outline" size={16} color={Colors.muted} />

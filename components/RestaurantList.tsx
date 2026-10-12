@@ -37,6 +37,7 @@ interface RestaurantListProps {
   ListHeaderComponent?: ReactElement;
   contentContainerStyle?: StyleProp<ViewStyle>;
   scrollOffset?: SharedValue<number>;
+  etaLabels?: Record<string, string | null>;
 }
 
 export const RestaurantListError = ({ onRetry }: { onRetry?: () => void }) => (
@@ -65,6 +66,7 @@ const RestaurantList = ({
   ListHeaderComponent,
   contentContainerStyle,
   scrollOffset,
+  etaLabels,
 }: RestaurantListProps) => {
   const router = useRouter();
 
@@ -80,10 +82,11 @@ const RestaurantList = ({
     ({ item }: { item: Restaurant }) => (
       <RestaurantCard
         restaurant={item}
+        etaLabel={etaLabels?.[item.id] ?? null}
         onPress={() => router.push(`/(modal)/(restaurant)/${item.id}`)}
       />
     ),
-    [router]
+    [etaLabels, router]
   );
 
   const keyExtractor = useCallback((item: Restaurant) => item.id, []);

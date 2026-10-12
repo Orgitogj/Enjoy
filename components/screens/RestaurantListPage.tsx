@@ -4,8 +4,9 @@ import RestaurantHeader from '@/components/RestaurantHeader';
 import RestaurantList from '@/components/RestaurantList';
 import { Fonts } from '@/constants/theme';
 import { useFilterStore } from '@/hooks/use-filters-store';
+import { useRestaurantEtaLabels } from '@/hooks/useDeliveryEta';
 import { useRestaurants } from '@/hooks/useRestaurants';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useSharedValue } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -47,6 +48,9 @@ const RestaurantListPage = ({
     sort: selectedSort,
   });
 
+  const restaurantIds = useMemo(() => restaurants.map((item) => item.id), [restaurants]);
+  const etaLabels = useRestaurantEtaLabels(restaurantIds);
+
   const hasActiveFilters =
     !!selectedCategoryId || selectedCuisines.length > 0 || !!selectedPrice || woltPlusOnly;
 
@@ -84,6 +88,7 @@ const RestaurantListPage = ({
         isFetchNextPageError={isFetchNextPageError}
         onRetryNextPage={fetchNextPage}
         scrollOffset={scrollOffset}
+        etaLabels={etaLabels}
         ListHeaderComponent={listHeader}
         contentContainerStyle={{ paddingTop: insets.top + HEADER_HEIGHT, paddingBottom: 24 }}
         emptyMessage={
