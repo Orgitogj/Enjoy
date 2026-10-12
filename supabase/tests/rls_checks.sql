@@ -226,6 +226,15 @@ begin
     v_failed := true;
   end;
   perform pg_temp.assert(v_failed, 'non-member cannot change a restaurant dish price');
+
+  v_failed := false;
+  begin
+    perform public.merchant_update_dish(
+      (select id from t_ids where key = 'dish'), null, null, 0.01);
+  exception when others then
+    v_failed := true;
+  end;
+  perform pg_temp.assert(v_failed, 'non-member cannot change a dish price through the RPC either');
 end;
 $$;
 
@@ -273,7 +282,8 @@ begin
       where order_id = (select id from t_ids where key = 'order')) = 4,
     'every transition is recorded in the history');
 
-  update public.dishes set price = 12.50 where id = (select id from t_ids where key = 'dish');
+  perform public.merchant_update_dish(
+    (select id from t_ids where key = 'dish'), null, null, 12.50);
   perform pg_temp.assert(
     (select price from public.dishes where id = (select id from t_ids where key = 'dish')) = 12.50,
     'restaurant member can edit their own menu');

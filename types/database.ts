@@ -56,6 +56,9 @@ export interface Restaurant {
   tags: string[];
   opening_hours: OpeningHours | null;
   timezone: string | null;
+  is_paused: boolean;
+  paused_until: string | null;
+  avg_prep_minutes: number;
   created_at: string;
 }
 
@@ -179,6 +182,31 @@ export interface RestaurantHours {
   opens_at: string;
   closes_at: string;
   created_at: string;
+}
+
+export interface MerchantAction {
+  id: string;
+  restaurant_id: string;
+  actor_id: string | null;
+  action: string;
+  subject_type: string;
+  subject_id: string | null;
+  details: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface MerchantMenuCategory {
+  id: string;
+  name: string;
+  subtitle: string | null;
+  sort_order: number;
+  dishes: Dish[];
+}
+
+export interface HoursRange {
+  day_of_week: number;
+  opens_at: string;
+  closes_at: string;
 }
 
 export interface PlatformSettings {
