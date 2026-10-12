@@ -148,6 +148,10 @@ export interface Order {
   leave_at_door: boolean;
   send_as_gift: boolean;
   idempotency_key: string | null;
+  eta_at: string | null;
+  eta_min_at: string | null;
+  eta_max_at: string | null;
+  eta_updated_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -321,8 +325,42 @@ export interface Delivery {
   picked_up_at: string | null;
   delivered_at: string | null;
   cancelled_at: string | null;
+  eta_at: string | null;
+  eta_updated_at: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export type EtaStage =
+  | 'waiting_for_restaurant'
+  | 'in_the_kitchen'
+  | 'waiting_for_courier'
+  | 'on_the_way'
+  | 'closed';
+
+export interface DeliveryEta {
+  order_id: string;
+  stage: EtaStage;
+  prep_minutes: number;
+  travel_minutes: number;
+  total_minutes: number;
+  distance_km: number;
+  eta_at: string;
+  eta_min_at: string;
+  eta_max_at: string;
+}
+
+export interface DeliveryQuote {
+  prep_minutes: number;
+  travel_minutes: number;
+  total_minutes: number;
+  eta_min_minutes: number;
+  eta_max_minutes: number;
+  distance_km: number;
+}
+
+export interface RestaurantQuote extends DeliveryQuote {
+  restaurant_id: string;
 }
 
 export interface DeliveryWithContext extends Delivery {
