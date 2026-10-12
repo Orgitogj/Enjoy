@@ -25,6 +25,17 @@ interface PendingAction {
   action: MerchantAction;
 }
 
+const MANAGE_LINKS: {
+  key: string;
+  href: '/merchant/menu' | '/merchant/hours' | '/merchant/store';
+  label: string;
+  icon: 'restaurant-outline' | 'time-outline' | 'storefront-outline';
+}[] = [
+  { key: 'menu', href: '/merchant/menu', label: 'Menu', icon: 'restaurant-outline' },
+  { key: 'hours', href: '/merchant/hours', label: 'Hours', icon: 'time-outline' },
+  { key: 'store', href: '/merchant/store', label: 'Store', icon: 'storefront-outline' },
+];
+
 const Page = () => {
   const router = useRouter();
   const { top } = useSafeAreaInsets();
@@ -265,6 +276,30 @@ const Page = () => {
         />
       )}
 
+      <View style={styles.manageRow}>
+        {MANAGE_LINKS.map((link) => (
+          <TouchableOpacity
+            key={link.href}
+            style={styles.manageButton}
+            onPress={() => router.push(`${link.href}?restaurant=${restaurantId ?? ''}`)}
+            accessibilityRole="button"
+            accessibilityLabel={link.label}
+            testID={`merchant-link-${link.key}`}>
+            <Ionicons name={link.icon} size={18} color={Colors.secondary} />
+            <Text style={styles.manageText}>{link.label}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {activeRestaurant?.is_paused && (
+        <View style={styles.pausedBanner} testID="merchant-paused-banner">
+          <Ionicons name="pause-circle" size={16} color="#8A6100" />
+          <Text style={styles.pausedText}>
+            Your store is paused, so customers cannot order right now.
+          </Text>
+        </View>
+      )}
+
       <View style={styles.tabs}>
         <TouchableOpacity
           style={[styles.tab, !showHistory && styles.tabActive]}
@@ -349,6 +384,30 @@ const styles = StyleSheet.create({
   chipActive: { backgroundColor: Colors.secondary, borderColor: Colors.secondary },
   chipText: { fontSize: 13, color: '#000', fontWeight: '600' },
   chipTextActive: { color: '#fff' },
+  manageRow: { flexDirection: 'row', gap: 8, paddingHorizontal: 16, paddingTop: 12 },
+  manageButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 10,
+    borderRadius: 10,
+    backgroundColor: Colors.primaryLight,
+  },
+  manageText: { fontSize: 13, fontWeight: '700', color: Colors.secondary },
+  pausedBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginHorizontal: 16,
+    marginTop: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 10,
+    backgroundColor: '#FFF3D6',
+  },
+  pausedText: { flex: 1, fontSize: 12, color: '#8A6100' },
   tabs: { flexDirection: 'row', gap: 8, paddingHorizontal: 16, paddingVertical: 12 },
   tab: {
     flex: 1,
