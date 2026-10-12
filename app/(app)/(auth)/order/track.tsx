@@ -1,3 +1,4 @@
+import { EtaCard } from '@/components/EtaCard';
 import { OrderStatusBadge } from '@/components/OrderStatusBadge';
 import { DELIVERY_STATUS_LABELS } from '@/constants/deliveryStatus';
 import { orderStatusLabel } from '@/constants/orderStatus';
@@ -37,6 +38,7 @@ const Page = () => {
     courier,
     courierPosition,
     isLive,
+    isTerminal,
     isLoading,
     error,
     isRefetching,
@@ -239,6 +241,8 @@ const Page = () => {
             <Ionicons name="chevron-forward" size={18} color="#999" />
           </TouchableOpacity>
         )}
+
+        <EtaCard order={order} isTerminal={isTerminal} />
 
         <View style={styles.statusRow}>
           <View style={styles.statusLeft}>
