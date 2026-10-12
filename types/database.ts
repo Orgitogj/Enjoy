@@ -195,6 +195,20 @@ export interface MerchantAction {
   created_at: string;
 }
 
+export interface MerchantMenuCategory {
+  id: string;
+  name: string;
+  subtitle: string | null;
+  sort_order: number;
+  dishes: Dish[];
+}
+
+export interface HoursRange {
+  day_of_week: number;
+  opens_at: string;
+  closes_at: string;
+}
+
 export interface PlatformSettings {
   id: boolean;
   currency: string;
