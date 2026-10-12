@@ -454,11 +454,9 @@ begin
   set local role authenticated;
   perform pg_temp.act_as((select id from t_rev where key = 'merchant'));
 
-  update public.restaurants
-     set name = 'Review Kitchen Renamed',
-         description = 'Now with more tests',
-         delivery_fee = 2.50
-   where id = (select id from t_rev where key = 'restaurant');
+  perform public.merchant_update_restaurant(
+    (select id from t_rev where key = 'restaurant'),
+    'Review Kitchen Renamed', 'Now with more tests', 2.50);
 
   select name into v_name from public.restaurants
    where id = (select id from t_rev where key = 'restaurant');
@@ -477,7 +475,7 @@ begin
     update public.restaurants set review_count = 500
      where id = (select id from t_rev where key = 'restaurant');
   exception when others then v_failed := true; end;
-  perform pg_temp.assert(v_failed, 'a merchant still cannot set the review count');
+  perform pg_temp.assert(v_failed, 'a merchant cannot set the review count');
 
   reset role;
 end;

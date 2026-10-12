@@ -33,6 +33,7 @@ re-running the whole folder against an existing project is safe.
 | `0026_refund_recovery.sql` | Worker leases on `payment_reconciliations`, the claim/resolve/outcome/fail RPCs, `admin_retry_payment_reconciliation()`, `sanitize_error_text()` and the scheduled refund worker |
 | `0027_support.sql` | `support_tickets`, `support_ticket_items`, `support_messages`, `support_refunds`, `support_message_reads`; reporting eligibility, the ticket and conversation RPCs, the admin workflow RPCs, full and partial refunds through the reconciliation worker, the cash refund confirmation, `post_ledger_delta()` and the ledger reversal rules, and the support tables added to the realtime publication |
 | `0028_cart_validation.sql` | `price_cart_line()` becomes the one place a cart line is priced, `create_order` calls it instead of repeating the logic, and `validate_cart()` reports current prices, availability, missing add-ons, opening hours and the minimum order so a restored basket can be checked before it is submitted |
+| `0029_merchant_management.sql` | `restaurants.is_paused`, `paused_until` and `avg_prep_minutes`, the `merchant_actions` audit log, and the merchant RPCs for dish availability, dish edits, opening hours, the store pause, the preparation time and the storefront. Menu and store writes stop being direct table updates: `anon` and `authenticated` lose insert, update and delete on `dishes`, `menu_categories`, `dish_addons`, `restaurant_hours` and `restaurants`, and `is_restaurant_open()` reports a paused store as closed so `create_order` and `validate_cart` both refuse it |
 
 ## Applying
 
@@ -58,6 +59,12 @@ platform-settings allow list, manual dispatch and the audit log.
 `cart_checks.sql` covers a price that moved, a dish taken off the menu, a deleted add-on, a closed
 restaurant, a dish id belonging to another restaurant, invalid quantities, the minimum order, an empty
 basket, and that `validate_cart` and `create_order` agree on the price of the same line.
+`merchant_checks.sql` covers the manager guard on every merchant RPC, a member of one restaurant
+reaching into another, a signed out caller, price and length validation, the dietary tag limits,
+a week of opening hours being replaced rather than appended, the preparation time bounds, a pause
+reading as closed until it runs out, `create_order` and `validate_cart` refusing a paused store, a
+dish taken off the menu being unorderable, the audit log and its isolation, and that none of it can
+be done by writing to the tables directly.
 `support_checks.sql` covers ticket ownership, the reporting window and its limits, invalid items and
 quantities, duplicate submissions, conversation permissions and paging, admin-only assignment,
 status and refund approval, stale-revision protection, refund amount validation, several partial
