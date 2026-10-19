@@ -1,11 +1,15 @@
-import { Colors } from '@/constants/theme';
+import CountBadge from '@/components/ui/CountBadge';
+import PressableScale from '@/components/ui/PressableScale';
+import { createThemedStyles, fadeToBackground, useThemeColors } from '@/constants/theme';
 import { useCartSummary } from '@/hooks/use-cartstore';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link } from 'expo-router';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const CheckoutButton = () => {
+  const styles = useStyles();
+  const colors = useThemeColors();
   const insets = useSafeAreaInsets();
   const { totalItems, total } = useCartSummary();
 
@@ -16,28 +20,29 @@ const CheckoutButton = () => {
   return (
     <>
       <LinearGradient
-        colors={['rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 0.7)', 'rgba(255, 255, 255, 1)']}
+        colors={fadeToBackground(colors)}
         style={[styles.gradientContainer, { paddingBottom: insets.bottom || 16 }]}
         pointerEvents="none"
       />
       <View style={[styles.viewOrderContainer, { paddingBottom: insets.bottom || 16 }]}>
         <Link href={'/order/checkout'} asChild>
-          <TouchableOpacity style={styles.viewOrderButton}>
+          <PressableScale
+            style={styles.viewOrderButton}
+            accessibilityRole="button"
+            accessibilityLabel={`Go to checkout, ${totalItems} ${totalItems === 1 ? 'item' : 'items'}, total ${total.toFixed(2)}`}>
             <View style={styles.viewOrderLeft}>
-              <View style={styles.itemCountBadge}>
-                <Text style={styles.itemCountText}>{totalItems}</Text>
-              </View>
+              <CountBadge count={totalItems} style={styles.itemCountBadge} textStyle={styles.itemCountText} />
               <Text style={styles.viewOrderText}>Go to checkout</Text>
             </View>
             <Text style={styles.viewOrderPrice}>{total.toFixed(2)}</Text>
-          </TouchableOpacity>
+          </PressableScale>
         </Link>
       </View>
     </>
   );
 };
 export default CheckoutButton;
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   gradientContainer: {
     position: 'absolute',
     bottom: 0,
@@ -54,14 +59,15 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   viewOrderButton: {
-    backgroundColor: Colors.secondary,
-    borderRadius: 12,
+    backgroundColor: c.primary,
+    minHeight: 56,
+    borderRadius: 14,
     paddingVertical: 16,
     paddingHorizontal: 20,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    boxShadow: '0px 4px 12px rgba(0, 157, 224, 0.3)',
+    boxShadow: `0px 4px 12px ${c.primaryGlow}`,
   },
   viewOrderLeft: {
     flexDirection: 'row',
@@ -69,7 +75,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   itemCountBadge: {
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     width: 28,
     height: 28,
     borderRadius: 14,
@@ -79,16 +85,17 @@ const styles = StyleSheet.create({
   itemCountText: {
     fontSize: 14,
     fontWeight: 700,
-    color: Colors.secondary,
+    fontVariant: ['tabular-nums'],
+    color: c.primaryText,
   },
   viewOrderText: {
     fontSize: 16,
     fontWeight: 600,
-    color: '#fff',
+    color: c.primaryForeground,
   },
   viewOrderPrice: {
     fontSize: 16,
     fontWeight: 700,
-    color: '#fff',
+    color: c.primaryForeground,
   },
-});
+}));
