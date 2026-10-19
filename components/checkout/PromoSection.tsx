@@ -1,4 +1,4 @@
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import type { CheckoutPromo } from '@/hooks/useCheckout';
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -7,13 +7,16 @@ export interface PromoSectionProps {
   promo: CheckoutPromo;
 }
 
-export const PromoSection = ({ promo }: PromoSectionProps) => (
+export const PromoSection = ({ promo }: PromoSectionProps) => {
+  const styles = useStyles();
+  const colors = useThemeColors();
+  return (
   <View style={styles.section}>
     <Text style={styles.promoTitle}>Promo code</Text>
     {promo.applied ? (
       <View style={styles.promoAppliedRow}>
         <View style={styles.promoAppliedBadge}>
-          <Ionicons name="pricetag" size={14} color={Colors.secondary} />
+          <Ionicons name="pricetag" size={14} color={colors.primary} />
           <Text style={styles.promoAppliedCode}>{promo.applied.code}</Text>
         </View>
         <Text style={styles.promoAppliedText} numberOfLines={1}>
@@ -30,7 +33,7 @@ export const PromoSection = ({ promo }: PromoSectionProps) => (
           value={promo.input}
           onChangeText={promo.setInput}
           placeholder="Enter a code"
-          placeholderTextColor={Colors.muted}
+          placeholderTextColor={colors.textMuted}
           autoCapitalize="characters"
           autoCorrect={false}
           editable={!promo.isChecking}
@@ -52,18 +55,19 @@ export const PromoSection = ({ promo }: PromoSectionProps) => (
     {!!promo.error && <Text style={styles.promoError}>{promo.error}</Text>}
   </View>
 );
+};
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   section: {
     paddingVertical: 16,
     paddingHorizontal: 16,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#e8e8e8',
+    borderBottomColor: c.border,
   },
   promoTitle: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#000',
+    color: c.textPrimary,
     marginBottom: 10,
   },
   promoRow: {
@@ -72,8 +76,9 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   promoInput: {
+    color: c.textPrimary,
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: c.inputBackground,
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 12,
@@ -83,13 +88,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingVertical: 12,
     borderRadius: 10,
-    backgroundColor: Colors.secondary,
+    backgroundColor: c.primary,
   },
   promoApplyDisabled: {
     opacity: 0.5,
   },
   promoApplyText: {
-    color: '#fff',
+    color: c.primaryForeground,
     fontWeight: '700',
   },
   promoAppliedRow: {
@@ -101,29 +106,29 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: c.selectedBackground,
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 10,
   },
   promoAppliedCode: {
     fontWeight: '700',
-    color: Colors.secondary,
+    color: c.primaryText,
     fontSize: 13,
   },
   promoAppliedText: {
     flex: 1,
     fontSize: 13,
-    color: Colors.muted,
+    color: c.textMuted,
   },
   promoRemove: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#B32433',
+    color: c.danger,
   },
   promoError: {
     marginTop: 8,
     fontSize: 13,
-    color: '#B32433',
+    color: c.danger,
   },
-});
+}));
