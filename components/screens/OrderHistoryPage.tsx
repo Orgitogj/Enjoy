@@ -1,7 +1,7 @@
 import { OrderStatusBadge } from '@/components/OrderStatusBadge';
 import { RatingStars } from '@/components/reviews/RatingStars';
 import { isTerminalStatus } from '@/constants/orderStatus';
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import { useOrderHistory } from '@/hooks/useOrderHistory';
 import { useMyReviews } from '@/hooks/useReviews';
 import type { OrderWithItems } from '@/types/database';
@@ -19,12 +19,17 @@ interface OrderHistoryPageProps {
 
 type Row = { kind: 'section'; title: string } | { kind: 'order'; order: OrderWithItems };
 
-const RowSeparator = () => <View style={styles.rowSeparator} />;
+const RowSeparator = () => {
+  const styles = useStyles();
+  return <View style={styles.rowSeparator} />;
+};
 
 const OrderHistoryPage = ({
   title = 'Your orders',
   showBackButton = false,
 }: OrderHistoryPageProps) => {
+  const styles = useStyles();
+  const colors = useThemeColors();
   const router = useRouter();
   const { top } = useSafeAreaInsets();
   const { data: orders, isLoading, error, refetch, isRefetching } = useOrderHistory();
@@ -127,14 +132,14 @@ const OrderHistoryPage = ({
         </TouchableOpacity>
       );
     },
-    [reviewFor, router]
+    [reviewFor, router, styles]
   );
 
   const renderBody = () => {
     if (isLoading) {
       return (
         <View style={styles.emptyState} testID="orders-loading">
-          <ActivityIndicator size="large" color={Colors.secondary} />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       );
     }
@@ -142,7 +147,7 @@ const OrderHistoryPage = ({
     if (error) {
       return (
         <View style={styles.emptyState}>
-          <Ionicons name="cloud-offline-outline" size={48} color={Colors.muted} />
+          <Ionicons name="cloud-offline-outline" size={48} color={colors.textMuted} />
           <Text style={styles.emptyTitle}>We could not load your orders</Text>
           <Text style={styles.emptyText}>Check your connection and try again.</Text>
           <TouchableOpacity
@@ -158,7 +163,7 @@ const OrderHistoryPage = ({
     if (rows.length === 0) {
       return (
         <View style={styles.emptyState}>
-          <Ionicons name="receipt-outline" size={56} color={Colors.muted} />
+          <Ionicons name="receipt-outline" size={56} color={colors.textMuted} />
           <Text style={styles.emptyTitle}>No orders yet</Text>
           <Text style={styles.emptyText}>
             Your orders will appear here after you place your first one.
@@ -197,7 +202,7 @@ const OrderHistoryPage = ({
             onPress={() => router.back()}
             accessibilityRole="button"
             accessibilityLabel="Go back">
-            <Ionicons name="chevron-back" size={24} color="#000" />
+            <Ionicons name="chevron-back" size={24} color={colors.textPrimary} />
           </TouchableOpacity>
         ) : (
           <View style={styles.headerSpacer} />
@@ -210,10 +215,10 @@ const OrderHistoryPage = ({
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: c.background,
   },
   header: {
     flexDirection: 'row',
@@ -222,7 +227,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: c.border,
   },
   backButton: {
     width: 40,
@@ -236,7 +241,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 18,
     fontWeight: '700',
-    color: '#000',
+    color: c.textPrimary,
   },
   headerSpacer: {
     width: 40,
@@ -250,13 +255,13 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 13,
     fontWeight: '700',
-    color: Colors.muted,
+    color: c.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginTop: 4,
   },
   card: {
-    backgroundColor: '#f8f8f8',
+    backgroundColor: c.surfaceMuted,
     borderRadius: 12,
     padding: 14,
   },
@@ -269,16 +274,16 @@ const styles = StyleSheet.create({
   restaurantName: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#000',
+    color: c.textPrimary,
   },
   amount: {
     fontSize: 15,
     fontWeight: '700',
-    color: Colors.secondary,
+    color: c.primaryText,
   },
   meta: {
     fontSize: 13,
-    color: Colors.muted,
+    color: c.textMuted,
   },
   statusRow: {
     marginTop: 8,
@@ -287,7 +292,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     paddingTop: 10,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: '#e3e3e3',
+    borderTopColor: c.border,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 16,
@@ -295,13 +300,13 @@ const styles = StyleSheet.create({
   reorderAction: {
     fontSize: 13,
     fontWeight: '700',
-    color: Colors.secondary,
+    color: c.primaryText,
   },
   reviewRow: {
     marginTop: 10,
     paddingTop: 10,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: '#e3e3e3',
+    borderTopColor: c.border,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
@@ -309,7 +314,7 @@ const styles = StyleSheet.create({
   reviewAction: {
     fontSize: 13,
     fontWeight: '700',
-    color: Colors.secondary,
+    color: c.primaryText,
   },
   emptyState: {
     flex: 1,
@@ -320,12 +325,12 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#000',
+    color: c.textPrimary,
     marginTop: 12,
   },
   emptyText: {
     fontSize: 14,
-    color: Colors.muted,
+    color: c.textMuted,
     textAlign: 'center',
     marginTop: 8,
     lineHeight: 20,
@@ -335,12 +340,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 20,
-    backgroundColor: Colors.primary,
+    backgroundColor: c.primary,
   },
   retryButtonText: {
-    color: '#fff',
+    color: c.primaryForeground,
     fontWeight: '600',
   },
-});
+}));
 
 export default OrderHistoryPage;

@@ -1,20 +1,10 @@
-import { AdminScreen, adminStyles } from '@/components/admin/AdminScreen';
-import { Colors } from '@/constants/theme';
+import { AdminScreen, useAdminStyles } from '@/components/admin/AdminScreen';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import { useUpdatePlatformSettings } from '@/hooks/useAdmin';
 import { usePlatformSettings } from '@/hooks/usePlatformSettings';
 import type { PlatformSettings, PlatformSettingsPatch } from '@/types/database';
 import { useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  ScrollView,
-  StyleSheet,
-  Switch,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 type NumericKey = Exclude<
   keyof PlatformSettings,
@@ -67,6 +57,9 @@ const GROUPS: Group[] = [
 ];
 
 const Page = () => {
+  const colors = useThemeColors();
+  const styles = useStyles();
+  const adminStyles = useAdminStyles();
   const { data: settings, isLoading } = usePlatformSettings();
   const update = useUpdatePlatformSettings();
 
@@ -137,7 +130,7 @@ const Page = () => {
   return (
     <AdminScreen title="Settings" subtitle="Fees, limits and payments">
       {isLoading || !settings ? (
-        <ActivityIndicator size="large" color={Colors.secondary} style={styles.loader} />
+        <ActivityIndicator size="large" color={colors.primary} style={styles.loader} />
       ) : (
         <ScrollView contentContainerStyle={adminStyles.list} keyboardShouldPersistTaps="handled">
           <View style={adminStyles.card}>
@@ -151,7 +144,7 @@ const Page = () => {
               <Switch
                 value={cardPayments}
                 onValueChange={setCardPayments}
-                trackColor={{ true: Colors.secondary }}
+                trackColor={{ true: colors.primary }}
               />
             </View>
 
@@ -212,14 +205,14 @@ const Page = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   loader: { marginTop: 32 },
   group: { gap: 8 },
   field: { gap: 6 },
   switchRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   switchBody: { flex: 1, gap: 2 },
   save: { marginTop: 8 },
-  footnote: { fontSize: 12, color: Colors.muted, textAlign: 'center', marginTop: 4 },
-});
+  footnote: { fontSize: 12, color: c.textMuted, textAlign: 'center', marginTop: 4 },
+}));
 
 export default Page;

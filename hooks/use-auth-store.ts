@@ -1,6 +1,8 @@
 import { supabase } from '@/lib/supabase';
 import type { Session, User } from '@supabase/supabase-js';
+import { parseOAuthRedirect } from '@/lib/oauthRedirect';
 import * as Linking from 'expo-linking';
+import * as WebBrowser from 'expo-web-browser';
 import { create } from 'zustand';
 
 interface AuthState {
@@ -8,6 +10,8 @@ interface AuthState {
   user: User | null;
   isLoading: boolean;
   isAnonymous: boolean;
+  restoreFailed: boolean;
+  retryRestore: () => void;
   signInWithEmail: (email: string, password: string) => Promise<{ error: string | null }>;
   signUpWithEmail: (
     email: string,
@@ -41,21 +45,36 @@ export const consumeCartCarryOver = (previousUserId: string | null, now = Date.n
 };
 
 const useAuthStore = create<AuthState>((set, get) => {
-  supabase.auth.getSession().then(({ data }) => {
-    set({
-      session: data.session,
-      user: data.session?.user ?? null,
-      isAnonymous: !!data.session?.user?.is_anonymous,
-      isLoading: false,
-    });
-  });
+  let authEventSeen = false;
+  let latestAttempt = 0;
+
+  const restoreSession = async (): Promise<void> => {
+    const attempt = ++latestAttempt;
+    try {
+      const { data } = await supabase.auth.getSession();
+      if (authEventSeen || !get().isLoading) return;
+      set({
+        session: data.session,
+        user: data.session?.user ?? null,
+        isAnonymous: !!data.session?.user?.is_anonymous,
+        isLoading: false,
+        restoreFailed: false,
+      });
+    } catch {
+      if (!authEventSeen && get().isLoading && attempt === latestAttempt) set({ restoreFailed: true });
+    }
+  };
+
+  void restoreSession();
 
   supabase.auth.onAuthStateChange((_event, session) => {
+    authEventSeen = true;
     set({
       session,
       user: session?.user ?? null,
       isAnonymous: !!session?.user?.is_anonymous,
       isLoading: false,
+      restoreFailed: false,
     });
   });
 
@@ -64,6 +83,12 @@ const useAuthStore = create<AuthState>((set, get) => {
     user: null,
     isLoading: true,
     isAnonymous: false,
+    restoreFailed: false,
+    retryRestore: () => {
+      if (!get().isLoading) return;
+      set({ restoreFailed: false });
+      void restoreSession();
+    },
 
     signInWithEmail: async (email, password) => {
       clearCartCarryOver();
@@ -109,8 +134,31 @@ const useAuthStore = create<AuthState>((set, get) => {
 
     signInWithOAuth: async (provider) => {
       clearCartCarryOver();
-      const { error } = await supabase.auth.signInWithOAuth({ provider });
-      return { error: error?.message ?? null };
+      const redirectTo = Linking.createURL('/');
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: { redirectTo, skipBrowserRedirect: true },
+      });
+      if (error) return { error: error.message };
+      if (!data?.url) return { error: 'Sign-in could not be started. Please try again.' };
+
+      const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
+      if (result.type !== 'success') return { error: null };
+
+      const redirect = parseOAuthRedirect(result.url);
+      if (redirect.kind === 'error') return { error: redirect.message };
+      if (redirect.kind === 'code') {
+        const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(redirect.code);
+        return { error: exchangeError?.message ?? null };
+      }
+      if (redirect.kind === 'tokens') {
+        const { error: sessionError } = await supabase.auth.setSession({
+          access_token: redirect.accessToken,
+          refresh_token: redirect.refreshToken,
+        });
+        return { error: sessionError?.message ?? null };
+      }
+      return { error: 'Sign-in did not complete. Please try again.' };
     },
 
     signOut: async () => {

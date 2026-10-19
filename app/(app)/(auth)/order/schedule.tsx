@@ -1,8 +1,8 @@
-import { Colors } from '@/constants/theme';
+import { createThemedStyles } from '@/constants/theme';
 import { useScheduleStore } from '@/hooks/use-schedule-store';
 import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 
 const SLOT_MINUTES = 30;
 const DAYS_AHEAD = 4;
@@ -13,6 +13,7 @@ interface Slot {
 }
 
 const Page = () => {
+  const styles = useStyles();
   const router = useRouter();
   const { setSelectedSchedule } = useScheduleStore();
   const [selectedDay, setSelectedDay] = useState(0);
@@ -116,22 +117,22 @@ const Page = () => {
 
 export default Page;
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: c.background,
     paddingHorizontal: 16,
     paddingTop: 24,
   },
   title: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#000',
+    color: c.textPrimary,
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 14,
-    color: '#666',
+    color: c.textMuted,
     marginBottom: 20,
   },
   section: {
@@ -140,7 +141,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#000',
+    color: c.textPrimary,
     marginBottom: 10,
   },
   optionGrid: {
@@ -152,42 +153,42 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 12,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: c.border,
   },
   optionChipSelected: {
-    backgroundColor: Colors.secondary,
-    borderColor: Colors.secondary,
+    backgroundColor: c.primary,
+    borderColor: c.primary,
   },
   optionText: {
     fontSize: 14,
-    color: '#000',
+    color: c.textPrimary,
   },
   optionTextSelected: {
-    color: '#fff',
+    color: c.primaryForeground,
     fontWeight: '600',
   },
   timeList: {
     maxHeight: 220,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderRadius: 12,
     paddingHorizontal: 8,
   },
   timeOption: {
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: c.border,
   },
   timeOptionSelected: {
-    backgroundColor: Colors.light,
+    backgroundColor: c.surfaceMuted,
   },
   timeText: {
     fontSize: 14,
-    color: '#000',
+    color: c.textPrimary,
   },
   timeTextSelected: {
-    color: Colors.secondary,
+    color: c.primaryText,
     fontWeight: '700',
   },
   button: {
@@ -198,15 +199,15 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Colors.secondary,
-    boxShadow: '0px 4px 12px rgba(0, 157, 224, 0.3)',
+    backgroundColor: c.primary,
+    boxShadow: `0px 4px 12px ${c.primaryGlow}`,
   },
   buttonDisabled: {
-    backgroundColor: '#e0e0e0',
+    backgroundColor: c.surfaceMuted,
   },
   buttonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: 'rgb(255, 255, 255)',
+    color: c.primaryForeground,
   },
-});
+}));

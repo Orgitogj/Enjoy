@@ -1,4 +1,4 @@
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import { useRestaurants } from '@/hooks/useRestaurants';
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
@@ -25,6 +25,8 @@ export const RestaurantSelector = ({
   selectedName,
   onSelect,
 }: RestaurantSelectorProps) => {
+  const styles = useStyles();
+  const colors = useThemeColors();
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [debounced, setDebounced] = useState('');
@@ -70,24 +72,24 @@ export const RestaurantSelector = ({
         <Ionicons
           name={selectedId ? 'storefront' : 'globe-outline'}
           size={16}
-          color={Colors.secondary}
+          color={colors.primary}
         />
         <Text style={styles.triggerText} numberOfLines={1}>
           {label}
         </Text>
-        <Ionicons name={isOpen ? 'chevron-up' : 'chevron-down'} size={16} color={Colors.muted} />
+        <Ionicons name={isOpen ? 'chevron-up' : 'chevron-down'} size={16} color={colors.textMuted} />
       </TouchableOpacity>
 
       {isOpen && (
         <View style={styles.panel}>
           <View style={styles.searchRow}>
-            <Ionicons name="search" size={16} color={Colors.muted} />
+            <Ionicons name="search" size={16} color={colors.textMuted} />
             <TextInput
               style={styles.searchInput}
               value={search}
               onChangeText={setSearch}
               placeholder="Search restaurants"
-              placeholderTextColor={Colors.muted}
+              placeholderTextColor={colors.textMuted}
               autoCapitalize="none"
               testID="restaurant-selector-search"
             />
@@ -101,14 +103,14 @@ export const RestaurantSelector = ({
             }}
             accessibilityRole="button"
             testID="restaurant-option-all">
-            <Ionicons name="globe-outline" size={16} color={Colors.secondary} />
+            <Ionicons name="globe-outline" size={16} color={colors.primary} />
             <Text style={styles.optionText}>{ALL_RESTAURANTS_LABEL}</Text>
-            {!selectedId && <Ionicons name="checkmark" size={16} color={Colors.secondary} />}
+            {!selectedId && <Ionicons name="checkmark" size={16} color={colors.primary} />}
           </TouchableOpacity>
 
           {isLoading ? (
             <View style={styles.state} testID="restaurant-selector-loading">
-              <ActivityIndicator color={Colors.secondary} />
+              <ActivityIndicator color={colors.primary} />
             </View>
           ) : error ? (
             <View style={styles.state}>
@@ -143,19 +145,19 @@ export const RestaurantSelector = ({
                   }}
                   accessibilityRole="button"
                   testID={`restaurant-option-${item.id}`}>
-                  <Ionicons name="storefront-outline" size={16} color={Colors.secondary} />
+                  <Ionicons name="storefront-outline" size={16} color={colors.primary} />
                   <Text style={styles.optionText} numberOfLines={1}>
                     {item.name}
                   </Text>
                   {selectedId === item.id && (
-                    <Ionicons name="checkmark" size={16} color={Colors.secondary} />
+                    <Ionicons name="checkmark" size={16} color={colors.primary} />
                   )}
                 </TouchableOpacity>
               )}
               ListFooterComponent={
                 isFetchingNextPage ? (
                   <View style={styles.state}>
-                    <ActivityIndicator color={Colors.secondary} />
+                    <ActivityIndicator color={colors.primary} />
                   </View>
                 ) : isFetchNextPageError ? (
                   <TouchableOpacity
@@ -174,23 +176,23 @@ export const RestaurantSelector = ({
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   container: { gap: 6 },
-  fieldLabel: { fontSize: 13, fontWeight: '600', color: Colors.muted },
+  fieldLabel: { fontSize: 13, fontWeight: '600', color: c.textMuted },
   trigger: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: Colors.background,
+    backgroundColor: c.surface,
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 12,
   },
-  triggerText: { flex: 1, fontSize: 15, color: '#000' },
+  triggerText: { flex: 1, fontSize: 15, color: c.textPrimary },
   panel: {
     borderRadius: 10,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: Colors.light,
+    borderColor: c.border,
     overflow: 'hidden',
   },
   searchRow: {
@@ -199,9 +201,9 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    backgroundColor: Colors.background,
+    backgroundColor: c.inputBackground,
   },
-  searchInput: { flex: 1, fontSize: 14 },
+  searchInput: { color: c.textPrimary, flex: 1, fontSize: 14 },
   list: { maxHeight: 180 },
   option: {
     flexDirection: 'row',
@@ -210,11 +212,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 12,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: Colors.light,
+    borderTopColor: c.border,
   },
-  optionSelected: { backgroundColor: Colors.primaryLight },
-  optionText: { flex: 1, fontSize: 14, color: '#000' },
+  optionSelected: { backgroundColor: c.selectedBackground },
+  optionText: { flex: 1, fontSize: 14, color: c.textPrimary },
   state: { padding: 12, alignItems: 'center', gap: 6 },
-  mutedText: { fontSize: 13, color: Colors.muted },
-  retryText: { fontSize: 13, fontWeight: '700', color: Colors.secondary },
-});
+  mutedText: { fontSize: 13, color: c.textMuted },
+  retryText: { fontSize: 13, fontWeight: '700', color: c.primaryText },
+}));

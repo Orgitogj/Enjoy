@@ -1,4 +1,4 @@
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import { useCourierEarnings } from '@/hooks/useCourier';
 import { usePlatformSettings } from '@/hooks/usePlatformSettings';
 import { Ionicons } from '@expo/vector-icons';
@@ -7,6 +7,8 @@ import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View }
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const Page = () => {
+  const styles = useStyles();
+  const colors = useThemeColors();
   const router = useRouter();
   const { top } = useSafeAreaInsets();
   const { earnings, deliveries, total, tips, count, isLoading } = useCourierEarnings();
@@ -24,7 +26,7 @@ const Page = () => {
           accessibilityRole="button"
           accessibilityLabel="Go back"
           hitSlop={4}>
-          <Ionicons name="chevron-back" size={24} color="#000" />
+          <Ionicons name="chevron-back" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
         <View style={styles.headerText}>
           <Text style={styles.title}>Earnings</Text>
@@ -35,7 +37,7 @@ const Page = () => {
 
       {isLoading ? (
         <View style={styles.centered}>
-          <ActivityIndicator size="large" color={Colors.secondary} />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       ) : (
         <FlatList
@@ -87,7 +89,7 @@ const Page = () => {
           }}
           ListEmptyComponent={
             <View style={styles.centered}>
-              <Ionicons name="wallet-outline" size={48} color={Colors.muted} />
+              <Ionicons name="wallet-outline" size={48} color={colors.textMuted} />
               <Text style={styles.emptyTitle}>No earnings yet</Text>
               <Text style={styles.emptyText}>
                 Completed deliveries and tips show up here.
@@ -100,8 +102,8 @@ const Page = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
+const useStyles = createThemedStyles((c) => ({
+  container: { flex: 1, backgroundColor: c.background },
   centered: {
     justifyContent: 'center',
     alignItems: 'center',
@@ -114,41 +116,41 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 12,
     paddingBottom: 12,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#e6e6e6',
+    borderBottomColor: c.border,
   },
   iconButton: { width: 40, height: 40, justifyContent: 'center', alignItems: 'center' },
   headerText: { flex: 1, alignItems: 'center' },
-  title: { fontSize: 17, fontWeight: '700', color: '#000' },
-  subtitle: { fontSize: 13, color: Colors.muted, marginTop: 2 },
+  title: { fontSize: 17, fontWeight: '700', color: c.textPrimary },
+  subtitle: { fontSize: 13, color: c.textMuted, marginTop: 2 },
   list: { padding: 16, gap: 10, paddingBottom: 40 },
   summary: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderRadius: 14,
     padding: 18,
     marginBottom: 12,
     alignItems: 'center',
   },
   summaryBlock: { flex: 1, alignItems: 'center', gap: 4 },
-  summaryDivider: { width: StyleSheet.hairlineWidth, height: 36, backgroundColor: '#e0e0e0' },
-  summaryValue: { fontSize: 22, fontWeight: '700', color: '#000' },
-  summaryLabel: { fontSize: 12, color: Colors.muted },
+  summaryDivider: { width: StyleSheet.hairlineWidth, height: 36, backgroundColor: c.surfaceMuted },
+  summaryValue: { fontSize: 22, fontWeight: '700', color: c.textPrimary },
+  summaryLabel: { fontSize: 12, color: c.textMuted },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderRadius: 12,
     padding: 14,
   },
   rowLeft: { flex: 1, gap: 2 },
-  rowTitle: { fontSize: 15, fontWeight: '700', color: '#000' },
-  rowMeta: { fontSize: 13, color: Colors.muted },
-  rowTip: { fontSize: 12, color: Colors.secondary, fontWeight: '600' },
-  rowAmount: { fontSize: 16, fontWeight: '700', color: '#000' },
-  emptyTitle: { fontSize: 17, fontWeight: '700', color: '#000', marginTop: 8 },
-  emptyText: { fontSize: 14, color: Colors.muted, textAlign: 'center' },
-});
+  rowTitle: { fontSize: 15, fontWeight: '700', color: c.textPrimary },
+  rowMeta: { fontSize: 13, color: c.textMuted },
+  rowTip: { fontSize: 12, color: c.primaryText, fontWeight: '600' },
+  rowAmount: { fontSize: 16, fontWeight: '700', color: c.textPrimary },
+  emptyTitle: { fontSize: 17, fontWeight: '700', color: c.textPrimary, marginTop: 8 },
+  emptyText: { fontSize: 14, color: c.textMuted, textAlign: 'center' },
+}));
 
 export default Page;

@@ -1,18 +1,13 @@
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import { useMySupportTickets } from '@/hooks/useSupport';
 import { SUPPORT_CATEGORY_LABELS, SUPPORT_STATUS_LABELS } from '@/services/supportService';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
-import {
-  ActivityIndicator,
-  FlatList,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ActivityIndicator, FlatList, Text, TouchableOpacity, View } from 'react-native';
 
 const Page = () => {
+  const styles = useStyles();
+  const colors = useThemeColors();
   const router = useRouter();
   const { tickets, isLoading, error, refetch, isRefetching, loadMore, isFetchingNextPage } =
     useMySupportTickets();
@@ -21,7 +16,7 @@ const Page = () => {
     return (
       <View style={styles.state} testID="support-tickets-loading">
         <Stack.Screen options={{ title: 'Your reports' }} />
-        <ActivityIndicator size="large" color={Colors.secondary} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -30,7 +25,7 @@ const Page = () => {
     return (
       <View style={styles.state}>
         <Stack.Screen options={{ title: 'Your reports' }} />
-        <Ionicons name="cloud-offline-outline" size={40} color={Colors.muted} />
+        <Ionicons name="cloud-offline-outline" size={40} color={colors.textMuted} />
         <Text style={styles.mutedText}>We could not load your reports.</Text>
         <TouchableOpacity
           style={styles.primaryButton}
@@ -62,7 +57,7 @@ const Page = () => {
         }
         ListFooterComponent={
           isFetchingNextPage ? (
-            <ActivityIndicator style={styles.footer} color={Colors.secondary} />
+            <ActivityIndicator style={styles.footer} color={colors.primary} />
           ) : null
         }
         renderItem={({ item }) => (
@@ -106,35 +101,35 @@ const Page = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
+const useStyles = createThemedStyles((c) => ({
+  container: { flex: 1, backgroundColor: c.background },
   state: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
     padding: 24,
-    backgroundColor: Colors.background,
+    backgroundColor: c.background,
   },
   listContent: { padding: 16, gap: 12 },
   footer: { paddingVertical: 16 },
-  card: { backgroundColor: '#fff', borderRadius: 14, padding: 14, gap: 4 },
+  card: { backgroundColor: c.surface, borderRadius: 14, padding: 14, gap: 4 },
   cardHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  cardTitle: { fontSize: 16, fontWeight: '700', color: '#000' },
-  status: { fontSize: 12, fontWeight: '700', color: Colors.secondary },
-  meta: { fontSize: 13, color: Colors.muted },
-  description: { fontSize: 14, color: '#333' },
-  refunded: { fontSize: 13, fontWeight: '700', color: Colors.secondary },
-  unread: { fontSize: 13, fontWeight: '700', color: Colors.primary },
-  mutedText: { fontSize: 14, color: Colors.muted, textAlign: 'center', paddingVertical: 24 },
+  cardTitle: { fontSize: 16, fontWeight: '700', color: c.textPrimary },
+  status: { fontSize: 12, fontWeight: '700', color: c.primaryText },
+  meta: { fontSize: 13, color: c.textMuted },
+  description: { fontSize: 14, color: c.textSecondary },
+  refunded: { fontSize: 13, fontWeight: '700', color: c.primaryText },
+  unread: { fontSize: 13, fontWeight: '700', color: c.primaryText },
+  mutedText: { fontSize: 14, color: c.textMuted, textAlign: 'center', paddingVertical: 24 },
   primaryButton: {
-    backgroundColor: Colors.primary,
+    backgroundColor: c.primary,
     borderRadius: 12,
     paddingVertical: 14,
     paddingHorizontal: 24,
     alignItems: 'center',
   },
-  primaryButtonText: { color: '#fff', fontSize: 15, fontWeight: '700' },
-});
+  primaryButtonText: { color: c.primaryForeground, fontSize: 15, fontWeight: '700' },
+}));
 
 export default Page;

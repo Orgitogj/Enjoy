@@ -1,4 +1,4 @@
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import { useOrderTracking } from '@/hooks/useOrderTracking';
 import { useSubmitSupportTicket, useSupportEligibility } from '@/hooks/useSupport';
 import {
@@ -26,6 +26,8 @@ import {
 } from 'react-native';
 
 const Page = () => {
+  const styles = useStyles();
+  const colors = useThemeColors();
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const orderId = id ?? '';
@@ -88,7 +90,7 @@ const Page = () => {
     return (
       <View style={styles.state} testID="support-eligibility-loading">
         <Stack.Screen options={{ title: 'Report a problem' }} />
-        <ActivityIndicator size="large" color={Colors.secondary} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -97,7 +99,7 @@ const Page = () => {
     return (
       <View style={styles.state}>
         <Stack.Screen options={{ title: 'Report a problem' }} />
-        <Ionicons name="cloud-offline-outline" size={40} color={Colors.muted} />
+        <Ionicons name="cloud-offline-outline" size={40} color={colors.textMuted} />
         <Text style={styles.mutedText}>We could not check this order.</Text>
         <TouchableOpacity
           style={styles.primaryButton}
@@ -116,7 +118,7 @@ const Page = () => {
     return (
       <View style={styles.state} testID="support-report-blocked">
         <Stack.Screen options={{ title: 'Report a problem' }} />
-        <Ionicons name="lock-closed-outline" size={40} color={Colors.muted} />
+        <Ionicons name="lock-closed-outline" size={40} color={colors.textMuted} />
         <Text style={styles.mutedText}>
           {describeReportBlocker(eligibility.data?.reason ?? 'unknown_order')}
         </Text>
@@ -158,7 +160,7 @@ const Page = () => {
                 <Ionicons
                   name={selected ? 'radio-button-on' : 'radio-button-off'}
                   size={20}
-                  color={selected ? Colors.primary : Colors.muted}
+                  color={selected ? colors.primary : colors.textMuted}
                 />
                 <View style={styles.optionText}>
                   <Text style={styles.optionLabel}>{option.label}</Text>
@@ -194,7 +196,7 @@ const Page = () => {
                         <Ionicons
                           name="remove"
                           size={18}
-                          color={picked === 0 ? Colors.muted : '#000'}
+                          color={picked === 0 ? colors.textMuted : colors.textPrimary}
                         />
                       </TouchableOpacity>
                       <Text style={styles.stepperValue} testID={`support-item-count-${item.id}`}>
@@ -210,7 +212,7 @@ const Page = () => {
                         <Ionicons
                           name="add"
                           size={18}
-                          color={picked >= item.quantity ? Colors.muted : '#000'}
+                          color={picked >= item.quantity ? colors.textMuted : colors.textPrimary}
                         />
                       </TouchableOpacity>
                     </View>
@@ -226,7 +228,7 @@ const Page = () => {
           value={description}
           onChangeText={(text) => setDescription(text.slice(0, SUPPORT_DESCRIPTION_MAX_LENGTH))}
           placeholder="What happened?"
-          placeholderTextColor={Colors.muted}
+          placeholderTextColor={colors.textMuted}
           multiline
           editable={!submit.isPending}
           testID="support-description-input"
@@ -243,7 +245,7 @@ const Page = () => {
           accessibilityState={{ disabled: !canSubmit }}
           testID="support-submit">
           {submit.isPending ? (
-            <ActivityIndicator color="#fff" />
+            <ActivityIndicator color={colors.primaryForeground} />
           ) : (
             <Text style={styles.primaryButtonText}>Send report</Text>
           )}
@@ -253,8 +255,8 @@ const Page = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
+const useStyles = createThemedStyles((c) => ({
+  container: { flex: 1, backgroundColor: c.background },
   content: { padding: 20, gap: 12 },
   state: {
     flex: 1,
@@ -262,17 +264,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 10,
     padding: 24,
-    backgroundColor: Colors.background,
+    backgroundColor: c.background,
   },
-  title: { fontSize: 22, fontWeight: '800', color: '#000' },
-  sectionTitle: { fontSize: 16, fontWeight: '700', color: '#000' },
-  mutedText: { fontSize: 14, color: Colors.muted, textAlign: 'center' },
-  group: { gap: 8, backgroundColor: '#fff', borderRadius: 12, padding: 12 },
+  title: { fontSize: 22, fontWeight: '800', color: c.textPrimary },
+  sectionTitle: { fontSize: 16, fontWeight: '700', color: c.textPrimary },
+  mutedText: { fontSize: 14, color: c.textMuted, textAlign: 'center' },
+  group: { gap: 8, backgroundColor: c.surface, borderRadius: 12, padding: 12 },
   option: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10 },
   optionSelected: { opacity: 1 },
   optionText: { flex: 1, gap: 2 },
-  optionLabel: { fontSize: 15, fontWeight: '600', color: '#000' },
-  optionHint: { fontSize: 13, color: Colors.muted },
+  optionLabel: { fontSize: 15, fontWeight: '600', color: c.textPrimary },
+  optionHint: { fontSize: 13, color: c.textMuted },
   itemRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 8 },
   stepper: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   stepperButton: {
@@ -281,29 +283,30 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Colors.light,
+    backgroundColor: c.surfaceMuted,
   },
-  stepperValue: { minWidth: 20, textAlign: 'center', fontSize: 15, fontWeight: '700' },
+  stepperValue: { color: c.textPrimary, minWidth: 20, textAlign: 'center', fontSize: 15, fontWeight: '700' },
   input: {
+    color: c.textPrimary,
     minHeight: 120,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderRadius: 12,
     padding: 14,
     fontSize: 15,
     textAlignVertical: 'top',
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: Colors.light,
+    borderColor: c.border,
   },
-  counter: { alignSelf: 'flex-end', fontSize: 12, color: Colors.muted },
+  counter: { alignSelf: 'flex-end', fontSize: 12, color: c.textMuted },
   primaryButton: {
-    backgroundColor: Colors.primary,
+    backgroundColor: c.primary,
     borderRadius: 12,
     paddingVertical: 16,
     paddingHorizontal: 24,
     alignItems: 'center',
   },
   primaryButtonDisabled: { opacity: 0.5 },
-  primaryButtonText: { color: '#fff', fontSize: 16, fontWeight: '700' },
-});
+  primaryButtonText: { color: c.primaryForeground, fontSize: 16, fontWeight: '700' },
+}));
 
 export default Page;

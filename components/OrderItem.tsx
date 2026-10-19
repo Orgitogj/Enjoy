@@ -1,10 +1,10 @@
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import { CartItem, useCartStore } from '@/hooks/use-cartstore';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import * as Haptics from 'expo-haptics';
 import { useRef } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import ReanimatedSwipeable, {
   SwipeableMethods,
 } from 'react-native-gesture-handler/ReanimatedSwipeable';
@@ -24,6 +24,8 @@ interface OrderItemProps {
 const THRESHOLD = 50;
 
 function RightAction(prog: SharedValue<number>, drag: SharedValue<number>) {
+  const styles = useStyles();
+  const colors = useThemeColors();
   const hasReachedThresholdUp = useSharedValue(false);
   const hasReachedThresholdDown = useSharedValue(false);
 
@@ -55,13 +57,14 @@ function RightAction(prog: SharedValue<number>, drag: SharedValue<number>) {
   return (
     <Reanimated.View style={styles.rightActionContainer}>
       <Reanimated.View style={[styles.rightActionIcon, iconStyleAnimation]}>
-        <Ionicons name="trash" size={24} color={'#fff'} />
+        <Ionicons name="trash" size={24} color={colors.primaryForeground} />
       </Reanimated.View>
     </Reanimated.View>
   );
 }
 
 const OrderItem = ({ item }: OrderItemProps) => {
+  const styles = useStyles();
   const reanimatedRef = useRef<SwipeableMethods>(null);
   const heightAnim = useSharedValue(90);
   const opacityAnim = useSharedValue(1);
@@ -125,25 +128,26 @@ const OrderItem = ({ item }: OrderItemProps) => {
   );
 };
 export default OrderItem;
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   orderItem: {
     flexDirection: 'row',
     paddingHorizontal: 16,
     paddingVertical: 12,
     gap: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-    backgroundColor: '#fff',
+    borderBottomColor: c.border,
+    backgroundColor: c.surface,
   },
   quantityControl: {
     width: 40,
     height: 40,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: c.surfaceMuted,
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
   },
   quantityText: {
+    color: c.textPrimary,
     fontSize: 16,
     fontWeight: 600,
   },
@@ -157,24 +161,25 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   itemName: {
+    color: c.textPrimary,
     fontSize: 16,
     fontWeight: 600,
   },
   itemAddons: {
     fontSize: 12,
-    color: Colors.muted,
+    color: c.textMuted,
   },
   itemMeta: {
     fontSize: 13,
-    color: Colors.muted,
+    color: c.textMuted,
   },
   itemPrice: {
     fontSize: 15,
     fontWeight: 600,
-    color: Colors.secondary,
+    color: c.primaryText,
   },
   rightActionContainer: {
-    backgroundColor: '#ff3b30',
+    backgroundColor: c.dangerSolid,
     flex: 1,
     justifyContent: 'center',
     alignItems: 'flex-end',
@@ -185,4 +190,4 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-});
+}));

@@ -1,11 +1,11 @@
-import { AdminEmpty, AdminScreen, adminStyles } from '@/components/admin/AdminScreen';
+import { AdminEmpty, AdminScreen, useAdminStyles } from '@/components/admin/AdminScreen';
 import { OrderStatusBadge } from '@/components/OrderStatusBadge';
 import {
   ADMIN_ORDER_ACTIONS,
   ADMIN_ORDER_FILTERS,
   type AdminOrderAction,
 } from '@/constants/orderStatus';
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import { useAdminOrders, useAdminRefund, useAdminTransitionOrder, useIsAdmin } from '@/hooks/useAdmin';
 import { usePlatformSettings } from '@/hooks/usePlatformSettings';
 import type { AdminOrderRow } from '@/types/database';
@@ -30,6 +30,9 @@ interface PendingAction {
 }
 
 const Page = () => {
+  const adminStyles = useAdminStyles();
+  const styles = useStyles();
+  const colors = useThemeColors();
   const { isAdmin } = useIsAdmin();
   const { data: settings } = usePlatformSettings();
 
@@ -127,12 +130,12 @@ const Page = () => {
         </View>
 
         <View style={styles.row}>
-          <Ionicons name="storefront-outline" size={15} color={Colors.muted} />
+          <Ionicons name="storefront-outline" size={15} color={colors.textMuted} />
           <Text style={adminStyles.cardMeta}>{item.restaurant_name}</Text>
         </View>
 
         <View style={styles.row}>
-          <Ionicons name="person-outline" size={15} color={Colors.muted} />
+          <Ionicons name="person-outline" size={15} color={colors.textMuted} />
           <Text style={adminStyles.cardMeta}>
             {item.customer_name || item.customer_email || 'Customer'}
           </Text>
@@ -142,7 +145,7 @@ const Page = () => {
           <Ionicons
             name={item.delivery_mode === 'pickup' ? 'bag-handle-outline' : 'bicycle-outline'}
             size={15}
-            color={Colors.muted}
+            color={colors.textMuted}
           />
           <Text style={adminStyles.cardMeta}>
             {item.delivery_mode === 'pickup' ? 'Pickup' : 'Delivery'}
@@ -152,7 +155,7 @@ const Page = () => {
         </View>
 
         <View style={styles.row}>
-          <Ionicons name="card-outline" size={15} color={Colors.muted} />
+          <Ionicons name="card-outline" size={15} color={colors.textMuted} />
           <Text style={adminStyles.cardMeta}>
             {item.payment_method} • {item.payment_status}
             {Number(item.amount_refunded) > 0
@@ -172,7 +175,7 @@ const Page = () => {
             <TextInput
               style={adminStyles.input}
               placeholder="Why are you making this change?"
-              placeholderTextColor={Colors.muted}
+              placeholderTextColor={colors.textMuted}
               value={reason}
               onChangeText={setReason}
               autoFocus
@@ -201,7 +204,7 @@ const Page = () => {
             <TextInput
               style={adminStyles.input}
               placeholder="Amount"
-              placeholderTextColor={Colors.muted}
+              placeholderTextColor={colors.textMuted}
               keyboardType="decimal-pad"
               value={refundAmount}
               onChangeText={setRefundAmount}
@@ -209,7 +212,7 @@ const Page = () => {
             <TextInput
               style={adminStyles.input}
               placeholder="Reason for the customer"
-              placeholderTextColor={Colors.muted}
+              placeholderTextColor={colors.textMuted}
               value={refundReason}
               onChangeText={setRefundReason}
             />
@@ -266,11 +269,11 @@ const Page = () => {
   return (
     <AdminScreen title="Orders" subtitle={`${orders?.length ?? 0} shown`}>
       <View style={styles.searchRow}>
-        <Ionicons name="search" size={18} color={Colors.muted} />
+        <Ionicons name="search" size={18} color={colors.textMuted} />
         <TextInput
           style={styles.searchInput}
           placeholder="Restaurant, customer or email"
-          placeholderTextColor={Colors.muted}
+          placeholderTextColor={colors.textMuted}
           value={search}
           onChangeText={setSearch}
           autoCapitalize="none"
@@ -281,7 +284,7 @@ const Page = () => {
             accessibilityRole="button"
             accessibilityLabel="Clear search"
             hitSlop={12}>
-            <Ionicons name="close-circle" size={18} color={Colors.muted} />
+            <Ionicons name="close-circle" size={18} color={colors.textMuted} />
           </TouchableOpacity>
         )}
       </View>
@@ -306,7 +309,7 @@ const Page = () => {
       />
 
       {isLoading ? (
-        <ActivityIndicator size="large" color={Colors.secondary} style={styles.loader} />
+        <ActivityIndicator size="large" color={colors.primary} style={styles.loader} />
       ) : (
         <FlatList
           data={orders ?? []}
@@ -318,7 +321,7 @@ const Page = () => {
             <RefreshControl
               refreshing={isRefetching}
               onRefresh={refetch}
-              tintColor={Colors.secondary}
+              tintColor={colors.primary}
             />
           }
           ListEmptyComponent={
@@ -334,18 +337,18 @@ const Page = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   searchRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderRadius: 10,
     paddingHorizontal: 12,
     marginHorizontal: 16,
     marginTop: 12,
   },
-  searchInput: { flex: 1, paddingVertical: 10, fontSize: 14, color: '#000' },
+  searchInput: { flex: 1, paddingVertical: 10, fontSize: 14, color: c.textPrimary },
   filterList: { flexGrow: 0 },
   loader: { marginTop: 32 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 6 },
@@ -353,13 +356,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: '#ececec',
+    borderTopColor: c.border,
     paddingTop: 8,
     marginTop: 2,
   },
-  totalLabel: { fontSize: 14, fontWeight: '600', color: '#000' },
-  totalValue: { fontSize: 15, fontWeight: '700', color: '#000' },
+  totalLabel: { fontSize: 14, fontWeight: '600', color: c.textPrimary },
+  totalValue: { fontSize: 15, fontWeight: '700', color: c.textPrimary },
   panel: { gap: 8, marginTop: 4 },
-});
+}));
 
 export default Page;

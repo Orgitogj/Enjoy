@@ -1,3 +1,4 @@
+import { createThemedStyles } from '@/constants/theme';
 import type { CheckoutDelivery } from '@/hooks/useCheckout';
 import { StyleSheet, Switch, Text, View } from 'react-native';
 
@@ -5,7 +6,9 @@ export interface DeliveryOptionsSectionProps {
   delivery: CheckoutDelivery;
 }
 
-export const DeliveryOptionsSection = ({ delivery }: DeliveryOptionsSectionProps) => (
+export const DeliveryOptionsSection = ({ delivery }: DeliveryOptionsSectionProps) => {
+  const styles = useStyles();
+  return (
   <>
     {delivery.mode === 'delivery' && (
       <View style={styles.section}>
@@ -24,13 +27,14 @@ export const DeliveryOptionsSection = ({ delivery }: DeliveryOptionsSectionProps
     </View>
   </>
 );
+};
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   section: {
     paddingVertical: 16,
     paddingHorizontal: 16,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#e8e8e8',
+    borderBottomColor: c.border,
   },
   row: {
     flexDirection: 'row',
@@ -39,6 +43,6 @@ const styles = StyleSheet.create({
   },
   optionText: {
     fontSize: 16,
-    color: '#000',
+    color: c.textPrimary,
   },
-});
+}));

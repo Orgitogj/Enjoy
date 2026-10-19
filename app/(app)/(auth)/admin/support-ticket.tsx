@@ -1,6 +1,6 @@
 import { SupportConversation } from '@/components/support/SupportConversation';
 import { SupportRefundList } from '@/components/support/SupportRefundList';
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import useAuthStore from '@/hooks/use-auth-store';
 import {
   useApproveSupportRefund,
@@ -24,21 +24,12 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Crypto from 'expo-crypto';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const Page = () => {
+  const styles = useStyles();
+  const colors = useThemeColors();
   const router = useRouter();
   const { top } = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -152,7 +143,7 @@ const Page = () => {
   if (conversation.isTicketLoading) {
     return (
       <View style={styles.state} testID="admin-ticket-loading">
-        <ActivityIndicator size="large" color={Colors.secondary} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -160,7 +151,7 @@ const Page = () => {
   if (!ticket) {
     return (
       <View style={styles.state} testID="admin-ticket-unavailable">
-        <Ionicons name="lock-closed-outline" size={40} color={Colors.muted} />
+        <Ionicons name="lock-closed-outline" size={40} color={colors.textMuted} />
         <Text style={styles.mutedText}>That ticket is not available.</Text>
         <TouchableOpacity
           style={styles.primaryButton}
@@ -185,7 +176,7 @@ const Page = () => {
           onPress={() => router.back()}
           accessibilityRole="button"
           accessibilityLabel="Go back">
-          <Ionicons name="chevron-back" size={24} color="#000" />
+          <Ionicons name="chevron-back" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.title}>{SUPPORT_CATEGORY_LABELS[ticket.category]}</Text>
         <Text style={styles.status} testID="admin-ticket-status">
@@ -282,7 +273,7 @@ const Page = () => {
             value={amount}
             onChangeText={setAmount}
             placeholder="Refund amount"
-            placeholderTextColor={Colors.muted}
+            placeholderTextColor={colors.textMuted}
             keyboardType="decimal-pad"
             editable={!approve.isPending}
             testID="admin-refund-amount"
@@ -303,7 +294,7 @@ const Page = () => {
             value={reason}
             onChangeText={setReason}
             placeholder="Why is this refunded?"
-            placeholderTextColor={Colors.muted}
+            placeholderTextColor={colors.textMuted}
             editable={!approve.isPending && !confirmCash.isPending}
             testID="admin-refund-reason"
           />
@@ -335,7 +326,7 @@ const Page = () => {
             accessibilityState={{ disabled: !canApprove }}
             testID="admin-refund-approve">
             {approve.isPending ? (
-              <ActivityIndicator color="#fff" />
+              <ActivityIndicator color={colors.primaryForeground} />
             ) : (
               <Text style={styles.primaryButtonText}>Approve refund</Text>
             )}
@@ -373,63 +364,64 @@ const Page = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
+const useStyles = createThemedStyles((c) => ({
+  container: { flex: 1, backgroundColor: c.background },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
     paddingHorizontal: 16,
     paddingBottom: 12,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
   },
-  title: { flex: 1, fontSize: 18, fontWeight: '800', color: '#000' },
-  status: { fontSize: 12, fontWeight: '700', color: Colors.secondary },
-  panel: { maxHeight: '58%', backgroundColor: '#fff' },
+  title: { flex: 1, fontSize: 18, fontWeight: '800', color: c.textPrimary },
+  status: { fontSize: 12, fontWeight: '700', color: c.primaryText },
+  panel: { maxHeight: '58%', backgroundColor: c.surface },
   panelContent: { padding: 16, gap: 10 },
   block: { gap: 6, paddingTop: 8 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
-  sectionTitle: { fontSize: 14, fontWeight: '700', color: '#000' },
-  meta: { fontSize: 13, color: Colors.muted },
-  description: { fontSize: 15, color: '#333' },
-  error: { fontSize: 13, color: '#B32433' },
+  sectionTitle: { fontSize: 14, fontWeight: '700', color: c.textPrimary },
+  meta: { fontSize: 13, color: c.textMuted },
+  description: { fontSize: 15, color: c.textSecondary },
+  error: { fontSize: 13, color: c.danger },
   state: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
     padding: 24,
-    backgroundColor: Colors.background,
+    backgroundColor: c.background,
   },
-  mutedText: { fontSize: 14, color: Colors.muted, textAlign: 'center' },
+  mutedText: { fontSize: 14, color: c.textMuted, textAlign: 'center' },
   input: {
-    backgroundColor: Colors.background,
+    color: c.textPrimary,
+    backgroundColor: c.inputBackground,
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 12,
     fontSize: 15,
   },
-  chip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 18, backgroundColor: Colors.background },
-  chipActive: { backgroundColor: Colors.primary },
-  chipText: { fontSize: 13, fontWeight: '600', color: '#000' },
-  chipTextActive: { color: '#fff' },
+  chip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 18, backgroundColor: c.surface },
+  chipActive: { backgroundColor: c.primary },
+  chipText: { fontSize: 13, fontWeight: '600', color: c.textPrimary },
+  chipTextActive: { color: c.primaryForeground },
   primaryButton: {
-    backgroundColor: Colors.primary,
+    backgroundColor: c.primary,
     borderRadius: 12,
     paddingVertical: 14,
     paddingHorizontal: 24,
     alignItems: 'center',
   },
   primaryButtonDisabled: { opacity: 0.5 },
-  primaryButtonText: { color: '#fff', fontSize: 15, fontWeight: '700' },
+  primaryButtonText: { color: c.primaryForeground, fontSize: 15, fontWeight: '700' },
   secondaryButton: {
     borderRadius: 10,
     paddingVertical: 10,
     paddingHorizontal: 14,
-    backgroundColor: Colors.background,
+    backgroundColor: c.surface,
   },
   secondaryButtonDisabled: { opacity: 0.5 },
-  secondaryButtonText: { fontSize: 13, fontWeight: '700', color: '#000' },
-});
+  secondaryButtonText: { fontSize: 13, fontWeight: '700', color: c.textPrimary },
+}));
 
 export default Page;

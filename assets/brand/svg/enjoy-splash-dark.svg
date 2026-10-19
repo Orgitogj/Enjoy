@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920" role="img" aria-labelledby="title">
+  <title id="title">ENJOY dark splash screen</title>
+  <rect width="1080" height="1920" fill="#191512"/>
+  <g transform="translate(284 570) scale(.5)">
+    <path d="M650 190a330 330 0 1 1-276 0" fill="none" stroke="#FFB58A" stroke-width="132" stroke-linecap="round"/>
+    <path d="M338 574c42 92 104 138 174 138s132-46 174-138" fill="none" stroke="#FFB58A" stroke-width="82" stroke-linecap="round"/>
+  </g>
+  <text x="540" y="1200" text-anchor="middle" fill="#FFF8F1" font-family="Nunito, DejaVu Sans, sans-serif" font-size="142" font-weight="900" letter-spacing="5">ENJOY</text>
+</svg>

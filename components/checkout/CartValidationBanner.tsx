@@ -1,4 +1,4 @@
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import type { CartValidationState } from '@/hooks/useCartValidation';
 import { Ionicons } from '@expo/vector-icons';
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -8,10 +8,12 @@ export interface CartValidationBannerProps {
 }
 
 export const CartValidationBanner = ({ state }: CartValidationBannerProps) => {
+  const styles = useStyles();
+  const colors = useThemeColors();
   if (state.isChecking && !state.validation) {
     return (
       <View style={styles.checking} testID="cart-validation-checking">
-        <ActivityIndicator size="small" color={Colors.secondary} />
+        <ActivityIndicator size="small" color={colors.primary} />
         <Text style={styles.checkingText}>Checking your basket</Text>
       </View>
     );
@@ -21,7 +23,7 @@ export const CartValidationBanner = ({ state }: CartValidationBannerProps) => {
     return (
       <View style={[styles.banner, styles.bannerMuted]} testID="cart-validation-error">
         <View style={styles.header}>
-          <Ionicons name="cloud-offline-outline" size={18} color={Colors.muted} />
+          <Ionicons name="cloud-offline-outline" size={18} color={colors.textMuted} />
           <Text style={styles.title}>We could not check your basket</Text>
         </View>
         <TouchableOpacity
@@ -40,7 +42,7 @@ export const CartValidationBanner = ({ state }: CartValidationBannerProps) => {
   return (
     <View style={styles.banner} testID="cart-validation-banner">
       <View style={styles.header}>
-        <Ionicons name="alert-circle-outline" size={18} color="#B32433" />
+        <Ionicons name="alert-circle-outline" size={18} color={colors.danger} />
         <Text style={styles.title}>Your basket changed</Text>
       </View>
 
@@ -73,20 +75,20 @@ export const CartValidationBanner = ({ state }: CartValidationBannerProps) => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   banner: {
     gap: 8,
     marginHorizontal: 16,
     marginTop: 16,
     padding: 14,
     borderRadius: 12,
-    backgroundColor: '#fdf2f3',
+    backgroundColor: c.dangerSoft,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: '#f0c8cc',
+    borderColor: c.danger,
   },
   bannerMuted: {
-    backgroundColor: Colors.background,
-    borderColor: Colors.light,
+    backgroundColor: c.surfaceMuted,
+    borderColor: c.border,
   },
   header: {
     flexDirection: 'row',
@@ -96,11 +98,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#000',
+    color: c.textPrimary,
   },
   notice: {
     fontSize: 14,
-    color: '#444',
+    color: c.textSecondary,
   },
   actions: {
     flexDirection: 'row',
@@ -109,13 +111,13 @@ const styles = StyleSheet.create({
     paddingTop: 4,
   },
   primaryAction: {
-    backgroundColor: Colors.secondary,
+    backgroundColor: c.primary,
     borderRadius: 10,
     paddingHorizontal: 14,
     paddingVertical: 10,
   },
   primaryActionText: {
-    color: '#fff',
+    color: c.primaryForeground,
     fontSize: 14,
     fontWeight: '700',
   },
@@ -123,14 +125,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 14,
     paddingVertical: 10,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: Colors.light,
+    borderColor: c.border,
   },
   secondaryActionText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#000',
+    color: c.textPrimary,
   },
   checking: {
     flexDirection: 'row',
@@ -141,6 +143,6 @@ const styles = StyleSheet.create({
   },
   checkingText: {
     fontSize: 13,
-    color: Colors.muted,
+    color: c.textMuted,
   },
-});
+}));

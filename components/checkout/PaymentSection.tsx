@@ -1,3 +1,4 @@
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import type { CheckoutPayment } from '@/hooks/useCheckout';
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -8,7 +9,10 @@ export interface PaymentSectionProps {
   currency: string;
 }
 
-export const PaymentSection = ({ payment, grandTotal, currency }: PaymentSectionProps) => (
+export const PaymentSection = ({ payment, grandTotal, currency }: PaymentSectionProps) => {
+  const styles = useStyles();
+  const colors = useThemeColors();
+  return (
   <>
     <View style={styles.section}>
       <View style={styles.row}>
@@ -17,7 +21,7 @@ export const PaymentSection = ({ payment, grandTotal, currency }: PaymentSection
             <Ionicons
               name={payment.method === 'card' ? 'card-outline' : 'cash-outline'}
               size={24}
-              color="#000"
+              color={colors.textPrimary}
             />
           </View>
           <View>
@@ -67,13 +71,14 @@ export const PaymentSection = ({ payment, grandTotal, currency }: PaymentSection
     )}
   </>
 );
+};
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   section: {
     paddingVertical: 16,
     paddingHorizontal: 16,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#e8e8e8',
+    borderBottomColor: c.border,
   },
   row: {
     flexDirection: 'row',
@@ -88,28 +93,28 @@ const styles = StyleSheet.create({
   },
   sectionSubtitle: {
     fontSize: 14,
-    color: '#999',
+    color: c.textMuted,
   },
   optionText: {
     fontSize: 16,
-    color: '#000',
+    color: c.textPrimary,
   },
   paymentIcon: {
     width: 40,
     height: 40,
     borderRadius: 8,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: c.surfaceMuted,
     alignItems: 'center',
     justifyContent: 'center',
   },
   paymentAmount: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#000',
+    color: c.textPrimary,
   },
   pickerContainer: {
     flexDirection: 'row',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: c.surfaceMuted,
     borderRadius: 12,
     padding: 4,
   },
@@ -120,16 +125,16 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   pickerOptionActive: {
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.08)',
   },
   pickerOptionText: {
     fontSize: 15,
     fontWeight: '500',
-    color: '#666',
+    color: c.textMuted,
   },
   pickerOptionTextActive: {
-    color: '#000',
+    color: c.textPrimary,
     fontWeight: '600',
   },
-});
+}));

@@ -2,7 +2,7 @@ import { EtaCard } from '@/components/EtaCard';
 import { OrderStatusBadge } from '@/components/OrderStatusBadge';
 import { DELIVERY_STATUS_LABELS } from '@/constants/deliveryStatus';
 import { orderStatusLabel } from '@/constants/orderStatus';
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import { useOrderChatAccess, useOrderChatUnreadTotals } from '@/hooks/useOrderChat';
 import { useOrderTracking } from '@/hooks/useOrderTracking';
 import { usePlatformSettings } from '@/hooks/usePlatformSettings';
@@ -25,6 +25,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 const MAP_HEIGHT = 300;
 
 const Page = () => {
+  const styles = useStyles();
+  const colors = useThemeColors();
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const insets = useSafeAreaInsets();
@@ -74,7 +76,7 @@ const Page = () => {
   if (isLoading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator size="large" color={Colors.secondary} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -82,7 +84,7 @@ const Page = () => {
   if (error && !order) {
     return (
       <View style={styles.centered} testID="track-error">
-        <Ionicons name="cloud-offline-outline" size={48} color={Colors.muted} />
+        <Ionicons name="cloud-offline-outline" size={48} color={colors.textMuted} />
         <Text style={styles.emptyTitle}>We could not load this order</Text>
         <Text style={styles.connectionText}>Check your connection and try again.</Text>
         <TouchableOpacity onPress={refetch} accessibilityRole="button" testID="track-retry">
@@ -95,7 +97,7 @@ const Page = () => {
   if (!order) {
     return (
       <View style={styles.centered}>
-        <Ionicons name="receipt-outline" size={48} color={Colors.muted} />
+        <Ionicons name="receipt-outline" size={48} color={colors.textMuted} />
         <Text style={styles.emptyTitle}>Order not found</Text>
         <TouchableOpacity onPress={() => router.back()}>
           <Text style={styles.link}>Go back</Text>
@@ -150,7 +152,7 @@ const Page = () => {
                   longitude: delivery.pickup_longitude,
                 }}
                 title={order.restaurant?.name ?? 'Restaurant'}
-                pinColor="#F0A202"
+                pinColor={colors.rating}
               />
             )}
             {delivery?.dropoff_latitude != null && delivery?.dropoff_longitude != null && (
@@ -160,7 +162,7 @@ const Page = () => {
                   longitude: delivery.dropoff_longitude,
                 }}
                 title="Your address"
-                pinColor={Colors.secondary}
+                pinColor={colors.primary}
               />
             )}
             {courierPosition && (
@@ -170,7 +172,7 @@ const Page = () => {
                   longitude: courierPosition.longitude,
                 }}
                 title={courier?.full_name ?? 'Courier'}
-                pinColor="#1DB954"
+                pinColor={colors.success}
               />
             )}
           </MapView>
@@ -181,7 +183,7 @@ const Page = () => {
             accessibilityRole="button"
             accessibilityLabel="Go back"
             hitSlop={4}>
-            <Ionicons name="chevron-back" size={22} color="#000" />
+            <Ionicons name="chevron-back" size={22} color={colors.textPrimary} />
           </TouchableOpacity>
         </View>
       ) : (
@@ -192,7 +194,7 @@ const Page = () => {
           accessibilityRole="button"
           accessibilityLabel="Go back"
           hitSlop={4}>
-            <Ionicons name="chevron-back" size={24} color="#000" />
+            <Ionicons name="chevron-back" size={24} color={colors.textPrimary} />
           </TouchableOpacity>
           <View style={styles.headerText}>
             <Text style={styles.title}>Order #{order.id.slice(0, 8)}</Text>
@@ -208,7 +210,7 @@ const Page = () => {
         refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} />}>
         {!!connectionNotice && (
           <View style={styles.connectionBanner} testID="track-connection-notice">
-            <Ionicons name="cloud-offline-outline" size={16} color="#8A6100" />
+            <Ionicons name="cloud-offline-outline" size={16} color={colors.warning} />
             <Text style={styles.connectionText}>{connectionNotice}</Text>
             <TouchableOpacity onPress={refetch} accessibilityRole="button">
               <Text style={styles.connectionAction}>Refresh</Text>
@@ -222,7 +224,7 @@ const Page = () => {
             onPress={() => router.push(`/order/chat?id=${id}`)}
             accessibilityRole="button"
             testID="track-open-chat">
-            <Ionicons name="chatbubble-ellipses-outline" size={20} color={Colors.secondary} />
+            <Ionicons name="chatbubble-ellipses-outline" size={20} color={colors.primary} />
             <View style={{ flex: 1 }}>
               <Text style={styles.chatTitle}>
                 {chatAccess.can_send ? 'Message your courier' : 'Conversation'}
@@ -238,7 +240,7 @@ const Page = () => {
                 </Text>
               </View>
             )}
-            <Ionicons name="chevron-forward" size={18} color="#999" />
+            <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
           </TouchableOpacity>
         )}
 
@@ -259,7 +261,7 @@ const Page = () => {
         {courier && isLive && (
           <View style={styles.courierCard}>
             <View style={styles.courierAvatar}>
-              <Ionicons name="bicycle" size={20} color={Colors.secondary} />
+              <Ionicons name="bicycle" size={20} color={colors.primary} />
             </View>
             <View style={styles.courierText}>
               <Text style={styles.courierName}>{courier.full_name}</Text>
@@ -325,33 +327,33 @@ const Page = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   chatRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
     padding: 14,
     borderRadius: 12,
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: c.selectedBackground,
     marginBottom: 12,
   },
-  chatTitle: { fontSize: 15, fontWeight: '700', color: Colors.secondary },
-  chatSubtitle: { fontSize: 13, color: Colors.muted },
+  chatTitle: { fontSize: 15, fontWeight: '700', color: c.primaryText },
+  chatSubtitle: { fontSize: 13, color: c.textMuted },
   chatBadge: {
     minWidth: 20,
     height: 20,
     borderRadius: 10,
     paddingHorizontal: 5,
-    backgroundColor: '#B32433',
+    backgroundColor: c.dangerSolid,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  chatBadgeText: { color: '#fff', fontSize: 11, fontWeight: '700' },
+  chatBadgeText: { color: c.primaryForeground, fontSize: 11, fontWeight: '700' },
   connectionBanner: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#FFF3D6',
+    backgroundColor: c.warningSoft,
     borderRadius: 10,
     padding: 10,
     marginBottom: 12,
@@ -359,23 +361,23 @@ const styles = StyleSheet.create({
   connectionText: {
     flex: 1,
     fontSize: 13,
-    color: '#8A6100',
+    color: c.warning,
   },
   connectionAction: {
     fontSize: 13,
     fontWeight: '700',
-    color: Colors.secondary,
+    color: c.primaryText,
   },
-  container: { flex: 1, backgroundColor: Colors.background },
+  container: { flex: 1, backgroundColor: c.background },
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 8, padding: 24 },
-  mapWrapper: { height: MAP_HEIGHT, backgroundColor: '#e9eef1' },
+  mapWrapper: { height: MAP_HEIGHT, backgroundColor: c.surfaceMuted },
   backFloating: {
     position: 'absolute',
     left: 12,
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 3,
@@ -386,25 +388,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 12,
     paddingBottom: 12,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#e6e6e6',
+    borderBottomColor: c.border,
   },
   iconButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   headerText: { flex: 1, alignItems: 'center' },
-  title: { fontSize: 16, fontWeight: '700', color: '#000' },
-  subtitle: { fontSize: 13, color: Colors.muted, marginTop: 2 },
+  title: { fontSize: 16, fontWeight: '700', color: c.textPrimary },
+  subtitle: { fontSize: 13, color: c.textMuted, marginTop: 2 },
   sheet: { flex: 1 },
   sheetContent: { padding: 16, gap: 14 },
   statusRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   statusLeft: { flex: 1, gap: 2 },
-  restaurant: { fontSize: 20, fontWeight: '700', color: '#000' },
-  statusHint: { fontSize: 14, color: Colors.muted },
+  restaurant: { fontSize: 20, fontWeight: '700', color: c.textPrimary },
+  statusHint: { fontSize: 14, color: c.textMuted },
   courierCard: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderRadius: 14,
     padding: 14,
   },
@@ -412,48 +414,48 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: c.selectedBackground,
     alignItems: 'center',
     justifyContent: 'center',
   },
   courierText: { flex: 1 },
-  courierName: { fontSize: 15, fontWeight: '700', color: '#000' },
-  courierMeta: { fontSize: 13, color: Colors.muted, marginTop: 2 },
-  liveDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: '#1DB954' },
-  timeline: { backgroundColor: '#fff', borderRadius: 14, padding: 16 },
+  courierName: { fontSize: 15, fontWeight: '700', color: c.textPrimary },
+  courierMeta: { fontSize: 13, color: c.textMuted, marginTop: 2 },
+  liveDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: c.successSolid },
+  timeline: { backgroundColor: c.surface, borderRadius: 14, padding: 16 },
   timelineRow: { flexDirection: 'row', gap: 12 },
   timelineMarkerColumn: { alignItems: 'center', width: 16 },
   timelineDot: {
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: '#d5dde2',
+    backgroundColor: c.surfaceMuted,
     marginTop: 5,
   },
-  timelineDotCurrent: { backgroundColor: Colors.secondary },
-  timelineLine: { flex: 1, width: 2, backgroundColor: '#e7edf0', marginVertical: 2 },
+  timelineDotCurrent: { backgroundColor: c.primary },
+  timelineLine: { flex: 1, width: 2, backgroundColor: c.surfaceMuted, marginVertical: 2 },
   timelineBody: { flex: 1, paddingBottom: 14 },
-  timelineLabel: { fontSize: 14, fontWeight: '600', color: '#000' },
-  timelineTime: { fontSize: 12, color: Colors.muted, marginTop: 2 },
-  timelineReason: { fontSize: 13, color: Colors.muted, marginTop: 4, fontStyle: 'italic' },
-  itemsCard: { backgroundColor: '#fff', borderRadius: 14, padding: 16, gap: 8 },
-  sectionTitle: { fontSize: 16, fontWeight: '700', color: '#000', marginBottom: 4 },
+  timelineLabel: { fontSize: 14, fontWeight: '600', color: c.textPrimary },
+  timelineTime: { fontSize: 12, color: c.textMuted, marginTop: 2 },
+  timelineReason: { fontSize: 13, color: c.textMuted, marginTop: 4, fontStyle: 'italic' },
+  itemsCard: { backgroundColor: c.surface, borderRadius: 14, padding: 16, gap: 8 },
+  sectionTitle: { fontSize: 16, fontWeight: '700', color: c.textPrimary, marginBottom: 4 },
   itemRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  itemQty: { fontSize: 14, fontWeight: '700', color: Colors.secondary, minWidth: 26 },
-  itemName: { flex: 1, fontSize: 14, color: '#000' },
-  itemPrice: { fontSize: 14, color: '#000' },
+  itemQty: { fontSize: 14, fontWeight: '700', color: c.primaryText, minWidth: 26 },
+  itemName: { flex: 1, fontSize: 14, color: c.textPrimary },
+  itemPrice: { fontSize: 14, color: c.textPrimary },
   totalRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: '#ececec',
+    borderTopColor: c.border,
     paddingTop: 10,
     marginTop: 4,
   },
-  totalLabel: { fontSize: 15, fontWeight: '600', color: '#000' },
-  totalValue: { fontSize: 16, fontWeight: '700', color: '#000' },
-  emptyTitle: { fontSize: 17, fontWeight: '700', color: '#000' },
-  link: { color: Colors.secondary, fontSize: 15, fontWeight: '600', marginTop: 8 },
-});
+  totalLabel: { fontSize: 15, fontWeight: '600', color: c.textPrimary },
+  totalValue: { fontSize: 16, fontWeight: '700', color: c.textPrimary },
+  emptyTitle: { fontSize: 17, fontWeight: '700', color: c.textPrimary },
+  link: { color: c.primaryText, fontSize: 15, fontWeight: '600', marginTop: 8 },
+}));
 
 export default Page;

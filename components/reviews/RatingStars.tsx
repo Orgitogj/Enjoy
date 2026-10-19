@@ -1,6 +1,6 @@
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 
 interface RatingStarsProps {
   rating: number;
@@ -10,8 +10,6 @@ interface RatingStarsProps {
   testID?: string;
 }
 
-const STAR_COLOR = '#f5a623';
-
 export const RatingStars = ({
   rating,
   size = 16,
@@ -19,6 +17,8 @@ export const RatingStars = ({
   disabled,
   testID,
 }: RatingStarsProps) => {
+  const styles = useStyles();
+  const colors = useThemeColors();
   const values = [1, 2, 3, 4, 5];
 
   if (!onChange) {
@@ -29,7 +29,7 @@ export const RatingStars = ({
             key={value}
             name={value <= Math.round(rating) ? 'star' : 'star-outline'}
             size={size}
-            color={STAR_COLOR}
+            color={colors.rating}
           />
         ))}
       </View>
@@ -51,7 +51,7 @@ export const RatingStars = ({
           <Ionicons
             name={value <= rating ? 'star' : 'star-outline'}
             size={size}
-            color={disabled ? Colors.muted : STAR_COLOR}
+            color={disabled ? colors.textMuted : colors.rating}
           />
         </TouchableOpacity>
       ))}
@@ -65,7 +65,9 @@ interface RatingSummaryProps {
   size?: number;
 }
 
-export const RatingSummary = ({ average, count, size = 14 }: RatingSummaryProps) => (
+export const RatingSummary = ({ average, count, size = 14 }: RatingSummaryProps) => {
+  const styles = useStyles();
+  return (
   <View style={styles.summaryRow}>
     <RatingStars rating={average} size={size} />
     <Text style={styles.summaryText}>
@@ -73,8 +75,9 @@ export const RatingSummary = ({ average, count, size = 14 }: RatingSummaryProps)
     </Text>
   </View>
 );
+};
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   row: {
     flexDirection: 'row',
     gap: 2,
@@ -86,6 +89,6 @@ const styles = StyleSheet.create({
   },
   summaryText: {
     fontSize: 13,
-    color: Colors.muted,
+    color: c.textMuted,
   },
-});
+}));

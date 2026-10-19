@@ -1,5 +1,5 @@
 import { RatingStars } from '@/components/reviews/RatingStars';
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import {
   useDeleteReview,
   useMyReviews,
@@ -32,6 +32,8 @@ const INELIGIBLE_MESSAGE: Record<string, string> = {
 };
 
 const Page = () => {
+  const styles = useStyles();
+  const colors = useThemeColors();
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const orderId = id ?? '';
@@ -113,7 +115,7 @@ const Page = () => {
     return (
       <View style={styles.state} testID="review-eligibility-loading">
         <Stack.Screen options={{ title: 'Rate your order' }} />
-        <ActivityIndicator size="large" color={Colors.secondary} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -122,7 +124,7 @@ const Page = () => {
     return (
       <View style={styles.state}>
         <Stack.Screen options={{ title: 'Rate your order' }} />
-        <Ionicons name="cloud-offline-outline" size={40} color={Colors.muted} />
+        <Ionicons name="cloud-offline-outline" size={40} color={colors.textMuted} />
         <Text style={styles.mutedText}>We could not check this order.</Text>
         <TouchableOpacity
           style={styles.primaryButton}
@@ -142,7 +144,7 @@ const Page = () => {
     return (
       <View style={styles.state}>
         <Stack.Screen options={{ title: 'Rate your order' }} />
-        <Ionicons name="lock-closed-outline" size={40} color={Colors.muted} />
+        <Ionicons name="lock-closed-outline" size={40} color={colors.textMuted} />
         <Text style={styles.mutedText}>
           {INELIGIBLE_MESSAGE[blockedReason ?? 'not_found'] ?? 'This order cannot be reviewed.'}
         </Text>
@@ -174,7 +176,7 @@ const Page = () => {
           value={body}
           onChangeText={(text) => setBody(text.slice(0, REVIEW_BODY_MAX_LENGTH))}
           placeholder="Tell others about the food and the delivery (optional)"
-          placeholderTextColor={Colors.muted}
+          placeholderTextColor={colors.textMuted}
           multiline
           editable={!isPending}
           testID="review-body-input"
@@ -191,7 +193,7 @@ const Page = () => {
           accessibilityState={{ disabled: !canSubmit }}
           testID="review-submit">
           {isPending ? (
-            <ActivityIndicator color="#fff" />
+            <ActivityIndicator color={colors.primaryForeground} />
           ) : (
             <Text style={styles.primaryButtonText}>
               {isEditing ? 'Save changes' : 'Submit review'}
@@ -213,8 +215,8 @@ const Page = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
+const useStyles = createThemedStyles((c) => ({
+  container: { flex: 1, backgroundColor: c.background },
   content: { padding: 20, gap: 12 },
   state: {
     flex: 1,
@@ -222,32 +224,33 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 10,
     padding: 24,
-    backgroundColor: Colors.background,
+    backgroundColor: c.background,
   },
-  title: { fontSize: 22, fontWeight: '800', color: '#000' },
-  mutedText: { fontSize: 14, color: Colors.muted, textAlign: 'center' },
+  title: { fontSize: 22, fontWeight: '800', color: c.textPrimary },
+  mutedText: { fontSize: 14, color: c.textMuted, textAlign: 'center' },
   starsRow: { alignItems: 'center', paddingVertical: 12 },
   input: {
+    color: c.textPrimary,
     minHeight: 120,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderRadius: 12,
     padding: 14,
     fontSize: 15,
     textAlignVertical: 'top',
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: Colors.light,
+    borderColor: c.border,
   },
-  counter: { alignSelf: 'flex-end', fontSize: 12, color: Colors.muted },
+  counter: { alignSelf: 'flex-end', fontSize: 12, color: c.textMuted },
   primaryButton: {
-    backgroundColor: Colors.primary,
+    backgroundColor: c.primary,
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
   },
   primaryButtonDisabled: { opacity: 0.5 },
-  primaryButtonText: { color: '#fff', fontSize: 16, fontWeight: '700' },
+  primaryButtonText: { color: c.primaryForeground, fontSize: 16, fontWeight: '700' },
   deleteButton: { paddingVertical: 14, alignItems: 'center' },
-  deleteButtonText: { color: '#B32433', fontWeight: '600' },
-});
+  deleteButtonText: { color: c.danger, fontWeight: '600' },
+}));
 
 export default Page;

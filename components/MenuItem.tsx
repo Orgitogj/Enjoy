@@ -1,14 +1,15 @@
-import { Colors } from '@/constants/theme';
+import { createThemedStyles } from '@/constants/theme';
 import type { Dish } from '@/types/database';
 import { Image } from 'expo-image';
 import { Link } from 'expo-router';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 
 interface MenuItemProps {
   dish: Dish;
 }
 
 export const MenuItem = ({ dish }: MenuItemProps) => {
+  const styles = useStyles();
   return (
     <Link href={`/(modal)/(menu)/${dish.id}`} asChild>
       <TouchableOpacity style={styles.container} activeOpacity={0.7}>
@@ -34,13 +35,13 @@ export const MenuItem = ({ dish }: MenuItemProps) => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   container: {
-    backgroundColor: '#fff',
+    backgroundColor: c.background,
     paddingVertical: 16,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: c.border,
   },
   content: {
     flexDirection: 'row',
@@ -54,12 +55,12 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#000',
+    color: c.textPrimary,
     marginBottom: 4,
   },
   description: {
     fontSize: 14,
-    color: '#666',
+    color: c.textMuted,
     marginBottom: 8,
     lineHeight: 20,
   },
@@ -71,10 +72,10 @@ const styles = StyleSheet.create({
   price: {
     fontSize: 15,
     fontWeight: '600',
-    color: Colors.primary,
+    color: c.primaryText,
   },
   popularBadge: {
-    backgroundColor: Colors.primary,
+    backgroundColor: c.primary,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 4,
@@ -82,13 +83,13 @@ const styles = StyleSheet.create({
   popularText: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#fff',
+    color: c.primaryForeground,
     letterSpacing: 0.5,
   },
   image: {
     width: 100,
     height: 100,
     borderRadius: 12,
-    backgroundColor: '#e0e0e0',
+    backgroundColor: c.surfaceMuted,
   },
-});
+}));

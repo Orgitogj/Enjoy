@@ -1,9 +1,10 @@
-import { Colors } from '@/constants/theme';
+import { useThemeColors } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import { TouchableOpacity } from 'react-native';
 
 const Layout = () => {
+  const colors = useThemeColors();
   const router = useRouter();
   return (
     <Stack>
@@ -33,12 +34,12 @@ const Layout = () => {
           sheetGrabberVisible: true,
           headerRight: () => (
             <TouchableOpacity
-              style={{ padding: 4, borderRadius: 20, backgroundColor: Colors.light }}
+              style={{ padding: 4, borderRadius: 20, backgroundColor: colors.surfaceMuted }}
               onPress={() => router.dismiss()}
               accessibilityRole="button"
               accessibilityLabel="Close"
               hitSlop={8}>
-              <Ionicons name="close-sharp" size={28} />
+              <Ionicons name="close-sharp" size={28} color={colors.textPrimary} />
             </TouchableOpacity>
           ),
         }}
@@ -53,16 +54,16 @@ const Layout = () => {
           sheetCornerRadius: 16,
           sheetGrabberVisible: true,
           contentStyle: {
-            backgroundColor: Colors.background,
+            backgroundColor: colors.background,
           },
           headerRight: () => (
             <TouchableOpacity
-              style={{ padding: 4, borderRadius: 20, backgroundColor: Colors.light }}
+              style={{ padding: 4, borderRadius: 20, backgroundColor: colors.surfaceMuted }}
               onPress={() => router.dismiss()}
               accessibilityRole="button"
               accessibilityLabel="Close"
               hitSlop={8}>
-              <Ionicons name="close-sharp" size={28} />
+              <Ionicons name="close-sharp" size={28} color={colors.textPrimary} />
             </TouchableOpacity>
           ),
         }}
@@ -79,7 +80,7 @@ const Layout = () => {
           sheetExpandsWhenScrolledToEdge: true,
           headerShown: false,
           contentStyle: {
-            backgroundColor: '#fff',
+            backgroundColor: colors.background,
           },
         }}
       />

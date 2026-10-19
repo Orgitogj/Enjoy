@@ -1,20 +1,13 @@
+import FadeInView from '@/components/ui/FadeInView';
 import RestaurantCard from '@/components/RestaurantCard';
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import type { Restaurant } from '@/types/database';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { FlashList, type FlashListProps } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
 import type { ComponentType, ReactElement } from 'react';
 import { useCallback } from 'react';
-import {
-  ActivityIndicator,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  type StyleProp,
-  type ViewStyle,
-} from 'react-native';
+import { ActivityIndicator, Text, TouchableOpacity, View, type StyleProp, type ViewStyle } from 'react-native';
 import Animated, {
   useAnimatedScrollHandler,
   type SharedValue,
@@ -40,9 +33,12 @@ interface RestaurantListProps {
   etaLabels?: Record<string, string | null>;
 }
 
-export const RestaurantListError = ({ onRetry }: { onRetry?: () => void }) => (
+export const RestaurantListError = ({ onRetry }: { onRetry?: () => void }) => {
+  const styles = useStyles();
+  const colors = useThemeColors();
+  return (
   <View style={styles.stateContainer}>
-    <Ionicons name="cloud-offline-outline" size={40} color={Colors.muted} />
+    <Ionicons name="cloud-offline-outline" size={40} color={colors.textMuted} />
     <Text style={styles.stateTitle}>We could not load restaurants</Text>
     <Text style={styles.stateBody}>Check your connection and try again.</Text>
     {onRetry && (
@@ -52,6 +48,7 @@ export const RestaurantListError = ({ onRetry }: { onRetry?: () => void }) => (
     )}
   </View>
 );
+};
 
 const RestaurantList = ({
   restaurants,
@@ -68,6 +65,8 @@ const RestaurantList = ({
   scrollOffset,
   etaLabels,
 }: RestaurantListProps) => {
+  const styles = useStyles();
+  const colors = useThemeColors();
   const router = useRouter();
 
   const scrollHandler = useAnimatedScrollHandler({
@@ -79,9 +78,10 @@ const RestaurantList = ({
   });
 
   const renderItem = useCallback(
-    ({ item }: { item: Restaurant }) => (
+    ({ item, index }: { item: Restaurant; index: number }) => (
       <RestaurantCard
         restaurant={item}
+        index={index}
         etaLabel={etaLabels?.[item.id] ?? null}
         onPress={() => router.push(`/(modal)/(restaurant)/${item.id}`)}
       />
@@ -95,7 +95,7 @@ const RestaurantList = ({
     if (isLoading) {
       return (
         <View style={styles.stateContainer} testID="restaurant-list-loading">
-          <ActivityIndicator size="large" color={Colors.secondary} />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       );
     }
@@ -105,18 +105,18 @@ const RestaurantList = ({
     }
 
     return (
-      <View style={styles.stateContainer}>
-        <Ionicons name="restaurant-outline" size={40} color={Colors.muted} />
+      <FadeInView style={styles.stateContainer}>
+        <Ionicons name="restaurant-outline" size={40} color={colors.textMuted} />
         <Text style={styles.stateBody}>{emptyMessage ?? 'No restaurants match right now.'}</Text>
-      </View>
+      </FadeInView>
     );
-  }, [emptyMessage, error, isLoading, onRetry]);
+  }, [emptyMessage, error, isLoading, onRetry, styles, colors]);
 
   const renderFooter = useCallback(() => {
     if (isFetchingNextPage) {
       return (
         <View style={styles.footer} testID="restaurant-list-next-page-loading">
-          <ActivityIndicator color={Colors.secondary} />
+          <ActivityIndicator color={colors.primary} />
         </View>
       );
     }
@@ -138,7 +138,7 @@ const RestaurantList = ({
     }
 
     return null;
-  }, [isFetchNextPageError, isFetchingNextPage, onRetryNextPage]);
+  }, [isFetchNextPageError, isFetchingNextPage, onRetryNextPage, styles, colors]);
 
   return (
     <AnimatedFlashList
@@ -159,18 +159,18 @@ const RestaurantList = ({
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   stateContainer: {
     padding: 24,
     alignItems: 'center',
     gap: 8,
   },
   stateTitle: {
-    color: Colors.dark,
+    color: c.textPrimary,
     fontWeight: '600',
   },
   stateBody: {
-    color: Colors.muted,
+    color: c.textMuted,
     textAlign: 'center',
   },
   retryButton: {
@@ -178,10 +178,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 20,
-    backgroundColor: Colors.primary,
+    backgroundColor: c.primary,
   },
   retryButtonText: {
-    color: '#fff',
+    color: c.primaryForeground,
     fontWeight: '600',
   },
   footer: {
@@ -189,6 +189,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-});
+}));
 
 export default RestaurantList;

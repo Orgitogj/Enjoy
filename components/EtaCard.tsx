@@ -1,8 +1,8 @@
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import type { Order } from '@/types/database';
 import { orderEta } from '@/utils/eta';
 import { Ionicons } from '@expo/vector-icons';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 interface EtaCardProps {
   order: Order;
@@ -10,6 +10,8 @@ interface EtaCardProps {
 }
 
 export const EtaCard = ({ order, isTerminal }: EtaCardProps) => {
+  const styles = useStyles();
+  const colors = useThemeColors();
   const eta = orderEta(order);
 
   if (isTerminal || !eta.window) return null;
@@ -17,7 +19,7 @@ export const EtaCard = ({ order, isTerminal }: EtaCardProps) => {
   return (
     <View style={styles.card} testID="eta-card">
       <View style={styles.row}>
-        <Ionicons name="time-outline" size={18} color={Colors.secondary} />
+        <Ionicons name="time-outline" size={18} color={colors.primary} />
         <Text style={styles.title} testID="eta-window">
           {eta.isLate ? `Running late, was due ${eta.window}` : `Arriving ${eta.window}`}
         </Text>
@@ -41,21 +43,21 @@ export const EtaCard = ({ order, isTerminal }: EtaCardProps) => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   card: {
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: c.selectedBackground,
     borderRadius: 14,
     padding: 14,
     gap: 10,
   },
   row: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  title: { flex: 1, fontSize: 15, fontWeight: '700', color: '#000' },
+  title: { flex: 1, fontSize: 15, fontWeight: '700', color: c.textPrimary },
   track: {
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     overflow: 'hidden',
   },
-  fill: { height: 6, borderRadius: 3, backgroundColor: Colors.secondary },
-  meta: { fontSize: 13, color: Colors.muted },
-});
+  fill: { height: 6, borderRadius: 3, backgroundColor: c.primary },
+  meta: { fontSize: 13, color: c.textMuted },
+}));

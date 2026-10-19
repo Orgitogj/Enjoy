@@ -1,5 +1,5 @@
-import { AdminScreen, adminStyles } from '@/components/admin/AdminScreen';
-import { Colors } from '@/constants/theme';
+import { AdminScreen, useAdminStyles } from '@/components/admin/AdminScreen';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import {
   useAdminActions,
   useAdminCouriers,
@@ -38,6 +38,9 @@ const NAV = [
 ] as const;
 
 const Page = () => {
+  const adminStyles = useAdminStyles();
+  const colors = useThemeColors();
+  const styles = useStyles();
   const router = useRouter();
   const { isAdmin } = useIsAdmin();
   const { data: settings } = usePlatformSettings();
@@ -86,10 +89,10 @@ const Page = () => {
       <ScrollView
         contentContainerStyle={adminStyles.list}
         refreshControl={
-          <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={Colors.secondary} />
+          <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={colors.primary} />
         }>
         {isLoading ? (
-          <ActivityIndicator size="large" color={Colors.secondary} style={styles.loader} />
+          <ActivityIndicator size="large" color={colors.primary} style={styles.loader} />
         ) : (
           <View style={styles.statGrid}>
             {stats.map((stat) => (
@@ -135,7 +138,7 @@ const Page = () => {
                         style={styles.courierOption}
                         disabled={assign.isPending}
                         onPress={() => onAssign(delivery, courier)}>
-                        <Ionicons name="person-circle-outline" size={20} color={Colors.secondary} />
+                        <Ionicons name="person-circle-outline" size={20} color={colors.primary} />
                         <View style={styles.courierBody}>
                           <Text style={adminStyles.cardTitle}>{courier.full_name}</Text>
                           <Text style={adminStyles.cardMeta}>
@@ -169,13 +172,13 @@ const Page = () => {
             style={styles.navCard}
             onPress={() => router.push(item.href)}>
             <View style={styles.navIcon}>
-              <Ionicons name={item.icon} size={20} color={Colors.secondary} />
+              <Ionicons name={item.icon} size={20} color={colors.primary} />
             </View>
             <View style={styles.navBody}>
               <Text style={adminStyles.cardTitle}>{item.title}</Text>
               <Text style={adminStyles.cardMeta}>{item.text}</Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color="#999" />
+            <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
           </TouchableOpacity>
         ))}
 
@@ -216,24 +219,24 @@ const Page = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   loader: { marginVertical: 24 },
   statGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   stat: {
     flexGrow: 1,
     flexBasis: '45%',
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderRadius: 14,
     padding: 14,
     gap: 4,
   },
-  statValue: { fontSize: 20, fontWeight: '800', color: '#000' },
-  statLabel: { fontSize: 12, color: Colors.muted },
+  statValue: { fontSize: 20, fontWeight: '800', color: c.textPrimary },
+  statLabel: { fontSize: 12, color: c.textMuted },
   navCard: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: c.selectedBackground,
     borderRadius: 12,
     padding: 14,
   },
@@ -241,7 +244,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -251,7 +254,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    backgroundColor: '#f7f7f7',
+    backgroundColor: c.surfaceMuted,
     borderRadius: 10,
     padding: 10,
   },
@@ -262,14 +265,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 6,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#ececec',
+    borderBottomColor: c.border,
   },
   actionRow: {
     paddingVertical: 6,
     gap: 2,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#ececec',
+    borderBottomColor: c.border,
   },
-});
+}));
 
 export default Page;

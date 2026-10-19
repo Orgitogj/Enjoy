@@ -1,4 +1,4 @@
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, rgbTriplet, useThemeColors } from '@/constants/theme';
 import { useFavorites } from '@/hooks/useFavorites';
 import type { Restaurant } from '@/types/database';
 import { Ionicons } from '@expo/vector-icons';
@@ -39,11 +39,15 @@ const RestaurantDetailsHeader = ({
   searchQuery,
   onSearchChange,
 }: RestaurantHeaderProps) => {
+  const styles = useStyles();
+  const colors = useThemeColors();
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const [menuVisible, setMenuVisible] = useState(false);
   const { isFavorite, toggleFavorite } = useFavorites();
   const favorite = restaurant ? isFavorite(restaurant.id) : false;
+  const headerRgb = rgbTriplet(colors.surface);
+  const searchRgb = rgbTriplet(colors.surfaceMuted);
 
   const headerStyle = useAnimatedStyle(() => {
     const backgroundOpacity = interpolate(
@@ -61,7 +65,7 @@ const RestaurantDetailsHeader = ({
     );
 
     return {
-      backgroundColor: `rgba(255,255,255, ${backgroundOpacity})`,
+      backgroundColor: `rgba(${headerRgb}, ${backgroundOpacity})`,
       shadowOpacity,
     };
   });
@@ -75,7 +79,7 @@ const RestaurantDetailsHeader = ({
     );
 
     return {
-      backgroundColor: `rgba(230, 230, 230, ${backgroundOpacity})`,
+      backgroundColor: `rgba(${searchRgb}, ${backgroundOpacity})`,
     };
   });
 
@@ -118,7 +122,7 @@ const RestaurantDetailsHeader = ({
 
   const shareVenue = () => {
     if (!restaurant) return;
-    Share.share({ message: `Check out ${restaurant.name} on Wolt!` });
+    Share.share({ message: `Check out ${restaurant.name} on ENJOY!` });
   };
 
   const menuItems = [
@@ -143,15 +147,15 @@ const RestaurantDetailsHeader = ({
           accessibilityRole="button"
           accessibilityLabel="Go back"
           hitSlop={4}>
-          <Ionicons name="chevron-back" size={25} />
+          <Ionicons name="chevron-back" size={25} color={colors.textPrimary} />
         </TouchableOpacity>
 
         <Animated.View style={[styles.searchBar, searchBarStyle]}>
-          <Ionicons name="search" size={20} color={Colors.muted} />
+          <Ionicons name="search" size={20} color={colors.textMuted} />
           <TextInput
-            style={{ fontSize: 15, flex: 1 }}
+            style={{ fontSize: 15, flex: 1, color: colors.textPrimary }}
             placeholder="Search menu"
-            placeholderTextColor={Colors.muted}
+            placeholderTextColor={colors.textMuted}
             value={searchQuery}
             onChangeText={onSearchChange}
             returnKeyType="search"
@@ -169,7 +173,7 @@ const RestaurantDetailsHeader = ({
             accessibilityLabel={favorite ? 'Remove from favorites' : 'Add to favorites'}
             accessibilityState={{ selected: favorite }}
             hitSlop={8}>
-            <Ionicons name={favorite ? 'heart' : 'heart-outline'} size={24} color={favorite ? '#ff4d4f' : '#000'} />
+            <Ionicons name={favorite ? 'heart' : 'heart-outline'} size={24} color={favorite ? colors.danger : colors.textPrimary} />
           </TouchableOpacity>
         </Animated.View>
 
@@ -179,7 +183,7 @@ const RestaurantDetailsHeader = ({
             accessibilityRole="button"
             accessibilityLabel="More options"
             hitSlop={8}>
-            <Ionicons name="ellipsis-horizontal" size={24} />
+            <Ionicons name="ellipsis-horizontal" size={24} color={colors.textPrimary} />
           </TouchableOpacity>
         </Animated.View>
       </View>
@@ -207,7 +211,7 @@ const RestaurantDetailsHeader = ({
                   setMenuVisible(false);
                 }}>
                 <Text style={styles.menuItemText}>{item.label}</Text>
-                <Ionicons name={item.icon} size={20} color={Colors.muted} />
+                <Ionicons name={item.icon} size={20} color={colors.textMuted} />
               </TouchableOpacity>
             ))}
           </View>
@@ -217,7 +221,7 @@ const RestaurantDetailsHeader = ({
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   headerContainer: {
     position: 'absolute',
     top: 0,
@@ -237,7 +241,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: Colors.light,
+    backgroundColor: c.surfaceMuted,
     alignItems: 'center',
     justifyContent: 'center',
     boxShadow: '0px 4px 2px -2px rgba(0, 0, 0, 0.1)',
@@ -258,7 +262,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: Colors.light,
+    backgroundColor: c.surfaceMuted,
     alignItems: 'center',
     justifyContent: 'center',
     boxShadow: '0px 4px 2px -2px rgba(0, 0, 0, 0.1)',
@@ -270,11 +274,11 @@ const styles = StyleSheet.create({
   menuContainer: {
     position: 'absolute',
     right: 16,
-    backgroundColor: '#fff',
+    backgroundColor: c.surfaceElevated,
     borderRadius: 12,
     minWidth: 200,
     paddingVertical: 4,
-    shadowColor: '#000',
+    shadowColor: c.shadow,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 8,
@@ -289,11 +293,11 @@ const styles = StyleSheet.create({
   },
   menuItemBorder: {
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: c.border,
   },
   menuItemText: {
     fontSize: 15,
-    color: '#000',
+    color: c.textPrimary,
   },
-});
+}));
 export default RestaurantDetailsHeader;

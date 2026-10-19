@@ -2,23 +2,18 @@ import CheckoutButton from '@/components/buttons/CheckoutButton';
 import { CartValidationBanner } from '@/components/checkout/CartValidationBanner';
 import OrderItem from '@/components/OrderItem';
 import { RecommendedDish } from '@/components/RecommendedDish';
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import { useCartContents } from '@/hooks/use-cartstore';
 import { useCartValidation } from '@/hooks/useCartValidation';
 import { usePopularDishes } from '@/hooks/useMenu';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import {
-  ActivityIndicator,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const Page = () => {
+  const styles = useStyles();
+  const colors = useThemeColors();
   const router = useRouter();
   const { top } = useSafeAreaInsets();
   const { items, selectedRestaurant, isRestored } = useCartContents();
@@ -29,7 +24,7 @@ const Page = () => {
   if (!isRestored) {
     return (
       <View style={[styles.container, styles.restoring]} testID="basket-restoring">
-        <ActivityIndicator size="large" color={Colors.secondary} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -45,7 +40,7 @@ const Page = () => {
         accessibilityRole="button"
         accessibilityLabel="Close basket"
         hitSlop={4}>
-            <Ionicons name="chevron-down" size={24} />
+            <Ionicons name="chevron-down" size={24} color={colors.textPrimary} />
           </TouchableOpacity>
           <View style={styles.restaurantTextContainer}>
             <Text style={styles.restaurantName} numberOfLines={1}>
@@ -90,7 +85,7 @@ const Page = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   restoring: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -98,10 +93,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     overflow: 'hidden',
-    backgroundColor: '#fff',
+    backgroundColor: c.background,
   },
   header: {
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     paddingHorizontal: 16,
     paddingVertical: 12,
     boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
@@ -128,21 +123,22 @@ const styles = StyleSheet.create({
     paddingRight: 48,
   },
   restaurantName: {
+    color: c.textPrimary,
     fontSize: 15,
     fontWeight: 700,
     marginBottom: 2,
   },
   orderSubtitle: {
     fontSize: 13,
-    color: Colors.muted,
+    color: c.textMuted,
   },
   content: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: c.background,
   },
   scrollContent: {
     paddingBottom: 16,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
   },
   section: {
     paddingTop: 16,
@@ -154,20 +150,21 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   sectiontitle: {
+    color: c.textPrimary,
     fontSize: 20,
     fontWeight: 700,
   },
   addMoreLink: {
     fontSize: 16,
     fontWeight: 600,
-    color: Colors.secondary,
+    color: c.primaryText,
   },
   recommendedGrid: {
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 12,
     paddingHorizontal: 16,
   },
-});
+}));
 export default Page;

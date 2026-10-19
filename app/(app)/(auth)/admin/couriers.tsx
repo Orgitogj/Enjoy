@@ -1,6 +1,6 @@
-import { AdminEmpty, AdminScreen, adminStyles } from '@/components/admin/AdminScreen';
+import { AdminEmpty, AdminScreen, useAdminStyles } from '@/components/admin/AdminScreen';
 import { DOCUMENT_LABELS } from '@/constants/deliveryStatus';
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import {
   useAdminCourierDocuments,
   useAdminCouriers,
@@ -14,18 +14,7 @@ import type { AdminCourier, VerificationStatus } from '@/types/database';
 import { formatMoney } from '@/utils/currency';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  FlatList,
-  Linking,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Alert, FlatList, Linking, RefreshControl, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 const FILTERS: { key: VerificationStatus | 'all'; label: string }[] = [
   { key: 'pending', label: 'Applications' },
@@ -42,6 +31,9 @@ const REVIEW_ACTIONS: { status: VerificationStatus; label: string; destructive?:
 ];
 
 const CourierDocuments = ({ courierId }: { courierId: string }) => {
+  const colors = useThemeColors();
+  const styles = useStyles();
+  const adminStyles = useAdminStyles();
   const { data: documents, isLoading } = useAdminCourierDocuments(courierId);
   const review = useReviewCourierDocument();
 
@@ -65,7 +57,7 @@ const CourierDocuments = ({ courierId }: { courierId: string }) => {
     }
   };
 
-  if (isLoading) return <ActivityIndicator color={Colors.secondary} style={styles.inlineLoader} />;
+  if (isLoading) return <ActivityIndicator color={colors.primary} style={styles.inlineLoader} />;
 
   if ((documents ?? []).length === 0) {
     return <Text style={adminStyles.cardMeta}>This courier has not uploaded any document.</Text>;
@@ -78,7 +70,7 @@ const CourierDocuments = ({ courierId }: { courierId: string }) => {
           <TouchableOpacity
             style={styles.documentHead}
             onPress={() => openDocument(document.storage_path)}>
-            <Ionicons name="document-text-outline" size={18} color={Colors.secondary} />
+            <Ionicons name="document-text-outline" size={18} color={colors.primary} />
             <Text style={styles.documentName}>
               {DOCUMENT_LABELS[document.kind] ?? document.kind}
             </Text>
@@ -105,6 +97,9 @@ const CourierDocuments = ({ courierId }: { courierId: string }) => {
 };
 
 const Page = () => {
+  const adminStyles = useAdminStyles();
+  const styles = useStyles();
+  const colors = useThemeColors();
   const { isAdmin } = useIsAdmin();
   const { data: settings } = usePlatformSettings();
   const { data: couriers, isLoading, refetch, isRefetching } = useAdminCouriers(isAdmin);
@@ -150,7 +145,7 @@ const Page = () => {
         </View>
 
         <View style={styles.row}>
-          <Ionicons name="bicycle-outline" size={15} color={Colors.muted} />
+          <Ionicons name="bicycle-outline" size={15} color={colors.textMuted} />
           <Text style={adminStyles.cardMeta}>
             {item.vehicle_type.replace('_', ' ')}
             {item.vehicle_plate ? ` • ${item.vehicle_plate}` : ''} • {item.availability}
@@ -158,14 +153,14 @@ const Page = () => {
         </View>
 
         <View style={styles.row}>
-          <Ionicons name="checkmark-done-outline" size={15} color={Colors.muted} />
+          <Ionicons name="checkmark-done-outline" size={15} color={colors.textMuted} />
           <Text style={adminStyles.cardMeta}>
             {item.completed_deliveries} delivered • {formatMoney(item.lifetime_earnings, settings?.currency)} earned
           </Text>
         </View>
 
         <View style={styles.row}>
-          <Ionicons name="folder-open-outline" size={15} color={Colors.muted} />
+          <Ionicons name="folder-open-outline" size={15} color={colors.textMuted} />
           <Text style={adminStyles.cardMeta}>
             {item.approved_documents}/{item.document_count} documents approved
           </Text>
@@ -185,7 +180,7 @@ const Page = () => {
           <Ionicons
             name={isExpanded ? 'chevron-up' : 'chevron-down'}
             size={16}
-            color={Colors.secondary}
+            color={colors.primary}
           />
         </TouchableOpacity>
 
@@ -195,7 +190,7 @@ const Page = () => {
             <TextInput
               style={adminStyles.input}
               placeholder="Note for the courier"
-              placeholderTextColor={Colors.muted}
+              placeholderTextColor={colors.textMuted}
               value={notes}
               onChangeText={setNotes}
             />
@@ -250,7 +245,7 @@ const Page = () => {
       />
 
       {isLoading ? (
-        <ActivityIndicator size="large" color={Colors.secondary} style={styles.loader} />
+        <ActivityIndicator size="large" color={colors.primary} style={styles.loader} />
       ) : (
         <FlatList
           data={visible}
@@ -262,7 +257,7 @@ const Page = () => {
             <RefreshControl
               refreshing={isRefetching}
               onRefresh={refetch}
-              tintColor={Colors.secondary}
+              tintColor={colors.primary}
             />
           }
           ListEmptyComponent={
@@ -278,27 +273,28 @@ const Page = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   filterList: { flexGrow: 0 },
   loader: { marginTop: 32 },
   inlineLoader: { marginVertical: 12 },
   identity: { flex: 1, gap: 2 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  notes: { fontSize: 13, color: '#8a6d3b', backgroundColor: '#fcf8e3', borderRadius: 8, padding: 8 },
+  notes: { fontSize: 13, color: c.warning, backgroundColor: c.warningSoft, borderRadius: 8, padding: 8 },
   expandRow: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingTop: 4 },
-  expandText: { color: Colors.secondary, fontSize: 14, fontWeight: '600' },
+  expandText: { color: c.primaryText, fontSize: 14, fontWeight: '600' },
   panel: { gap: 8, marginTop: 4 },
   documents: { gap: 8 },
-  document: { backgroundColor: '#f7f7f7', borderRadius: 10, padding: 10, gap: 8 },
+  document: { backgroundColor: c.surfaceMuted, borderRadius: 10, padding: 10, gap: 8 },
   documentHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  documentName: { flex: 1, fontSize: 14, fontWeight: '600', color: '#000' },
+  documentName: { flex: 1, fontSize: 14, fontWeight: '600', color: c.textPrimary },
   documentActions: { flexDirection: 'row', gap: 8 },
   miniAction: { flex: 1, paddingVertical: 8, borderRadius: 8, alignItems: 'center' },
-  miniPrimary: { backgroundColor: Colors.secondary },
-  miniPrimaryText: { color: '#fff', fontSize: 13, fontWeight: '700' },
-  miniGhost: { backgroundColor: '#e9e9e9' },
-  miniGhostText: { color: Colors.muted, fontSize: 13, fontWeight: '700' },
+  miniPrimary: { backgroundColor: c.primary },
+  miniPrimaryText: { color: c.primaryForeground, fontSize: 13, fontWeight: '700' },
+  miniGhost: { backgroundColor: c.surfaceMuted },
+  miniGhostText: { color: c.textMuted, fontSize: 13, fontWeight: '700' },
   pill: {
+    color: c.textPrimary,
     fontSize: 11,
     fontWeight: '700',
     paddingHorizontal: 8,
@@ -306,10 +302,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     overflow: 'hidden',
   },
-  pill_pending: { backgroundColor: '#fff4e5', color: '#a15c00' },
-  pill_approved: { backgroundColor: '#e6f6ec', color: '#1b7f3b' },
-  pill_rejected: { backgroundColor: '#fbe9e9', color: '#c1272d' },
-  pill_suspended: { backgroundColor: '#eceff1', color: '#455a64' },
-});
+  pill_pending: { backgroundColor: c.warningSoft, color: c.warning },
+  pill_approved: { backgroundColor: c.successSoft, color: c.success },
+  pill_rejected: { backgroundColor: c.dangerSoft, color: c.danger },
+  pill_suspended: { backgroundColor: c.surfaceMuted, color: c.textSecondary },
+}));
 
 export default Page;

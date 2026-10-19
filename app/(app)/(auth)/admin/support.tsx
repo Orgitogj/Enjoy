@@ -1,4 +1,4 @@
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import { useAdminSupportTickets } from '@/hooks/useSupport';
 import {
   SUPPORT_CATEGORY_LABELS,
@@ -9,15 +9,7 @@ import type { SupportAssignmentFilter, SupportCategory, SupportTicketStatus } fr
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import {
-  ActivityIndicator,
-  FlatList,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ActivityIndicator, FlatList, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const STATUS_FILTERS: { value: SupportTicketStatus | null; label: string }[] = [
@@ -43,6 +35,8 @@ const ASSIGNMENT_FILTERS: { value: SupportAssignmentFilter; label: string }[] = 
 ];
 
 const Page = () => {
+  const styles = useStyles();
+  const colors = useThemeColors();
   const router = useRouter();
   const { top } = useSafeAreaInsets();
   const [filters, setFilters] = useState<AdminSupportFilters>({
@@ -86,7 +80,7 @@ const Page = () => {
           accessibilityRole="button"
           accessibilityLabel="Go back"
           testID="admin-support-back">
-          <Ionicons name="chevron-back" size={24} color="#000" />
+          <Ionicons name="chevron-back" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.title}>Support</Text>
         <View style={styles.headerSpacer} />
@@ -115,7 +109,7 @@ const Page = () => {
 
       {isLoading ? (
         <View style={styles.state} testID="admin-support-loading">
-          <ActivityIndicator size="large" color={Colors.secondary} />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       ) : error ? (
         <View style={styles.state}>
@@ -145,7 +139,7 @@ const Page = () => {
           }
           ListFooterComponent={
             isFetchingNextPage ? (
-              <ActivityIndicator style={styles.footer} color={Colors.secondary} />
+              <ActivityIndicator style={styles.footer} color={colors.primary} />
             ) : null
           }
           renderItem={({ item }) => (
@@ -186,48 +180,48 @@ const Page = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
+const useStyles = createThemedStyles((c) => ({
+  container: { flex: 1, backgroundColor: c.background },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
     paddingHorizontal: 16,
     paddingBottom: 12,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
   },
   headerSpacer: { width: 24 },
-  title: { flex: 1, fontSize: 20, fontWeight: '800', color: '#000' },
-  filters: { gap: 8, paddingVertical: 10, backgroundColor: '#fff' },
+  title: { flex: 1, fontSize: 20, fontWeight: '800', color: c.textPrimary },
+  filters: { gap: 8, paddingVertical: 10, backgroundColor: c.surface },
   chips: { gap: 8, paddingHorizontal: 16 },
   chip: {
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 18,
-    backgroundColor: Colors.background,
+    backgroundColor: c.surface,
   },
-  chipActive: { backgroundColor: Colors.primary },
-  chipText: { fontSize: 13, fontWeight: '600', color: '#000' },
-  chipTextActive: { color: '#fff' },
+  chipActive: { backgroundColor: c.primary },
+  chipText: { fontSize: 13, fontWeight: '600', color: c.textPrimary },
+  chipTextActive: { color: c.primaryForeground },
   state: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 10, padding: 24 },
   listContent: { padding: 16, gap: 12 },
   footer: { paddingVertical: 16 },
-  card: { backgroundColor: '#fff', borderRadius: 14, padding: 14, gap: 4 },
+  card: { backgroundColor: c.surface, borderRadius: 14, padding: 14, gap: 4 },
   cardHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  cardTitle: { fontSize: 16, fontWeight: '700', color: '#000' },
-  status: { fontSize: 12, fontWeight: '700', color: Colors.secondary },
-  meta: { fontSize: 13, color: Colors.muted },
-  description: { fontSize: 14, color: '#333' },
-  assignment: { fontSize: 13, fontWeight: '600', color: Colors.primary },
-  mutedText: { fontSize: 14, color: Colors.muted, textAlign: 'center', paddingVertical: 24 },
+  cardTitle: { fontSize: 16, fontWeight: '700', color: c.textPrimary },
+  status: { fontSize: 12, fontWeight: '700', color: c.primaryText },
+  meta: { fontSize: 13, color: c.textMuted },
+  description: { fontSize: 14, color: c.textSecondary },
+  assignment: { fontSize: 13, fontWeight: '600', color: c.primaryText },
+  mutedText: { fontSize: 14, color: c.textMuted, textAlign: 'center', paddingVertical: 24 },
   primaryButton: {
-    backgroundColor: Colors.primary,
+    backgroundColor: c.primary,
     borderRadius: 12,
     paddingVertical: 14,
     paddingHorizontal: 24,
     alignItems: 'center',
   },
-  primaryButtonText: { color: '#fff', fontSize: 15, fontWeight: '700' },
-});
+  primaryButtonText: { color: c.primaryForeground, fontSize: 15, fontWeight: '700' },
+}));
 
 export default Page;

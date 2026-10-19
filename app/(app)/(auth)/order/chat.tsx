@@ -1,4 +1,4 @@
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import { mergeChatTimeline, useOrderChat } from '@/hooks/useOrderChat';
 import { MESSAGE_MAX_LENGTH } from '@/services/chatService';
 import type { OrderMessage, OutgoingMessage } from '@/types/database';
@@ -37,9 +37,14 @@ const UNAVAILABLE_COPY: Record<string, { title: string; body: string }> = {
 const formatTime = (value: string) =>
   new Date(value).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-const BubbleSeparator = () => <View style={styles.bubbleSeparator} />;
+const BubbleSeparator = () => {
+  const styles = useStyles();
+  return <View style={styles.bubbleSeparator} />;
+};
 
 const Page = () => {
+  const styles = useStyles();
+  const colors = useThemeColors();
   const { id } = useLocalSearchParams<{ id: string }>();
   const orderId = id ?? '';
   const insets = useSafeAreaInsets();
@@ -93,7 +98,7 @@ const Page = () => {
     return (
       <View style={styles.state} testID="chat-access-loading">
         <Stack.Screen options={{ title: 'Messages' }} />
-        <ActivityIndicator size="large" color={Colors.secondary} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -102,7 +107,7 @@ const Page = () => {
     return (
       <View style={styles.state}>
         <Stack.Screen options={{ title: 'Messages' }} />
-        <Ionicons name="cloud-offline-outline" size={40} color={Colors.muted} />
+        <Ionicons name="cloud-offline-outline" size={40} color={colors.textMuted} />
         <Text style={styles.mutedText}>We could not open this conversation.</Text>
         <TouchableOpacity
           style={styles.primaryButton}
@@ -120,7 +125,7 @@ const Page = () => {
     return (
       <View style={styles.state} testID="chat-unavailable">
         <Stack.Screen options={{ title: 'Messages' }} />
-        <Ionicons name="chatbubbles-outline" size={44} color={Colors.muted} />
+        <Ionicons name="chatbubbles-outline" size={44} color={colors.textMuted} />
         <Text style={styles.stateTitle}>{copy.title}</Text>
         <Text style={styles.mutedText}>{copy.body}</Text>
       </View>
@@ -179,7 +184,7 @@ const Page = () => {
     if (isLoading) {
       return (
         <View style={styles.state} testID="chat-loading">
-          <ActivityIndicator color={Colors.secondary} />
+          <ActivityIndicator color={colors.primary} />
         </View>
       );
     }
@@ -201,7 +206,7 @@ const Page = () => {
 
     return (
       <View style={styles.state} testID="chat-empty">
-        <Ionicons name="chatbubble-ellipses-outline" size={40} color={Colors.muted} />
+        <Ionicons name="chatbubble-ellipses-outline" size={40} color={colors.textMuted} />
         <Text style={styles.mutedText}>No messages yet. Say hello.</Text>
       </View>
     );
@@ -216,7 +221,7 @@ const Page = () => {
 
       {connection === 'disconnected' && (
         <View style={styles.connectionBanner} testID="chat-offline-banner">
-          <Ionicons name="cloud-offline-outline" size={14} color="#8A6100" />
+          <Ionicons name="cloud-offline-outline" size={14} color={colors.warning} />
           <Text style={styles.connectionText}>Reconnecting. Pull to refresh for new messages.</Text>
         </View>
       )}
@@ -243,7 +248,7 @@ const Page = () => {
         ListHeaderComponent={
           isLoadingOlder ? (
             <View style={styles.olderState} testID="chat-loading-older">
-              <ActivityIndicator color={Colors.secondary} />
+              <ActivityIndicator color={colors.primary} />
             </View>
           ) : isOlderError ? (
             <TouchableOpacity
@@ -268,7 +273,7 @@ const Page = () => {
             value={draft}
             onChangeText={(text) => setDraft(text.slice(0, MESSAGE_MAX_LENGTH))}
             placeholder="Write a message"
-            placeholderTextColor={Colors.muted}
+            placeholderTextColor={colors.textMuted}
             multiline
             testID="chat-input"
           />
@@ -283,7 +288,7 @@ const Page = () => {
             accessibilityRole="button"
             accessibilityLabel="Send message"
             testID="chat-send">
-            <Ionicons name="arrow-up" size={20} color="#fff" />
+            <Ionicons name="arrow-up" size={20} color={colors.primaryForeground} />
           </TouchableOpacity>
         </View>
       ) : (
@@ -299,58 +304,59 @@ const Page = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
+const useStyles = createThemedStyles((c) => ({
+  container: { flex: 1, backgroundColor: c.background },
   state: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
     padding: 24,
-    backgroundColor: Colors.background,
+    backgroundColor: c.background,
   },
-  stateTitle: { fontSize: 17, fontWeight: '700', color: '#000' },
-  mutedText: { fontSize: 14, color: Colors.muted, textAlign: 'center' },
+  stateTitle: { fontSize: 17, fontWeight: '700', color: c.textPrimary },
+  mutedText: { fontSize: 14, color: c.textMuted, textAlign: 'center' },
   listContent: { padding: 16 },
   bubbleSeparator: { height: 10 },
   emptyContent: { flexGrow: 1 },
   bubbleRow: { flexDirection: 'row' },
   bubbleRowMine: { justifyContent: 'flex-end' },
   bubble: { maxWidth: '78%', borderRadius: 16, paddingHorizontal: 14, paddingVertical: 10, gap: 4 },
-  bubbleMine: { backgroundColor: Colors.secondary, borderBottomRightRadius: 4 },
-  bubbleTheirs: { backgroundColor: '#fff', borderBottomLeftRadius: 4 },
+  bubbleMine: { backgroundColor: c.primary, borderBottomRightRadius: 4 },
+  bubbleTheirs: { backgroundColor: c.surface, borderBottomLeftRadius: 4 },
   bubblePending: { opacity: 0.8 },
-  bubbleText: { fontSize: 15, color: '#000' },
-  bubbleTextMine: { fontSize: 15, color: '#fff' },
-  time: { fontSize: 11, color: Colors.muted, alignSelf: 'flex-end' },
-  timeMine: { fontSize: 11, color: 'rgba(255,255,255,0.8)', alignSelf: 'flex-end' },
+  bubbleText: { fontSize: 15, color: c.textPrimary },
+  bubbleTextMine: { fontSize: 15, color: c.primaryForeground },
+  time: { fontSize: 11, color: c.textMuted, alignSelf: 'flex-end' },
+  timeMine: { fontSize: 11, color: c.primaryForeground, alignSelf: 'flex-end' },
   pendingRow: { flexDirection: 'row', alignItems: 'center', gap: 10, alignSelf: 'flex-end' },
-  pendingText: { fontSize: 11, color: 'rgba(255,255,255,0.85)' },
-  failedText: { fontSize: 11, color: '#FFD9DD' },
-  retryText: { fontSize: 12, fontWeight: '700', color: '#fff' },
-  discardText: { fontSize: 12, color: 'rgba(255,255,255,0.8)' },
+  pendingText: { fontSize: 11, color: c.primaryForeground },
+  failedText: { fontSize: 11, color: c.primaryForeground, fontWeight: '700' },
+  retryText: { fontSize: 12, fontWeight: '700', color: c.primaryForeground },
+  discardText: { fontSize: 12, color: c.primaryForeground, textDecorationLine: 'underline' },
   olderState: { paddingVertical: 16, alignItems: 'center' },
   primaryButton: {
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 20,
-    backgroundColor: Colors.primary,
+    backgroundColor: c.primary,
   },
-  primaryButtonText: { color: '#fff', fontWeight: '600' },
+  primaryButtonText: { color: c.primaryForeground, fontWeight: '600' },
   composer: {
     flexDirection: 'row',
     alignItems: 'flex-end',
     gap: 10,
     paddingHorizontal: 16,
     paddingTop: 10,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: Colors.light,
+    borderTopColor: c.border,
   },
   input: {
+    color: c.textPrimary,
     flex: 1,
     maxHeight: 120,
-    backgroundColor: Colors.background,
+    backgroundColor: c.inputBackground,
     borderRadius: 18,
     paddingHorizontal: 14,
     paddingVertical: 10,
@@ -360,7 +366,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: Colors.secondary,
+    backgroundColor: c.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -368,19 +374,19 @@ const styles = StyleSheet.create({
   closedBar: {
     paddingHorizontal: 16,
     paddingTop: 12,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: Colors.light,
+    borderTopColor: c.border,
   },
   connectionBanner: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#FFF3D6',
+    backgroundColor: c.warningSoft,
     paddingHorizontal: 14,
     paddingVertical: 8,
   },
-  connectionText: { flex: 1, fontSize: 12, color: '#8A6100' },
-});
+  connectionText: { flex: 1, fontSize: 12, color: c.warning },
+}));
 
 export default Page;

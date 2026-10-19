@@ -1,17 +1,34 @@
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import type { Restaurant } from '@/types/database';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Image } from 'expo-image';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import PressableScale from '@/components/ui/PressableScale';
+import { useReduceMotion } from '@/hooks/useReduceMotion';
+import { StyleSheet, Text, View } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
+
+const ANIMATED_ENTRANCE_COUNT = 6;
+
+export const entranceDelayFor = (index: number | undefined, reduceMotion: boolean): number | null =>
+  !reduceMotion && index !== undefined && index < ANIMATED_ENTRANCE_COUNT ? index * 60 : null;
 
 interface RestaurantCardProps {
   restaurant: Restaurant;
   onPress: () => void;
   etaLabel?: string | null;
+  index?: number;
 }
 
-const RestaurantCard = ({ restaurant, onPress, etaLabel }: RestaurantCardProps) => (
-  <TouchableOpacity
+const RestaurantCard = ({ restaurant, onPress, etaLabel, index }: RestaurantCardProps) => {
+  const styles = useStyles();
+  const colors = useThemeColors();
+  const reduceMotion = useReduceMotion();
+  const delay = entranceDelayFor(index, reduceMotion);
+  const entering = delay === null ? undefined : FadeInDown.delay(delay).duration(320);
+  return (
+  <Animated.View entering={entering}>
+  <PressableScale
+    pressedScale={0.98}
     style={styles.card}
     onPress={onPress}
     accessibilityRole="button"
@@ -25,15 +42,15 @@ const RestaurantCard = ({ restaurant, onPress, etaLabel }: RestaurantCardProps) 
       </Text>
     </View>
     <View style={styles.metadata}>
-      <Ionicons name="star" size={14} color="#f5a623" />
+      <Ionicons name="star" size={14} color={colors.rating} />
       <Text style={styles.metadataText}>{restaurant.rating.toFixed(1)}</Text>
       <Text style={styles.dot}>•</Text>
-      <Ionicons name="time-outline" size={16} color={Colors.muted} />
+      <Ionicons name="time-outline" size={16} color={colors.textMuted} />
       <Text style={styles.metadataText} testID={`restaurant-eta-${restaurant.id}`}>
         {etaLabel ?? `${restaurant.delivery_time_min}-${restaurant.delivery_time_max} min`}
       </Text>
       <Text style={styles.dot}>•</Text>
-      <Ionicons name="bicycle-outline" size={16} color={Colors.muted} />
+      <Ionicons name="bicycle-outline" size={16} color={colors.textMuted} />
       <Text style={styles.metadataText}>{restaurant.delivery_fee.toFixed(2)} €</Text>
       {!restaurant.is_open && (
         <>
@@ -42,20 +59,22 @@ const RestaurantCard = ({ restaurant, onPress, etaLabel }: RestaurantCardProps) 
         </>
       )}
     </View>
-  </TouchableOpacity>
+  </PressableScale>
+  </Animated.View>
 );
+};
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   card: {
     marginHorizontal: 16,
     marginVertical: 8,
     borderRadius: 12,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: Colors.light,
+    borderColor: c.border,
     overflow: 'hidden',
     boxShadow: '0px 4px 2px -2px rgba(0,0,0, 0.2)',
     elevation: 2,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
   },
   image: {
     width: '100%',
@@ -65,16 +84,17 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   name: {
+    color: c.textPrimary,
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 4,
   },
   description: {
     fontSize: 14,
-    color: Colors.muted,
+    color: c.textMuted,
   },
   metadata: {
-    borderTopColor: Colors.light,
+    borderTopColor: c.border,
     borderTopWidth: StyleSheet.hairlineWidth,
     flexDirection: 'row',
     alignItems: 'center',
@@ -83,17 +103,17 @@ const styles = StyleSheet.create({
   },
   metadataText: {
     fontSize: 13,
-    color: Colors.muted,
+    color: c.textMuted,
   },
   dot: {
-    color: '#999',
+    color: c.textMuted,
     fontSize: 13,
   },
   closedText: {
     fontSize: 13,
-    color: '#ff4646',
+    color: c.danger,
     fontWeight: '600',
   },
-});
+}));
 
 export default RestaurantCard;

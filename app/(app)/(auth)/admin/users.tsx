@@ -1,5 +1,5 @@
-import { AdminEmpty, AdminScreen, adminStyles } from '@/components/admin/AdminScreen';
-import { Colors } from '@/constants/theme';
+import { AdminEmpty, AdminScreen, useAdminStyles } from '@/components/admin/AdminScreen';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import {
   useAdminUsers,
   useIsAdmin,
@@ -30,6 +30,9 @@ const ROLES: UserRole[] = ['customer', 'courier', 'admin'];
 const MEMBER_ROLES: RestaurantMemberRole[] = ['owner', 'manager', 'staff'];
 
 const Page = () => {
+  const adminStyles = useAdminStyles();
+  const styles = useStyles();
+  const colors = useThemeColors();
   const { isAdmin } = useIsAdmin();
   const { data: settings } = usePlatformSettings();
   const [search, setSearch] = useState('');
@@ -93,7 +96,7 @@ const Page = () => {
         </View>
 
         <View style={styles.row}>
-          <Ionicons name="receipt-outline" size={15} color={Colors.muted} />
+          <Ionicons name="receipt-outline" size={15} color={colors.textMuted} />
           <Text style={adminStyles.cardMeta}>
             {item.order_count} orders • {formatMoney(item.lifetime_value, settings?.currency)} delivered
           </Text>
@@ -101,7 +104,7 @@ const Page = () => {
 
         {(item.is_courier || managed.length > 0) && (
           <View style={styles.row}>
-            <Ionicons name="briefcase-outline" size={15} color={Colors.muted} />
+            <Ionicons name="briefcase-outline" size={15} color={colors.textMuted} />
             <Text style={adminStyles.cardMeta}>
               {[item.is_courier ? 'Courier account' : null, ...managed]
                 .filter(Boolean)
@@ -117,7 +120,7 @@ const Page = () => {
           <Ionicons
             name={isExpanded ? 'chevron-up' : 'chevron-down'}
             size={16}
-            color={Colors.secondary}
+            color={colors.primary}
           />
         </TouchableOpacity>
 
@@ -179,9 +182,9 @@ const Page = () => {
                     style={styles.restaurantRow}
                     disabled={setMember.isPending}
                     onPress={() => onLinkRestaurant(item, restaurant.id)}>
-                    <Ionicons name="storefront-outline" size={16} color={Colors.secondary} />
+                    <Ionicons name="storefront-outline" size={16} color={colors.primary} />
                     <Text style={styles.memberName}>{restaurant.name}</Text>
-                    <Ionicons name="add-circle-outline" size={18} color={Colors.secondary} />
+                    <Ionicons name="add-circle-outline" size={18} color={colors.primary} />
                   </TouchableOpacity>
                 ))}
             </ScrollView>
@@ -194,11 +197,11 @@ const Page = () => {
   return (
     <AdminScreen title="People" subtitle={`${users?.length ?? 0} shown`}>
       <View style={styles.searchRow}>
-        <Ionicons name="search" size={18} color={Colors.muted} />
+        <Ionicons name="search" size={18} color={colors.textMuted} />
         <TextInput
           style={styles.searchInput}
           placeholder="Name or email"
-          placeholderTextColor={Colors.muted}
+          placeholderTextColor={colors.textMuted}
           value={search}
           onChangeText={setSearch}
           autoCapitalize="none"
@@ -209,13 +212,13 @@ const Page = () => {
             accessibilityRole="button"
             accessibilityLabel="Clear search"
             hitSlop={12}>
-            <Ionicons name="close-circle" size={18} color={Colors.muted} />
+            <Ionicons name="close-circle" size={18} color={colors.textMuted} />
           </TouchableOpacity>
         )}
       </View>
 
       {isLoading ? (
-        <ActivityIndicator size="large" color={Colors.secondary} style={styles.loader} />
+        <ActivityIndicator size="large" color={colors.primary} style={styles.loader} />
       ) : (
         <FlatList
           data={users ?? []}
@@ -227,7 +230,7 @@ const Page = () => {
             <RefreshControl
               refreshing={isRefetching}
               onRefresh={refetch}
-              tintColor={Colors.secondary}
+              tintColor={colors.primary}
             />
           }
           ListEmptyComponent={
@@ -243,35 +246,35 @@ const Page = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   searchRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderRadius: 10,
     paddingHorizontal: 12,
     marginHorizontal: 16,
     marginTop: 12,
   },
-  searchInput: { flex: 1, paddingVertical: 10, fontSize: 14, color: '#000' },
+  searchInput: { flex: 1, paddingVertical: 10, fontSize: 14, color: c.textPrimary },
   loader: { marginTop: 32 },
   identity: { flex: 1, gap: 2 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   expandRow: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingTop: 4 },
-  expandText: { color: Colors.secondary, fontSize: 14, fontWeight: '600' },
+  expandText: { color: c.primaryText, fontSize: 14, fontWeight: '600' },
   panel: { gap: 8, marginTop: 4 },
   roleRow: { flexDirection: 'row', gap: 8 },
   memberRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#f7f7f7',
+    backgroundColor: c.surfaceMuted,
     borderRadius: 10,
     padding: 10,
   },
-  memberName: { flex: 1, fontSize: 14, fontWeight: '600', color: '#000' },
-  removeText: { color: '#c1272d', fontSize: 13, fontWeight: '700' },
+  memberName: { flex: 1, fontSize: 14, fontWeight: '600', color: c.textPrimary },
+  removeText: { color: c.danger, fontSize: 13, fontWeight: '700' },
   restaurantList: { maxHeight: 220 },
   restaurantRow: {
     flexDirection: 'row',
@@ -279,9 +282,10 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingVertical: 10,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#ececec',
+    borderBottomColor: c.border,
   },
   pill: {
+    color: c.textPrimary,
     fontSize: 11,
     fontWeight: '700',
     paddingHorizontal: 8,
@@ -289,9 +293,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     overflow: 'hidden',
   },
-  pill_customer: { backgroundColor: '#eef2f5', color: '#455a64' },
-  pill_courier: { backgroundColor: '#E9F9FF', color: '#0094DD' },
-  pill_admin: { backgroundColor: '#f3e8ff', color: '#6b21a8' },
-});
+  pill_customer: { backgroundColor: c.surfaceMuted, color: c.textSecondary },
+  pill_courier: { backgroundColor: c.selectedBackground, color: c.primaryText },
+  pill_admin: { backgroundColor: c.accent, color: c.onAccent },
+}));
 
 export default Page;

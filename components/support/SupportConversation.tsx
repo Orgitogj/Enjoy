@@ -1,4 +1,4 @@
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import { mergeSupportTimeline } from '@/hooks/useSupport';
 import { SUPPORT_MESSAGE_MAX_LENGTH } from '@/services/supportService';
 import type { OutgoingMessage, SupportMessage } from '@/types/database';
@@ -44,6 +44,8 @@ export const SupportConversation = ({
   onDiscard,
   onLoadOlder,
 }: SupportConversationProps) => {
+  const styles = useStyles();
+  const colors = useThemeColors();
   const [draft, setDraft] = useState('');
 
   const timeline = useMemo(() => mergeSupportTimeline(messages, outgoing), [messages, outgoing]);
@@ -58,7 +60,7 @@ export const SupportConversation = ({
   if (isLoading) {
     return (
       <View style={styles.state} testID="support-conversation-loading">
-        <ActivityIndicator color={Colors.secondary} />
+        <ActivityIndicator color={colors.primary} />
       </View>
     );
   }
@@ -78,7 +80,7 @@ export const SupportConversation = ({
         }
         ListFooterComponent={
           isLoadingOlder ? (
-            <ActivityIndicator style={styles.footer} color={Colors.secondary} />
+            <ActivityIndicator style={styles.footer} color={colors.primary} />
           ) : isOlderError ? (
             <TouchableOpacity
               style={styles.footer}
@@ -146,7 +148,7 @@ export const SupportConversation = ({
           value={draft}
           onChangeText={(text) => setDraft(text.slice(0, SUPPORT_MESSAGE_MAX_LENGTH))}
           placeholder={canSend ? 'Write a message' : 'This conversation is closed'}
-          placeholderTextColor={Colors.muted}
+          placeholderTextColor={colors.textMuted}
           editable={canSend}
           multiline
           testID="support-composer-input"
@@ -159,47 +161,48 @@ export const SupportConversation = ({
           accessibilityLabel="Send message"
           accessibilityState={{ disabled: !canSend || !draft.trim() }}
           testID="support-composer-send">
-          <Ionicons name="send" size={18} color="#fff" />
+          <Ionicons name="send" size={18} color={colors.primaryForeground} />
         </TouchableOpacity>
       </View>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   container: { flex: 1 },
   state: { paddingVertical: 24, alignItems: 'center' },
   listContent: { padding: 16, gap: 8 },
   footer: { paddingVertical: 12, alignItems: 'center' },
-  mutedText: { fontSize: 14, color: Colors.muted, textAlign: 'center', paddingVertical: 24 },
-  linkText: { fontSize: 13, color: Colors.secondary, fontWeight: '600' },
+  mutedText: { fontSize: 14, color: c.textMuted, textAlign: 'center', paddingVertical: 24 },
+  linkText: { fontSize: 13, color: c.primaryText, fontWeight: '600' },
   bubble: { maxWidth: '82%', borderRadius: 14, paddingHorizontal: 12, paddingVertical: 8, gap: 2 },
-  mine: { alignSelf: 'flex-end', backgroundColor: Colors.primary },
-  theirs: { alignSelf: 'flex-start', backgroundColor: '#fff' },
-  sender: { fontSize: 11, fontWeight: '700', color: Colors.muted },
-  mineText: { color: '#fff', fontSize: 15 },
-  theirsText: { color: '#000', fontSize: 15 },
-  mineMeta: { color: 'rgba(255,255,255,0.8)', fontSize: 11 },
-  theirsMeta: { color: Colors.muted, fontSize: 11 },
-  mineAction: { color: '#fff', fontSize: 11, fontWeight: '700' },
+  mine: { alignSelf: 'flex-end', backgroundColor: c.primary },
+  theirs: { alignSelf: 'flex-start', backgroundColor: c.surface },
+  sender: { fontSize: 11, fontWeight: '700', color: c.textMuted },
+  mineText: { color: c.primaryForeground, fontSize: 15 },
+  theirsText: { color: c.textPrimary, fontSize: 15 },
+  mineMeta: { color: c.primaryForeground, fontSize: 11 },
+  theirsMeta: { color: c.textMuted, fontSize: 11 },
+  mineAction: { color: c.primaryForeground, fontSize: 11, fontWeight: '700' },
   bubbleMeta: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   composer: {
     flexDirection: 'row',
     alignItems: 'flex-end',
     gap: 8,
     padding: 12,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: Colors.light,
+    borderTopColor: c.border,
   },
   composerInput: {
+    color: c.textPrimary,
     flex: 1,
     maxHeight: 120,
     minHeight: 40,
     borderRadius: 20,
     paddingHorizontal: 14,
     paddingVertical: 10,
-    backgroundColor: Colors.background,
+    backgroundColor: c.inputBackground,
     fontSize: 15,
   },
   sendButton: {
@@ -208,7 +211,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Colors.primary,
+    backgroundColor: c.primary,
   },
   sendButtonDisabled: { opacity: 0.4 },
-});
+}));

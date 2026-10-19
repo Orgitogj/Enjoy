@@ -1,11 +1,13 @@
-import { Colors, Fonts } from '@/constants/theme';
+import { createThemedStyles, Fonts, useThemeColors } from '@/constants/theme';
 import { PRICE_TIERS, SORT_OPTIONS, useFilterStore } from '@/hooks/use-filters-store';
 import { useCuisines } from '@/hooks/useRestaurants';
 import { useRouter } from 'expo-router';
-import { ActivityIndicator, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ScrollView, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const Page = () => {
+  const styles = useStyles();
+  const colors = useThemeColors();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { data: cuisineFilters, isLoading: cuisinesLoading } = useCuisines();
@@ -32,7 +34,7 @@ const Page = () => {
 
         <View style={styles.filterSection}>
           {cuisinesLoading ? (
-            <ActivityIndicator color={Colors.secondary} />
+            <ActivityIndicator color={colors.primary} />
           ) : (
             <View style={styles.chipContainer}>
               {(cuisineFilters ?? []).map((cuisine) => (
@@ -76,8 +78,8 @@ const Page = () => {
           <Switch
             value={woltPlusOnly}
             onValueChange={setWoltPlusOnly}
-            trackColor={{ false: Colors.light, true: Colors.primary }}
-            thumbColor="#fff"
+            trackColor={{ false: colors.disabled, true: colors.primary }}
+            thumbColor={colors.primaryForeground}
           />
         </View>
 
@@ -114,10 +116,10 @@ const Page = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   scrollView: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: c.background,
   },
   contentContainer: {
     paddingHorizontal: 20,
@@ -127,6 +129,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
+    color: c.textPrimary,
     fontFamily: Fonts.brandBold,
     fontSize: 32,
     fontWeight: 900,
@@ -138,7 +141,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#666',
+    color: c.textMuted,
     marginBottom: 12,
     letterSpacing: 0.5,
   },
@@ -151,17 +154,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: c.selectedBackground,
   },
   chipSelected: {
-    backgroundColor: Colors.primary,
+    backgroundColor: c.primary,
   },
   chipText: {
     fontSize: 12,
-    color: Colors.secondary,
+    color: c.primaryText,
   },
   chipTextSelected: {
-    color: '#fff',
+    color: c.primaryForeground,
     fontWeight: '600',
   },
   toggleSection: {
@@ -171,11 +174,11 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: '#f0f0f0',
+    borderColor: c.border,
   },
   toggleText: {
     fontSize: 16,
-    color: '#000',
+    color: c.textPrimary,
   },
   actionRow: {
     flexDirection: 'row',
@@ -184,7 +187,7 @@ const styles = StyleSheet.create({
   },
   resetButton: {
     flex: 1,
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: c.selectedBackground,
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -192,11 +195,11 @@ const styles = StyleSheet.create({
   resetButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: Colors.secondary,
+    color: c.primaryText,
   },
   applyButton: {
     flex: 2,
-    backgroundColor: Colors.primary,
+    backgroundColor: c.primary,
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -204,8 +207,8 @@ const styles = StyleSheet.create({
   applyButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#fff',
+    color: c.primaryForeground,
   },
-});
+}));
 
 export default Page;

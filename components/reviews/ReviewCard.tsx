@@ -1,5 +1,5 @@
 import { RatingStars } from '@/components/reviews/RatingStars';
-import { Colors } from '@/constants/theme';
+import { createThemedStyles } from '@/constants/theme';
 import type { PublicReview } from '@/types/database';
 import { StyleSheet, Text, View } from 'react-native';
 
@@ -10,7 +10,9 @@ interface ReviewCardProps {
 
 const formatDate = (value: string) => new Date(value).toLocaleDateString();
 
-export const ReviewCard = ({ review, footer }: ReviewCardProps) => (
+export const ReviewCard = ({ review, footer }: ReviewCardProps) => {
+  const styles = useStyles();
+  return (
   <View style={styles.card} testID={`review-${review.id}`}>
     <View style={styles.header}>
       <View style={styles.headerLeft}>
@@ -38,15 +40,16 @@ export const ReviewCard = ({ review, footer }: ReviewCardProps) => (
     {footer}
   </View>
 );
+};
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderRadius: 12,
     padding: 14,
     gap: 8,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: Colors.light,
+    borderColor: c.border,
   },
   header: {
     flexDirection: 'row',
@@ -61,30 +64,30 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#000',
+    color: c.textPrimary,
   },
   mineBadge: {
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: c.selectedBackground,
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 10,
   },
   mineBadgeText: {
     fontSize: 11,
-    color: Colors.secondary,
+    color: c.primaryText,
     fontWeight: '600',
   },
   date: {
     fontSize: 12,
-    color: Colors.muted,
+    color: c.textMuted,
   },
   body: {
     fontSize: 14,
-    color: '#333',
+    color: c.textSecondary,
     lineHeight: 20,
   },
   response: {
-    backgroundColor: Colors.background,
+    backgroundColor: c.surfaceMuted,
     borderRadius: 10,
     padding: 10,
     gap: 4,
@@ -92,11 +95,11 @@ const styles = StyleSheet.create({
   responseTitle: {
     fontSize: 12,
     fontWeight: '700',
-    color: Colors.secondary,
+    color: c.primaryText,
   },
   responseBody: {
     fontSize: 13,
-    color: '#333',
+    color: c.textSecondary,
     lineHeight: 18,
   },
-});
+}));

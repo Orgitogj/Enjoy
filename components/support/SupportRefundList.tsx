@@ -1,6 +1,6 @@
-import { Colors } from '@/constants/theme';
+import { createThemedStyles } from '@/constants/theme';
 import type { SupportRefund, SupportRefundState } from '@/types/database';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 const STATE_LABELS: Record<SupportRefundState, string> = {
   reserved: 'Being processed',
@@ -15,6 +15,7 @@ export interface SupportRefundListProps {
 }
 
 export const SupportRefundList = ({ refunds, showLiability = false }: SupportRefundListProps) => {
+  const styles = useStyles();
   if (refunds.length === 0) {
     return (
       <Text style={styles.mutedText} testID="support-refunds-empty">
@@ -53,14 +54,14 @@ export const SupportRefundList = ({ refunds, showLiability = false }: SupportRef
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   list: { gap: 10 },
   row: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
   rowText: { flex: 1, gap: 2 },
-  amount: { fontSize: 15, fontWeight: '700', color: '#000' },
-  meta: { fontSize: 13, color: Colors.muted },
-  failure: { fontSize: 13, color: '#B32433' },
-  state: { fontSize: 12, fontWeight: '700', color: Colors.secondary },
-  stateFailed: { color: '#B32433' },
-  mutedText: { fontSize: 14, color: Colors.muted },
-});
+  amount: { fontSize: 15, fontWeight: '700', color: c.textPrimary },
+  meta: { fontSize: 13, color: c.textMuted },
+  failure: { fontSize: 13, color: c.danger },
+  state: { fontSize: 12, fontWeight: '700', color: c.primaryText },
+  stateFailed: { color: c.danger },
+  mutedText: { fontSize: 14, color: c.textMuted },
+}));
