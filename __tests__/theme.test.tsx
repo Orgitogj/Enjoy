@@ -8,6 +8,8 @@ import {
   type ThemeColors,
 } from '@/constants/theme';
 import { renderHook } from '@testing-library/react-native';
+import fs from 'fs';
+import path from 'path';
 import * as ReactNative from 'react-native';
 
 const luminance = (hex: string) => {
@@ -128,5 +130,41 @@ describe('System theme selection', () => {
       'rgba(25, 21, 18, 0.7)',
       'rgba(25, 21, 18, 1)',
     ]);
+  });
+});
+
+describe('legacy branding guard', () => {
+  const root = path.resolve(__dirname, '..');
+  const sourceFiles = (dir: string): string[] =>
+    fs.readdirSync(path.join(root, dir), { withFileTypes: true }).flatMap((entry) => {
+      const rel = path.join(dir, entry.name);
+      if (entry.isDirectory()) return sourceFiles(rel);
+      return /\.(ts|tsx)$/.test(entry.name) ? [rel] : [];
+    });
+  const files = ['app', 'components', 'hooks', 'utils'].flatMap(sourceFiles);
+
+  it('contains no Wolt-era blues (except the Google sign-in mark)', () => {
+    const legacy = /#(01BEE5|0094DD|009DE0|0073AB|4ECDE6|E9F9FF|E4F3FB|F1F8FE|F0F9FF)\b|rgba\(\s*0,\s*157,\s*224/i;
+    const offenders = files.filter((file) => legacy.test(fs.readFileSync(path.join(root, file), 'utf8')));
+    expect(offenders).toEqual([]);
+  });
+
+  it('keeps colour literals out of components, apart from documented third-party marks and shadows', () => {
+    const allowed = new Set([
+      path.join('components', 'auth', 'AppleAuthButton.tsx'),
+      path.join('components', 'auth', 'GoogleAuthButton.tsx'),
+    ]);
+    const offenders = files.filter((file) => {
+      if (allowed.has(file)) return false;
+      const text = fs.readFileSync(path.join(root, file), 'utf8');
+      return /['"`]#[0-9A-Fa-f]{3,8}['"`]/.test(text);
+    });
+    expect(offenders).toEqual([]);
+  });
+
+  it('shows no Wolt name in user-facing copy', () => {
+    const visible = /(['"`>])[^'"`<]*\bWolt\b(?!\+)[^'"`<]*\1?/;
+    const offenders = files.filter((file) => visible.test(fs.readFileSync(path.join(root, file), 'utf8')));
+    expect(offenders).toEqual([]);
   });
 });
