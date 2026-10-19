@@ -1,4 +1,4 @@
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import { useOrderTracking } from '@/hooks/useOrderTracking';
 import { useApplyReorder, useReorderPlan } from '@/hooks/useReorder';
 import { describeReorderIssue } from '@/services/reorderService';
@@ -15,6 +15,8 @@ import {
 } from 'react-native';
 
 const Page = () => {
+  const styles = useStyles();
+  const colors = useThemeColors();
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const orderId = id ?? '';
@@ -54,7 +56,7 @@ const Page = () => {
     return (
       <View style={styles.state} testID="reorder-loading">
         <Stack.Screen options={{ title: 'Order again' }} />
-        <ActivityIndicator size="large" color={Colors.secondary} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -63,7 +65,7 @@ const Page = () => {
     return (
       <View style={styles.state}>
         <Stack.Screen options={{ title: 'Order again' }} />
-        <Ionicons name="cloud-offline-outline" size={40} color={Colors.muted} />
+        <Ionicons name="cloud-offline-outline" size={40} color={colors.textMuted} />
         <Text style={styles.mutedText}>We could not check this order.</Text>
         <TouchableOpacity
           style={styles.primaryButton}
@@ -91,7 +93,7 @@ const Page = () => {
 
         {blockedMessage ? (
           <View style={styles.noticeBlocked} testID="reorder-blocked">
-            <Ionicons name="alert-circle-outline" size={20} color="#B32433" />
+            <Ionicons name="alert-circle-outline" size={20} color={colors.danger} />
             <Text style={styles.noticeBlockedText}>{blockedMessage}</Text>
           </View>
         ) : (
@@ -167,8 +169,8 @@ const Page = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
+const useStyles = createThemedStyles((c) => ({
+  container: { flex: 1, backgroundColor: c.background },
   content: { padding: 20, gap: 14, paddingBottom: 40 },
   state: {
     flex: 1,
@@ -176,59 +178,59 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 10,
     padding: 24,
-    backgroundColor: Colors.background,
+    backgroundColor: c.background,
   },
-  title: { fontSize: 22, fontWeight: '800', color: '#000' },
-  mutedText: { fontSize: 14, color: Colors.muted },
+  title: { fontSize: 22, fontWeight: '800', color: c.textPrimary },
+  mutedText: { fontSize: 14, color: c.textMuted },
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderRadius: 12,
     padding: 14,
     gap: 10,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: Colors.light,
+    borderColor: c.border,
   },
   line: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
-  quantity: { fontSize: 14, fontWeight: '700', color: Colors.secondary, width: 28 },
+  quantity: { fontSize: 14, fontWeight: '700', color: c.primaryText, width: 28 },
   lineBody: { flex: 1 },
-  lineName: { fontSize: 15, color: '#000' },
-  lineAddons: { fontSize: 13, color: Colors.muted },
-  linePrice: { fontSize: 14, fontWeight: '600', color: '#000' },
+  lineName: { fontSize: 15, color: c.textPrimary },
+  lineAddons: { fontSize: 13, color: c.textMuted },
+  linePrice: { fontSize: 14, fontWeight: '600', color: c.textPrimary },
   subtotalRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: Colors.light,
+    borderTopColor: c.border,
     paddingTop: 10,
   },
-  subtotalLabel: { fontSize: 15, fontWeight: '700' },
-  subtotalValue: { fontSize: 15, fontWeight: '700' },
-  notice: { backgroundColor: '#FFF3D6', borderRadius: 12, padding: 12, gap: 4 },
-  noticeTitle: { fontSize: 14, fontWeight: '700', color: '#8A6100' },
-  noticeText: { fontSize: 13, color: '#8A6100' },
+  subtotalLabel: { color: c.textPrimary, fontSize: 15, fontWeight: '700' },
+  subtotalValue: { color: c.textPrimary, fontSize: 15, fontWeight: '700' },
+  notice: { backgroundColor: c.warningSoft, borderRadius: 12, padding: 12, gap: 4 },
+  noticeTitle: { fontSize: 14, fontWeight: '700', color: c.warning },
+  noticeText: { fontSize: 13, color: c.warning },
   noticeBlocked: {
-    backgroundColor: '#FBE9EB',
+    backgroundColor: c.dangerSoft,
     borderRadius: 12,
     padding: 12,
     flexDirection: 'row',
     gap: 8,
     alignItems: 'center',
   },
-  noticeBlockedText: { flex: 1, fontSize: 13, color: '#B32433' },
+  noticeBlockedText: { flex: 1, fontSize: 13, color: c.danger },
   footer: {
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: Colors.light,
+    borderTopColor: c.border,
   },
   primaryButton: {
-    backgroundColor: Colors.primary,
+    backgroundColor: c.primary,
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
   },
   primaryButtonDisabled: { opacity: 0.5 },
-  primaryButtonText: { color: '#fff', fontSize: 16, fontWeight: '700' },
-});
+  primaryButtonText: { color: c.primaryForeground, fontSize: 16, fontWeight: '700' },
+}));
 
 export default Page;
