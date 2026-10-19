@@ -42,7 +42,7 @@ const Page = () => {
           <Ionic name='close' size={24} color={colors.textPrimary} />
         </TouchableOpacity>
       </View>
-      <Text style={styles.title} accessibilityRole="header">Wolt account</Text>
+      <Text style={styles.title} accessibilityRole="header">Your ENJOY account</Text>
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}

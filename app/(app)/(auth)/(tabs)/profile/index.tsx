@@ -58,7 +58,7 @@ const Page = () => {
   };
 
   const onContactSupport = () => {
-    Linking.openURL('mailto:support@example.com?subject=Wolt%20clone%20support');
+    Linking.openURL('mailto:support@example.com?subject=ENJOY%20support');
   };
 
   const onSaveProfile = async () => {
