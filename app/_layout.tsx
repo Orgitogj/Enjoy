@@ -2,6 +2,7 @@ import { usePushRegistration } from '@/hooks/useNotifications';
 import { useNotificationRouting } from '@/hooks/useNotificationRouting';
 import { useSessionIsolation } from '@/hooks/useSessionIsolation';
 import { useThemeColors, useThemeScheme } from '@/constants/theme';
+import { whenAppearanceRestored } from '@/hooks/use-appearance-store';
 import { DarkTheme, DefaultTheme, ThemeProvider, type Theme } from '@react-navigation/native';
 import { StripeProvider } from '@stripe/stripe-react-native';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -9,7 +10,7 @@ import { Slot } from 'expo-router';
 import {useFonts} from 'expo-font'
 import * as SplashScreen from 'expo-splash-screen';
 import * as SystemUI from 'expo-system-ui';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -73,10 +74,13 @@ export default Sentry.wrap(function RootLayout() {
     Nunito_700Bold,
     Nunito_900Black,
   });
+  const [appearanceRestored, setAppearanceRestored] = useState(false);
   const scheme = useThemeScheme();
   const colors = useThemeColors();
 
-  const isReady = fontsLoaded || !!fontError;
+  useEffect(() => whenAppearanceRestored(() => setAppearanceRestored(true)), []);
+
+  const isReady = (fontsLoaded || !!fontError) && appearanceRestored;
 
   useEffect(() => {
     if (isReady) void SplashScreen.hideAsync();
