@@ -1,4 +1,4 @@
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import { useNotifications } from '@/hooks/useNotifications';
 import type { AppNotification } from '@/types/database';
 import { Ionicons } from '@expo/vector-icons';
@@ -25,9 +25,14 @@ const relativeTime = (iso: string): string => {
   return new Date(iso).toLocaleDateString();
 };
 
-const RowSeparator = () => <View style={styles.rowSeparator} />;
+const RowSeparator = () => {
+  const styles = useStyles();
+  return <View style={styles.rowSeparator} />;
+};
 
 const Page = () => {
+  const styles = useStyles();
+  const colors = useThemeColors();
   const router = useRouter();
   const { top } = useSafeAreaInsets();
   const { notifications, unreadCount, isLoading, refetch, isRefetching, markRead } =
@@ -55,7 +60,7 @@ const Page = () => {
                   : 'receipt-outline'
             }
             size={18}
-            color={Colors.secondary}
+            color={colors.primary}
           />
         </View>
         <View style={styles.rowBody}>
@@ -66,7 +71,7 @@ const Page = () => {
         {!item.read_at && <View style={styles.unreadDot} />}
       </TouchableOpacity>
     ),
-    [router]
+    [router, styles, colors]
   );
 
   return (
@@ -78,7 +83,7 @@ const Page = () => {
           accessibilityRole="button"
           accessibilityLabel="Go back"
           hitSlop={4}>
-          <Ionicons name="chevron-back" size={24} color="#000" />
+          <Ionicons name="chevron-back" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
         <View style={styles.headerText}>
           <Text style={styles.title}>Notifications</Text>
@@ -88,7 +93,7 @@ const Page = () => {
 
       {isLoading ? (
         <View style={styles.centered}>
-          <ActivityIndicator size="large" color={Colors.secondary} />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       ) : (
         <FlashList
@@ -101,13 +106,13 @@ const Page = () => {
             <RefreshControl
               refreshing={isRefetching}
               onRefresh={refetch}
-              tintColor={Colors.secondary}
+              tintColor={colors.primary}
             />
           }
           renderItem={renderItem}
           ListEmptyComponent={
             <View style={styles.centered}>
-              <Ionicons name="notifications-outline" size={48} color={Colors.muted} />
+              <Ionicons name="notifications-outline" size={48} color={colors.textMuted} />
               <Text style={styles.emptyTitle}>Nothing yet</Text>
               <Text style={styles.emptyText}>
                 Order updates and delivery news will appear here.
@@ -120,8 +125,8 @@ const Page = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
+const useStyles = createThemedStyles((c) => ({
+  container: { flex: 1, backgroundColor: c.background },
   centered: {
     justifyContent: 'center',
     alignItems: 'center',
@@ -134,45 +139,45 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 12,
     paddingBottom: 12,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#e6e6e6',
+    borderBottomColor: c.border,
   },
   iconButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   headerText: { flex: 1, alignItems: 'center' },
-  title: { fontSize: 17, fontWeight: '700', color: '#000' },
+  title: { fontSize: 17, fontWeight: '700', color: c.textPrimary },
   list: { padding: 16, paddingBottom: 40 },
   rowSeparator: { height: 10 },
   row: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 12,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderRadius: 12,
     padding: 14,
   },
-  rowUnread: { backgroundColor: Colors.primaryLight },
+  rowUnread: { backgroundColor: c.selectedBackground },
   rowIcon: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
   rowBody: { flex: 1, gap: 2 },
-  rowTitle: { fontSize: 15, fontWeight: '700', color: '#000' },
-  rowText: { fontSize: 14, color: '#3c4a52', lineHeight: 19 },
-  rowTime: { fontSize: 12, color: Colors.muted, marginTop: 2 },
+  rowTitle: { fontSize: 15, fontWeight: '700', color: c.textPrimary },
+  rowText: { fontSize: 14, color: c.textSecondary, lineHeight: 19 },
+  rowTime: { fontSize: 12, color: c.textMuted, marginTop: 2 },
   unreadDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: Colors.secondary,
+    backgroundColor: c.primary,
     marginTop: 6,
   },
-  emptyTitle: { fontSize: 17, fontWeight: '700', color: '#000', marginTop: 8 },
-  emptyText: { fontSize: 14, color: Colors.muted, textAlign: 'center', lineHeight: 20 },
-});
+  emptyTitle: { fontSize: 17, fontWeight: '700', color: c.textPrimary, marginTop: 8 },
+  emptyText: { fontSize: 14, color: c.textMuted, textAlign: 'center', lineHeight: 20 },
+}));
 
 export default Page;
