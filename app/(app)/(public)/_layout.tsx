@@ -17,7 +17,7 @@ const Layout = () => {
       presentation:'formSheet',
       title:'',
       headerShadowVisible:false,
-      sheetAllowedDetents:[0.2],
+      sheetAllowedDetents:[0.92],
       sheetCornerRadius:16,
       }}/>
       </Stack>
