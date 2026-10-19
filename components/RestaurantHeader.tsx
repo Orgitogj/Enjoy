@@ -1,7 +1,7 @@
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Link } from 'expo-router';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import Animated, {
   Extrapolation,
   interpolate,
@@ -18,6 +18,8 @@ interface RestaurantHeaderProps {
 const SCOLL_THRESHOLD = 60;
 
 const RestaurantHeader = ({ title, scrollOffset }: RestaurantHeaderProps) => {
+  const colors = useThemeColors();
+  const styles = useStyles();
   const insets = useSafeAreaInsets();
 
   const header1Style = useAnimatedStyle(() => {
@@ -83,10 +85,10 @@ const RestaurantHeader = ({ title, scrollOffset }: RestaurantHeaderProps) => {
         <Link href={'/(app)/(auth)/(modal)/location'} asChild>
           <TouchableOpacity style={styles.locationButton}>
             <View style={styles.locationButtonIcon}>
-              <Ionicons name="business-outline" size={16} />
+              <Ionicons name="business-outline" size={16} color={colors.textPrimary} />
             </View>
             <Text style={styles.locationText}>Münster</Text>
-            <Ionicons name="chevron-down" size={16} />
+            <Ionicons name="chevron-down" size={16} color={colors.textPrimary} />
           </TouchableOpacity>
         </Link>
 
@@ -97,7 +99,7 @@ const RestaurantHeader = ({ title, scrollOffset }: RestaurantHeaderProps) => {
               accessibilityRole="button"
               accessibilityLabel="Filter restaurants"
               hitSlop={4}>
-              <Ionicons name="filter" size={20} />
+              <Ionicons name="filter" size={20} color={colors.textPrimary} />
             </TouchableOpacity>
           </Link>
           <Link href={'/(app)/(auth)/(modal)/map'} asChild>
@@ -106,7 +108,7 @@ const RestaurantHeader = ({ title, scrollOffset }: RestaurantHeaderProps) => {
               accessibilityRole="button"
               accessibilityLabel="Open the map"
               hitSlop={4}>
-              <Ionicons name="map-outline" size={20} />
+              <Ionicons name="map-outline" size={20} color={colors.textPrimary} />
             </TouchableOpacity>
           </Link>
         </View>
@@ -118,7 +120,7 @@ const RestaurantHeader = ({ title, scrollOffset }: RestaurantHeaderProps) => {
           <Link href={'/(app)/(auth)/(modal)/location'} asChild>
             <TouchableOpacity style={styles.locationSmall}>
               <Text style={styles.locationSmallText}>Münster</Text>
-              <Ionicons name="chevron-down" size={14} />
+              <Ionicons name="chevron-down" size={14} color={colors.textPrimary} />
             </TouchableOpacity>
           </Link>
         </View>
@@ -129,7 +131,7 @@ const RestaurantHeader = ({ title, scrollOffset }: RestaurantHeaderProps) => {
               accessibilityRole="button"
               accessibilityLabel="Filter restaurants"
               hitSlop={4}>
-              <Ionicons name="filter" size={20} />
+              <Ionicons name="filter" size={20} color={colors.textPrimary} />
             </TouchableOpacity>
           </Link>
         </View>
@@ -138,15 +140,15 @@ const RestaurantHeader = ({ title, scrollOffset }: RestaurantHeaderProps) => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   headerContainer: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#fff',
+    backgroundColor: c.background,
     zIndex: 100,
-    shadowColor: '#000',
+    shadowColor: c.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
   },
@@ -170,6 +172,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   locationText: {
+    color: c.textPrimary,
     fontSize: 14,
     fontWeight: '600',
   },
@@ -181,7 +184,7 @@ const styles = StyleSheet.create({
   },
   locationButtonIcon: {
     borderRadius: 20,
-    backgroundColor: Colors.light,
+    backgroundColor: c.surfaceMuted,
     padding: 10,
   },
   rightIcons: {
@@ -191,7 +194,7 @@ const styles = StyleSheet.create({
   iconButton: {
     width: 40,
     height: 40,
-    backgroundColor: Colors.light,
+    backgroundColor: c.surfaceMuted,
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
@@ -202,6 +205,7 @@ const styles = StyleSheet.create({
     paddingLeft: 40,
   },
   titleSmall: {
+    color: c.textPrimary,
     fontSize: 16,
     fontWeight: 700,
     marginBottom: 2,
@@ -213,7 +217,7 @@ const styles = StyleSheet.create({
   },
   locationSmallText: {
     fontSize: 12,
-    color: Colors.muted,
+    color: c.textMuted,
   },
-});
+}));
 export default RestaurantHeader;
