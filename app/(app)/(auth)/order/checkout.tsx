@@ -8,11 +8,11 @@ import { PlaceOrderBar } from '@/components/checkout/PlaceOrderBar';
 import { PromoSection } from '@/components/checkout/PromoSection';
 import { ScheduleSection } from '@/components/checkout/ScheduleSection';
 import { TipSection } from '@/components/checkout/TipSection';
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import { useCheckout } from '@/hooks/useCheckout';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack } from 'expo-router';
-import { KeyboardAvoidingView, Platform, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, Text, View } from 'react-native';
 import Animated, {
   Extrapolation,
   interpolate,
@@ -24,6 +24,8 @@ import Animated, {
 const MAP_HEIGHT = 250;
 
 const Page = () => {
+  const styles = useStyles();
+  const colors = useThemeColors();
   const checkout = useCheckout();
   const quote = useDeliveryQuote(checkout.restaurant?.id, {
     addressId: checkout.delivery.mode === 'delivery' ? checkout.address.selectedId : null,
@@ -58,7 +60,7 @@ const Page = () => {
       <Animated.View style={[styles.mapContainer, mapStyle]}>
         <View style={styles.mapPlaceholder}>
           <View style={styles.mapPin}>
-            <Ionicons name="location" size={24} color={Colors.secondary} />
+            <Ionicons name="location" size={24} color={colors.primary} />
           </View>
           <Text style={styles.mapPlaceholderText}>
             {checkout.restaurant?.name ?? 'Selected restaurant'}
@@ -101,10 +103,10 @@ const Page = () => {
 
 export default Page;
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: c.surfaceMuted,
   },
   mapContainer: {
     position: 'absolute',
@@ -116,7 +118,7 @@ const styles = StyleSheet.create({
   },
   mapPlaceholder: {
     flex: 1,
-    backgroundColor: '#e8e8e8',
+    backgroundColor: c.surfaceMuted,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
@@ -126,7 +128,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 4,
@@ -134,22 +136,22 @@ const styles = StyleSheet.create({
   mapPlaceholderText: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#222',
+    color: c.textPrimary,
     textAlign: 'center',
   },
   mapPlaceholderAddress: {
     fontSize: 14,
-    color: '#666',
+    color: c.textMuted,
     textAlign: 'center',
   },
   scrollContent: {
     paddingBottom: 16,
   },
   contentContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: c.background,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     marginTop: -20,
     paddingTop: 8,
   },
-});
+}));
