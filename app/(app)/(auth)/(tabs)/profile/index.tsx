@@ -1,3 +1,4 @@
+import AppearancePicker from '@/components/settings/AppearancePicker';
 import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import useAuthStore from '@/hooks/use-auth-store';
 import { useFavorites } from '@/hooks/useFavorites';
@@ -266,6 +267,13 @@ const Page = () => {
           ))}
         </View>
       )}
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle} accessibilityRole="header">
+          Appearance
+        </Text>
+        <AppearancePicker />
+      </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Quick links</Text>
