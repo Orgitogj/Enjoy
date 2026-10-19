@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
@@ -69,7 +70,12 @@ const Page = () => {
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
+        showsVerticalScrollIndicator={false}>
       <TouchableOpacity
         style={styles.closeBtn}
         onPress={() => router.dismiss()}
@@ -163,6 +169,7 @@ const Page = () => {
           {mode === 'signin' ? "Don't have an account? Sign up" : 'Already have an account? Log in'}
         </Text>
       </TouchableOpacity>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 };
@@ -172,8 +179,11 @@ export default Page;
 const useStyles = createThemedStyles((c) => ({
   container: {
     flex: 1,
-    padding: 14,
     backgroundColor: c.background,
+  },
+  content: {
+    padding: 14,
+    paddingBottom: 32,
   },
   closeBtn: {
     backgroundColor: c.surfaceMuted,
