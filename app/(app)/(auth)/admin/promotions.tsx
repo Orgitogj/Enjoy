@@ -5,7 +5,7 @@ import {
   formFromPromotion,
   type PromotionFormState,
 } from '@/components/promotions/PromotionForm';
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import { useAdminPromotions, useSavePromotion, useSetPromotionActive } from '@/hooks/usePromotions';
 import type { AdminPromotion } from '@/types/database';
 import { formatUtcPreview } from '@/utils/datetime';
@@ -27,6 +27,8 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const Page = () => {
+  const styles = useStyles();
+  const colors = useThemeColors();
   const router = useRouter();
   const { top } = useSafeAreaInsets();
   const { data, isLoading, error, refetch, isRefetching } = useAdminPromotions();
@@ -92,8 +94,8 @@ const Page = () => {
           value={item.is_active}
           onValueChange={() => onToggleActive(item)}
           disabled={setActive.isPending}
-          trackColor={{ false: Colors.light, true: Colors.primary }}
-          thumbColor="#fff"
+          trackColor={{ false: colors.disabled, true: colors.primary }}
+          thumbColor={colors.primaryForeground}
         />
       </View>
 
@@ -141,7 +143,7 @@ const Page = () => {
           onPress={() => router.back()}
           accessibilityRole="button"
           accessibilityLabel="Go back">
-          <Ionicons name="chevron-back" size={24} color="#000" />
+          <Ionicons name="chevron-back" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.title}>Promotions</Text>
         <TouchableOpacity
@@ -150,7 +152,7 @@ const Page = () => {
           accessibilityRole="button"
           accessibilityLabel={isFormOpen ? 'Close form' : 'New promotion'}
           testID="toggle-promotion-form">
-          <Ionicons name={isFormOpen ? 'close' : 'add'} size={24} color={Colors.secondary} />
+          <Ionicons name={isFormOpen ? 'close' : 'add'} size={24} color={colors.primary} />
         </TouchableOpacity>
       </View>
 
@@ -168,7 +170,7 @@ const Page = () => {
 
       {isLoading ? (
         <View style={styles.state} testID="promotions-loading">
-          <ActivityIndicator size="large" color={Colors.secondary} />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       ) : error ? (
         <View style={styles.state}>
@@ -182,7 +184,7 @@ const Page = () => {
         </View>
       ) : (data ?? []).length === 0 ? (
         <View style={styles.state}>
-          <Ionicons name="pricetags-outline" size={40} color={Colors.muted} />
+          <Ionicons name="pricetags-outline" size={40} color={colors.textMuted} />
           <Text style={styles.mutedText}>No promotions yet.</Text>
         </View>
       ) : (
@@ -201,22 +203,23 @@ const Page = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
+const useStyles = createThemedStyles((c) => ({
+  container: { flex: 1, backgroundColor: c.background },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingBottom: 12,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: c.border,
   },
   backButton: { width: 40, height: 40, justifyContent: 'center', alignItems: 'center' },
-  title: { flex: 1, textAlign: 'center', fontSize: 18, fontWeight: '700', color: '#000' },
-  form: { padding: 16, gap: 10, backgroundColor: '#fff' },
+  title: { flex: 1, textAlign: 'center', fontSize: 18, fontWeight: '700', color: c.textPrimary },
+  form: { padding: 16, gap: 10, backgroundColor: c.surface },
   input: {
-    backgroundColor: Colors.background,
+    color: c.textPrimary,
+    backgroundColor: c.inputBackground,
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 12,
@@ -229,36 +232,36 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 16,
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: c.selectedBackground,
   },
-  typeChipActive: { backgroundColor: Colors.primary },
-  typeChipText: { fontSize: 13, color: Colors.secondary },
-  typeChipTextActive: { color: '#fff', fontWeight: '700' },
+  typeChipActive: { backgroundColor: c.primary },
+  typeChipText: { fontSize: 13, color: c.primaryText },
+  typeChipTextActive: { color: c.primaryForeground, fontWeight: '700' },
   saveButton: {
-    backgroundColor: Colors.primary,
+    backgroundColor: c.primary,
     borderRadius: 10,
     paddingVertical: 14,
     alignItems: 'center',
   },
-  saveButtonText: { color: '#fff', fontWeight: '700' },
+  saveButtonText: { color: c.primaryForeground, fontWeight: '700' },
   disabled: { opacity: 0.5 },
   listContent: { padding: 16, gap: 12 },
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderRadius: 12,
     padding: 14,
     gap: 6,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: Colors.light,
+    borderColor: c.border,
   },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  code: { fontSize: 16, fontWeight: '800', color: Colors.secondary, letterSpacing: 0.5 },
-  headline: { fontSize: 15, fontWeight: '700', color: '#000' },
-  description: { fontSize: 13, color: '#333' },
-  meta: { fontSize: 12, color: Colors.muted },
-  editAction: { fontSize: 13, fontWeight: '700', color: Colors.secondary, marginTop: 4 },
+  code: { fontSize: 16, fontWeight: '800', color: c.primaryText, letterSpacing: 0.5 },
+  headline: { fontSize: 15, fontWeight: '700', color: c.textPrimary },
+  description: { fontSize: 13, color: c.textSecondary },
+  meta: { fontSize: 12, color: c.textMuted },
+  editAction: { fontSize: 13, fontWeight: '700', color: c.primaryText, marginTop: 4 },
   state: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 10, padding: 24 },
-  mutedText: { fontSize: 14, color: Colors.muted, textAlign: 'center' },
-});
+  mutedText: { fontSize: 14, color: c.textMuted, textAlign: 'center' },
+}));
 
 export default Page;

@@ -1,4 +1,4 @@
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import { useAdminReconciliations, useRetryReconciliation } from '@/hooks/useReconciliations';
 import {
   RECONCILIATION_STATE_LABELS,
@@ -29,6 +29,8 @@ const formatWhen = (value: string | null) =>
   value ? new Date(value).toLocaleString() : 'Never';
 
 const Page = () => {
+  const styles = useStyles();
+  const colors = useThemeColors();
   const router = useRouter();
   const { top } = useSafeAreaInsets();
   const {
@@ -140,7 +142,7 @@ const Page = () => {
               value={reason}
               onChangeText={setReason}
               placeholder="Why are you retrying this refund?"
-              placeholderTextColor={Colors.muted}
+              placeholderTextColor={colors.textMuted}
               editable={!retry.isPending}
               testID={`reconciliation-reason-${item.id}`}
             />
@@ -155,7 +157,7 @@ const Page = () => {
                 accessibilityRole="button"
                 testID={`reconciliation-confirm-${item.id}`}>
                 {retry.isPending ? (
-                  <ActivityIndicator color="#fff" size="small" />
+                  <ActivityIndicator color={colors.primaryForeground} size="small" />
                 ) : (
                   <Text style={styles.retryButtonText}>Retry refund</Text>
                 )}
@@ -183,7 +185,7 @@ const Page = () => {
     if (isLoading) {
       return (
         <View style={styles.state} testID="reconciliations-loading">
-          <ActivityIndicator size="large" color={Colors.secondary} />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       );
     }
@@ -191,7 +193,7 @@ const Page = () => {
     if (error) {
       return (
         <View style={styles.state}>
-          <Ionicons name="cloud-offline-outline" size={40} color={Colors.muted} />
+          <Ionicons name="cloud-offline-outline" size={40} color={colors.textMuted} />
           <Text style={styles.mutedText}>We could not load the refund queue.</Text>
           <TouchableOpacity
             style={styles.retryButton}
@@ -206,7 +208,7 @@ const Page = () => {
 
     return (
       <View style={styles.state} testID="reconciliations-empty">
-        <Ionicons name="checkmark-circle-outline" size={44} color={Colors.muted} />
+        <Ionicons name="checkmark-circle-outline" size={44} color={colors.textMuted} />
         <Text style={styles.mutedText}>No refunds are waiting.</Text>
       </View>
     );
@@ -222,7 +224,7 @@ const Page = () => {
           onPress={() => router.back()}
           accessibilityRole="button"
           accessibilityLabel="Go back">
-          <Ionicons name="chevron-back" size={24} color="#000" />
+          <Ionicons name="chevron-back" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.title}>Refunds</Text>
         <View style={styles.backButton} />
@@ -243,7 +245,7 @@ const Page = () => {
         ListFooterComponent={
           isFetchingNextPage ? (
             <View style={styles.footer}>
-              <ActivityIndicator color={Colors.secondary} />
+              <ActivityIndicator color={colors.primary} />
             </View>
           ) : isFetchNextPageError ? (
             <TouchableOpacity style={styles.footer} onPress={loadMore} accessibilityRole="button">
@@ -256,64 +258,65 @@ const Page = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
+const useStyles = createThemedStyles((c) => ({
+  container: { flex: 1, backgroundColor: c.background },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingBottom: 12,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: c.border,
   },
   backButton: { width: 40, height: 40, justifyContent: 'center' },
-  title: { flex: 1, textAlign: 'center', fontSize: 18, fontWeight: '700', color: '#000' },
+  title: { flex: 1, textAlign: 'center', fontSize: 18, fontWeight: '700', color: c.textPrimary },
   listContent: { padding: 16, gap: 12 },
   emptyContent: { flexGrow: 1 },
   state: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 10, padding: 24 },
-  mutedText: { fontSize: 14, color: Colors.muted, textAlign: 'center' },
+  mutedText: { fontSize: 14, color: c.textMuted, textAlign: 'center' },
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderRadius: 12,
     padding: 14,
     gap: 6,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: Colors.light,
+    borderColor: c.border,
   },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  amount: { fontSize: 17, fontWeight: '800', color: '#000' },
+  amount: { fontSize: 17, fontWeight: '800', color: c.textPrimary },
   badge: {
-    backgroundColor: '#E4F3FB',
+    backgroundColor: c.selectedBackground,
     paddingHorizontal: 10,
     paddingVertical: 3,
     borderRadius: 10,
   },
-  badgeAlert: { backgroundColor: '#FBE9EB' },
-  badgeText: { fontSize: 11, fontWeight: '700', color: '#333' },
-  link: { fontSize: 14, fontWeight: '700', color: Colors.secondary },
-  meta: { fontSize: 12, color: Colors.muted },
-  failure: { fontSize: 12, color: '#B32433' },
-  retryLink: { fontSize: 13, fontWeight: '700', color: Colors.secondary, marginTop: 4 },
+  badgeAlert: { backgroundColor: c.dangerSoft },
+  badgeText: { fontSize: 11, fontWeight: '700', color: c.textSecondary },
+  link: { fontSize: 14, fontWeight: '700', color: c.primaryText },
+  meta: { fontSize: 12, color: c.textMuted },
+  failure: { fontSize: 12, color: c.danger },
+  retryLink: { fontSize: 13, fontWeight: '700', color: c.primaryText, marginTop: 4 },
   retryBox: { gap: 8, marginTop: 4 },
   reasonInput: {
-    backgroundColor: Colors.background,
+    color: c.textPrimary,
+    backgroundColor: c.inputBackground,
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 14,
   },
   retryActions: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: 16 },
-  cancelText: { fontSize: 13, color: Colors.muted },
+  cancelText: { fontSize: 13, color: c.textMuted },
   retryButton: {
     paddingHorizontal: 18,
     paddingVertical: 10,
     borderRadius: 20,
-    backgroundColor: Colors.primary,
+    backgroundColor: c.primary,
   },
-  retryButtonText: { color: '#fff', fontWeight: '700', fontSize: 13 },
+  retryButtonText: { color: c.primaryForeground, fontWeight: '700', fontSize: 13 },
   disabled: { opacity: 0.5 },
   footer: { paddingVertical: 20, alignItems: 'center' },
-});
+}));
 
 export default Page;
