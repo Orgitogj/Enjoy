@@ -58,7 +58,7 @@ function showMoreInfo(restaurant: Restaurant) {
 }
 
 function shareVenue(restaurant: Restaurant) {
-  Share.share({ message: `Check out ${restaurant.name} on Wolt!` });
+  Share.share({ message: `Check out ${restaurant.name} on ENJOY!` });
 }
 
 type MenuRow =

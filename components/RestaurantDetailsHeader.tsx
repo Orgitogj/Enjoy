@@ -122,7 +122,7 @@ const RestaurantDetailsHeader = ({
 
   const shareVenue = () => {
     if (!restaurant) return;
-    Share.share({ message: `Check out ${restaurant.name} on Wolt!` });
+    Share.share({ message: `Check out ${restaurant.name} on ENJOY!` });
   };
 
   const menuItems = [
