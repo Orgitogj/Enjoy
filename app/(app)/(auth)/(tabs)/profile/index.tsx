@@ -1,4 +1,4 @@
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import useAuthStore from '@/hooks/use-auth-store';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useCourierProfile } from '@/hooks/useCourier';
@@ -22,6 +22,8 @@ import {
 } from 'react-native';
 
 const Page = () => {
+  const styles = useStyles();
+  const colors = useThemeColors();
   const router = useRouter();
   const { signOut, user, isAnonymous } = useAuthStore();
   const { favorites } = useFavorites();
@@ -74,7 +76,7 @@ const Page = () => {
       <View style={styles.section}>
         <View style={styles.profileHeader}>
           <View style={styles.avatar}>
-            <Ionicons name="person" size={24} color={Colors.secondary} />
+            <Ionicons name="person" size={24} color={colors.primary} />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.menuItemTitle}>{profile?.full_name || 'Your profile'}</Text>
@@ -90,7 +92,7 @@ const Page = () => {
               unreadCount > 0 ? `Notifications, ${unreadCount} unread` : 'Notifications'
             }
             hitSlop={8}>
-            <Ionicons name="notifications-outline" size={22} color={Colors.secondary} />
+            <Ionicons name="notifications-outline" size={22} color={colors.primary} />
             {unreadCount > 0 && (
               <View style={styles.badge}>
                 <Text style={styles.badgeText}>{unreadCount > 9 ? '9+' : unreadCount}</Text>
@@ -103,7 +105,7 @@ const Page = () => {
             accessibilityLabel={isEditingProfile ? 'Stop editing your profile' : 'Edit your profile'}
             accessibilityState={{ selected: isEditingProfile }}
             hitSlop={12}>
-            <Ionicons name={isEditingProfile ? 'close' : 'pencil'} size={20} color={Colors.secondary} />
+            <Ionicons name={isEditingProfile ? 'close' : 'pencil'} size={20} color={colors.primary} />
           </TouchableOpacity>
         </View>
 
@@ -112,14 +114,14 @@ const Page = () => {
             <TextInput
               style={styles.profileInput}
               placeholder="Full name"
-              placeholderTextColor={Colors.dark}
+              placeholderTextColor={colors.textPrimary}
               value={fullName}
               onChangeText={setFullName}
             />
             <TextInput
               style={styles.profileInput}
               placeholder="Phone number"
-              placeholderTextColor={Colors.dark}
+              placeholderTextColor={colors.textPrimary}
               keyboardType="phone-pad"
               value={phone}
               onChangeText={setPhone}
@@ -135,13 +137,13 @@ const Page = () => {
         <View style={styles.section}>
           <TouchableOpacity style={styles.merchantCard} onPress={() => router.push('/admin')}>
             <View style={styles.merchantIcon}>
-              <Ionicons name="shield-checkmark" size={20} color={Colors.secondary} />
+              <Ionicons name="shield-checkmark" size={20} color={colors.primary} />
             </View>
             <View style={styles.menuItemLeft}>
               <Text style={styles.menuItemTitle}>Admin console</Text>
               <Text style={styles.menuItemSubtitle}>Orders, couriers, people and settings</Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color="#999" />
+            <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
           </TouchableOpacity>
         </View>
       )}
@@ -150,7 +152,7 @@ const Page = () => {
         <View style={styles.section}>
           <TouchableOpacity style={styles.merchantCard} onPress={() => router.push('/merchant')}>
             <View style={styles.merchantIcon}>
-              <Ionicons name="storefront" size={20} color={Colors.secondary} />
+              <Ionicons name="storefront" size={20} color={colors.primary} />
             </View>
             <View style={styles.menuItemLeft}>
               <Text style={styles.menuItemTitle}>Restaurant dashboard</Text>
@@ -160,7 +162,7 @@ const Page = () => {
                   : `${managedRestaurants.length} restaurants`}
               </Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color="#999" />
+            <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
           </TouchableOpacity>
         </View>
       )}
@@ -168,7 +170,7 @@ const Page = () => {
       <View style={styles.section}>
         <TouchableOpacity style={styles.merchantCard} onPress={() => router.push('/courier')}>
           <View style={styles.merchantIcon}>
-            <Ionicons name="bicycle" size={20} color={Colors.secondary} />
+            <Ionicons name="bicycle" size={20} color={colors.primary} />
           </View>
           <View style={styles.menuItemLeft}>
             <Text style={styles.menuItemTitle}>
@@ -182,7 +184,7 @@ const Page = () => {
                 : 'Earn money delivering orders'}
             </Text>
           </View>
-          <Ionicons name="chevron-forward" size={20} color="#999" />
+          <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
         </TouchableOpacity>
       </View>
 
@@ -196,7 +198,7 @@ const Page = () => {
                 : 'No orders yet • Start your first order'}
             </Text>
           </View>
-          <Ionicons name="chevron-forward" size={20} color="#999" />
+          <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -207,7 +209,7 @@ const Page = () => {
             <Text style={styles.menuItemTitle}>Help with an order</Text>
             <Text style={styles.menuItemSubtitle}>See the problems you reported</Text>
           </View>
-          <Ionicons name="chevron-forward" size={20} color="#999" />
+          <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
         </TouchableOpacity>
       </View>
 
@@ -225,7 +227,7 @@ const Page = () => {
                 <View style={styles.storeBase} />
               </View>
               <View style={styles.heartIcon}>
-                <Ionicons name="heart" size={24} color="#FF3B30" />
+                <Ionicons name="heart" size={24} color={colors.danger} />
               </View>
             </View>
           </View>
@@ -240,7 +242,7 @@ const Page = () => {
                   <Text style={styles.favoriteName}>{restaurant.name}</Text>
                   <Text style={styles.favoriteMeta}>{restaurant.cuisines.join(' • ')}</Text>
                 </View>
-                <Ionicons name="chevron-forward" size={18} color="#999" />
+                <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
               </View>
             </TouchableOpacity>
           ))
@@ -270,14 +272,14 @@ const Page = () => {
 
         <TouchableOpacity style={styles.linkItem} onPress={onInviteFriends}>
           <Text style={styles.linkText}>Invite friends</Text>
-          <Ionicons name="chevron-forward" size={20} color="#999" />
+          <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
         </TouchableOpacity>
 
         <View style={styles.separator} />
 
         <TouchableOpacity style={styles.linkItem} onPress={onContactSupport}>
           <Text style={styles.linkText}>Contact Support</Text>
-          <Ionicons name="chevron-forward" size={20} color="#999" />
+          <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
         </TouchableOpacity>
       </View>
 
@@ -295,7 +297,7 @@ const Page = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   container: {
     flex: 1,
   },
@@ -316,7 +318,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: c.selectedBackground,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -326,29 +328,29 @@ const styles = StyleSheet.create({
   },
   profileInput: {
     borderWidth: 1,
-    borderColor: '#000',
+    borderColor: c.textPrimary,
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 14,
-    color: '#000',
+    color: c.textPrimary,
   },
   saveProfileButton: {
     alignSelf: 'flex-start',
-    backgroundColor: Colors.secondary,
+    backgroundColor: c.primary,
     borderRadius: 10,
     paddingHorizontal: 14,
     paddingVertical: 10,
   },
   saveProfileButtonText: {
-    color: '#fff',
+    color: c.primaryForeground,
     fontSize: 14,
     fontWeight: '600',
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#000',
+    color: c.textPrimary,
     paddingVertical: 16,
   },
   bellButton: { padding: 4, marginRight: 8 },
@@ -360,16 +362,16 @@ const styles = StyleSheet.create({
     height: 18,
     borderRadius: 9,
     paddingHorizontal: 4,
-    backgroundColor: '#ff4646',
+    backgroundColor: c.dangerSolid,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  badgeText: { color: '#fff', fontSize: 10, fontWeight: '700' },
+  badgeText: { color: c.primaryForeground, fontSize: 10, fontWeight: '700' },
   merchantCard: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: c.selectedBackground,
     borderRadius: 12,
     padding: 14,
   },
@@ -377,7 +379,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -391,17 +393,18 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   menuItemTitle: {
+    color: c.textPrimary,
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 4,
   },
   menuItemSubtitle: {
     fontSize: 14,
-    color: '#999',
+    color: c.textMuted,
   },
   separator: {
     height: 1,
-    backgroundColor: '#F0F0F0',
+    backgroundColor: c.surfaceMuted,
   },
   favoritesCard: {
     flexDirection: 'row',
@@ -409,7 +412,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   favoriteItem: {
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderRadius: 12,
     padding: 12,
     marginBottom: 8,
@@ -425,17 +428,17 @@ const styles = StyleSheet.create({
   favoriteName: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#000',
+    color: c.textPrimary,
   },
   favoriteMeta: {
     fontSize: 13,
-    color: Colors.muted,
+    color: c.textMuted,
     marginTop: 4,
   },
   favoritesText: {
     flex: 1,
     fontSize: 14,
-    color: '#666',
+    color: c.textMuted,
     lineHeight: 20,
   },
   orderItem: {
@@ -444,7 +447,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 12,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#ececec',
+    borderBottomColor: c.border,
   },
   orderInfo: {
     flex: 1,
@@ -452,17 +455,17 @@ const styles = StyleSheet.create({
   orderName: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#000',
+    color: c.textPrimary,
   },
   orderMeta: {
     fontSize: 13,
-    color: Colors.muted,
+    color: c.textMuted,
     marginTop: 4,
   },
   orderAmount: {
     fontSize: 15,
     fontWeight: '700',
-    color: Colors.secondary,
+    color: c.primaryText,
   },
   favoritesIllustration: {
     width: 80,
@@ -477,7 +480,7 @@ const styles = StyleSheet.create({
   awning: {
     width: 60,
     height: 20,
-    backgroundColor: '#4ECDE6',
+    backgroundColor: c.primary,
     borderTopLeftRadius: 8,
     borderTopRightRadius: 8,
     position: 'absolute',
@@ -486,14 +489,14 @@ const styles = StyleSheet.create({
   storeFront: {
     width: 60,
     height: 40,
-    backgroundColor: '#F0F0F0',
+    backgroundColor: c.surfaceMuted,
     position: 'absolute',
     top: 30,
   },
   storeBase: {
     width: 60,
     height: 8,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: c.surfaceMuted,
     position: 'absolute',
     bottom: 12,
   },
@@ -501,7 +504,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -4,
     right: -4,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderRadius: 16,
     width: 32,
     height: 32,
@@ -518,10 +521,10 @@ const styles = StyleSheet.create({
   linkText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#000',
+    color: c.textPrimary,
   },
   logoutButton: {
-    backgroundColor: '#fbe9e9',
+    backgroundColor: c.dangerSoft,
     paddingVertical: 16,
     paddingHorizontal: 20,
     borderRadius: 12,
@@ -533,8 +536,8 @@ const styles = StyleSheet.create({
   logoutButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ff4646',
+    color: c.danger,
   },
-});
+}));
 
 export default Page;
