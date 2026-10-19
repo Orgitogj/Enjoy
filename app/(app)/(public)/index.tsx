@@ -1,24 +1,29 @@
 import AppleAuthButton from "@/components/auth/AppleAuthButton";
 import GoogleAuthButton from "@/components/auth/GoogleAuthButton";
+import EnjoyLogo from "@/components/brand/EnjoyLogo";
 import SmoothInfiniteScroll from "@/components/SmoothInfiniteScroll";
-import { Fonts } from "@/constants/theme";
+import PressableScale from "@/components/ui/PressableScale";
+import { createThemedStyles, Fonts, useThemeColors } from "@/constants/theme";
 import useAuthStore from "@/hooks/use-auth-store";
+import { useReduceMotion } from "@/hooks/useReduceMotion";
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link } from "expo-router";
 import {
     Alert,
-    Image,
-    StyleSheet,
     Text,
-    TouchableOpacity,
     View,
 } from "react-native";
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function Index() {
   const { signInWithOAuth } = useAuthStore();
   const insets = useSafeAreaInsets();
+  const colors = useThemeColors();
+  const styles = useStyles();
+  const reduceMotion = useReduceMotion();
+  const enter = (delay: number) =>
+    reduceMotion ? FadeIn.duration(200) : FadeInDown.delay(delay).duration(380);
 
   const handleOAuth = async (provider: 'apple' | 'google') => {
     const { error } = await signInWithOAuth(provider);
@@ -28,7 +33,7 @@ export default function Index() {
   const showPrivacyStatement = () => {
     Alert.alert(
       'Privacy statement',
-      'This is a demo app built on Supabase. No real personal data is processed by a company called Wolt.'
+      'ENJOY is a demo app built on Supabase. No real personal data is processed.'
     );
   };
   return (
@@ -45,42 +50,41 @@ export default function Index() {
         </View>
 
         <LinearGradient
-          colors={['transparent', 'white']}
+          colors={[`${colors.background}00`, colors.background]}
           style={{ position: 'absolute', height: 200, left: 0, bottom: 0, right: 0 }}
         />
       </View>
 
       <View style={[styles.contentContainer, { paddingBottom: insets.bottom + 20 }]}>
-        <Image source={require('@/assets/images/wolt-logo.png')} style={styles.brandLogo} />
-
-        <Animated.View entering={FadeInDown}>
-          <Text style={styles.tagLine}>Almost everything delivered</Text>
+        <Animated.View entering={enter(0)} style={styles.brand}>
+          <EnjoyLogo size={44} />
+          <Text style={styles.tagLine}>Good food. Better moments.</Text>
         </Animated.View>
 
         <View style={styles.buttonContainer}>
-          <Animated.View entering={FadeInDown.delay(100)} style={styles.buttonItem}>
+          <Animated.View entering={enter(100)} style={styles.buttonItem}>
             <AppleAuthButton onPress={() => handleOAuth('apple')} />
           </Animated.View>
-          <Animated.View entering={FadeInDown.delay(200)} style={styles.buttonItem}>
+          <Animated.View entering={enter(180)} style={styles.buttonItem}>
             <GoogleAuthButton onPress={() => handleOAuth('google')} />
           </Animated.View>
 
-          <Animated.View entering={FadeInDown.delay(300)} style={styles.buttonItem}>
+          <Animated.View entering={enter(260)} style={styles.buttonItem}>
             <Link href='/other-options' style={{textDecorationLine:'none'}} asChild>
-              <TouchableOpacity style={styles.otherButton}>
+              <PressableScale style={styles.otherButton} accessibilityRole="button">
                 <Text style={styles.otherButtonText}>Other options</Text>
-              </TouchableOpacity>
+              </PressableScale>
             </Link>
           </Animated.View>
         </View>
 
-        <Animated.View style={styles.privacyContainer} entering={FadeInDown.delay(400)}>
+        <Animated.View style={styles.privacyContainer} entering={enter(340)}>
           <Text style={styles.privacyText}>
-            Please Visit {''}
-            <Text style={styles.privayLink} onPress={showPrivacyStatement}>
-              Wolt privacy statement
-            </Text>{''}
-            to learn about personal data processing at Wolt
+            Please visit the {''}
+            <Text style={styles.privacyLink} onPress={showPrivacyStatement} accessibilityRole="link">
+              ENJOY privacy statement
+            </Text>{' '}
+            to learn how your personal data is handled.
           </Text>
         </Animated.View>
       </View>
@@ -88,11 +92,11 @@ export default function Index() {
   );
 }
 
-const styles =StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
 
   container:{
     flex: 1,
-    backgroundColor:'#fff',
+    backgroundColor: c.background,
   },
 
   contentContainer:{
@@ -111,20 +115,17 @@ const styles =StyleSheet.create({
       overflow:'hidden',
   },
 
-  brandLogo:{
-      width:'100%',
-      height:40,
-      resizeMode:'contain',
-      marginBottom:16
-
+  brand:{
+    alignItems:'center',
+    marginBottom:24,
+    gap:6,
   },
   tagLine:{
-    fontSize:28,
+    fontSize:22,
     fontFamily:Fonts.brandBold,
+    color:c.textSecondary,
     textAlign:'center',
-    marginBottom:24,
-    lineHeight:34
-
+    lineHeight:28,
   },
   buttonContainer:{
     width:'100%',
@@ -136,22 +137,25 @@ const styles =StyleSheet.create({
 
       otherButton:{
       width:'100%',
-      backgroundColor:'#f0f0f0',
+      minHeight:52,
+      backgroundColor:c.surface,
+      borderWidth:1,
+      borderColor:c.border,
       flexDirection:'row',
       alignItems:'center',
       justifyContent:'center',
-      paddingVertical:17,
+      paddingVertical:15,
       paddingHorizontal:14,
-      borderRadius:12,
+      borderRadius:14,
       gap:4
       },
       buttonItem:{
         width:'100%',
       },
       otherButtonText:{
-        color:'#666',
+        color:c.textPrimary,
         fontSize:18,
-        fontWeight:'600'
+        fontFamily:Fonts.brandBold,
       },
       privacyContainer:{
             marginTop:10,
@@ -159,13 +163,13 @@ const styles =StyleSheet.create({
       },
       privacyText:{
         fontSize:12,
-        color:'#999',
+        color:c.textMuted,
         textAlign:'center',
         lineHeight:18,
       },
-      privayLink:{
-        color:'#4285F4',
+      privacyLink:{
+        color:c.link,
         textDecorationLine:'underline'
       }
 
-})
+}))
