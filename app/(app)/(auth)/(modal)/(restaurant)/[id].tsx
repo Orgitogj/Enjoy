@@ -1,7 +1,7 @@
 import { MenuItem } from '@/components/MenuItem';
 import RestaurantDetailsHeader from '@/components/RestaurantDetailsHeader';
 import ViewOrderButton from '@/components/buttons/ViewOrderButton';
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import type { Dish, Restaurant } from '@/types/database';
 import { useMenu } from '@/hooks/useMenu';
 import { useRestaurant } from '@/hooks/useRestaurants';
@@ -18,17 +18,7 @@ import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ComponentType, Ref } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  Dimensions,
-  ScrollView,
-  Share,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Alert, Dimensions, ScrollView, Share, Text, TouchableOpacity, View } from 'react-native';
 import Animated, {
   Extrapolation,
   interpolate,
@@ -80,6 +70,8 @@ const AnimatedMenuList = Animated.createAnimatedComponent(
 );
 
 const Page = () => {
+  const styles = useStyles();
+  const colors = useThemeColors();
   const { id } = useLocalSearchParams<{ id: string }>();
   const [activeCategory, setActiveCategory] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
@@ -237,7 +229,7 @@ const Page = () => {
     }
 
     return <MenuItem dish={item.dish} />;
-  }, []);
+  }, [styles]);
 
   const viewabilityConfig = useRef({
     itemVisiblePercentThreshold: 10,
@@ -257,7 +249,7 @@ const Page = () => {
   if (restaurantLoading || menuLoading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator size={'large'} color={Colors.secondary} />
+        <ActivityIndicator size={'large'} color={colors.primary} />
       </View>
     );
   }
@@ -265,7 +257,7 @@ const Page = () => {
   if (!restaurant) {
     return (
       <View style={styles.centered}>
-        <Text>Restaurant not found</Text>
+        <Text style={styles.notFoundText}>Restaurant not found</Text>
       </View>
     );
   }
@@ -342,7 +334,7 @@ const Page = () => {
                 width={width}
                 viewBox={`0 0 ${width} 30`}
                 style={{ position: 'absolute', top: -29, left: 0 }}>
-                <Path d={`M 0,30 Q ${width / 2},0 ${width},30 L ${width},30 L 0,30 Z`} fill="#fff" />
+                <Path d={`M 0,30 Q ${width / 2},0 ${width},30 L ${width},30 L 0,30 Z`} fill={colors.primaryForeground} />
               </Svg>
 
               <View style={styles.logoContainer}>
@@ -352,7 +344,7 @@ const Page = () => {
               <View style={styles.restaurantInfo}>
                 <Text style={styles.restaurantName}>{restaurant.name}</Text>
                 <View style={styles.infoRow}>
-                  <Ionicons name="star-outline" size={16} color="#666" />
+                  <Ionicons name="star-outline" size={16} color={colors.textMuted} />
                   <TouchableOpacity
                     onPress={() => router.push(`/(modal)/(restaurant)/reviews?id=${restaurant.id}`)}
                     accessibilityRole="button"
@@ -369,7 +361,7 @@ const Page = () => {
                   <Text style={styles.infoText}>Min. order {restaurant.min_order.toFixed(2)} €</Text>
                 </View>
                 <View style={styles.infoRow}>
-                  <Ionicons name="bicycle-outline" size={16} color="#666" />
+                  <Ionicons name="bicycle-outline" size={16} color={colors.textMuted} />
                   <Text style={styles.infoText}>{restaurant.delivery_fee.toFixed(2)} €</Text>
                   <Text style={styles.infoDot}>•</Text>
                   <TouchableOpacity
@@ -384,7 +376,7 @@ const Page = () => {
 
               <View style={styles.deliveryInfo}>
                 <View style={styles.deliveryButton}>
-                  <Ionicons name="bicycle" size={16} color="#009de0" />
+                  <Ionicons name="bicycle" size={16} color={colors.primary} />
                   <Text style={styles.deliveryText}>
                     Delivery {restaurant.delivery_time_min}-{restaurant.delivery_time_max} min
                   </Text>
@@ -394,7 +386,7 @@ const Page = () => {
                   onPress={() => shareVenue(restaurant)}
                   accessibilityRole="button"
                   accessibilityLabel="Share this restaurant">
-                  <Ionicons name="share-social-outline" size={20} color="#009de0" />
+                  <Ionicons name="share-social-outline" size={20} color={colors.primary} />
                 </TouchableOpacity>
               </View>
             </View>
@@ -407,10 +399,14 @@ const Page = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
+  notFoundText: {
+    color: c.textPrimary,
+    fontSize: 16,
+  },
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: c.background,
   },
   emptyStateContainer: {
     paddingHorizontal: 24,
@@ -421,11 +417,11 @@ const styles = StyleSheet.create({
   emptyStateTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#000',
+    color: c.textPrimary,
   },
   emptyStateText: {
     fontSize: 14,
-    color: Colors.muted,
+    color: c.textMuted,
     marginTop: 8,
     textAlign: 'center',
   },
@@ -449,26 +445,27 @@ const styles = StyleSheet.create({
     right: 0,
     width,
     height: IMAGE_HEIGHT,
-    backgroundColor: Colors.background,
+    backgroundColor: c.background,
   },
   sectionHeader: {
     padding: 16,
-    backgroundColor: Colors.background,
+    backgroundColor: c.background,
   },
   sectionTitle: {
+    color: c.textPrimary,
     fontSize: 20,
     fontWeight: '700',
     marginBottom: 4,
   },
   sectionSubtitle: {
     fontSize: 14,
-    color: Colors.muted,
+    color: c.textMuted,
   },
   imageSpacer: {
     height: IMAGE_HEIGHT - 60,
   },
   whiteContentContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: c.background,
     marginTop: -30,
     paddingTop: 30,
     overflow: 'visible',
@@ -482,9 +479,9 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 16,
-    backgroundColor: Colors.background,
+    backgroundColor: c.surface,
     borderWidth: 3,
-    borderColor: Colors.background,
+    borderColor: c.background,
     boxShadow: '0px 4px 10px 2px rgba(0, 0, 0, 0.3)',
   },
   restaurantInfo: {
@@ -495,7 +492,7 @@ const styles = StyleSheet.create({
   restaurantName: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#000',
+    color: c.textPrimary,
     marginBottom: 8,
   },
   infoRow: {
@@ -506,15 +503,15 @@ const styles = StyleSheet.create({
   },
   infoText: {
     fontSize: 14,
-    color: '#666',
+    color: c.textMuted,
   },
   infoDot: {
     fontSize: 14,
-    color: '#999',
+    color: c.textMuted,
   },
   moreLink: {
     fontSize: 14,
-    color: Colors.secondary,
+    color: c.primaryText,
     fontWeight: '600',
   },
   deliveryInfo: {
@@ -527,7 +524,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#f0f9ff',
+    backgroundColor: c.selectedBackground,
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 8,
@@ -535,14 +532,14 @@ const styles = StyleSheet.create({
   },
   deliveryText: {
     fontSize: 14,
-    color: Colors.secondary,
+    color: c.primaryText,
     fontWeight: '600',
   },
   iconButtonSmall: {
     width: 44,
     height: 44,
     borderRadius: 8,
-    backgroundColor: '#f0f9ff',
+    backgroundColor: c.selectedBackground,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -551,7 +548,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 100,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
   },
   categoryTabsContainer: {
     boxShadow: '0px 4px 2px -2px rgba(0, 0, 0, 0.1)',
@@ -566,17 +563,17 @@ const styles = StyleSheet.create({
   },
   categoryTabActive: {
     borderBottomWidth: 3,
-    borderBottomColor: Colors.secondary,
+    borderBottomColor: c.primary,
   },
   categoryTabText: {
     fontSize: 15,
-    color: Colors.muted,
+    color: c.textMuted,
     fontWeight: '500',
   },
   categoryTabTextActive: {
-    color: Colors.secondary,
+    color: c.primaryText,
     fontWeight: '600',
   },
-});
+}));
 
 export default Page;
