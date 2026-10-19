@@ -1,6 +1,8 @@
 import { supabase } from '@/lib/supabase';
 import type { Session, User } from '@supabase/supabase-js';
+import { parseOAuthRedirect } from '@/lib/oauthRedirect';
 import * as Linking from 'expo-linking';
+import * as WebBrowser from 'expo-web-browser';
 import { create } from 'zustand';
 
 interface AuthState {
@@ -132,8 +134,31 @@ const useAuthStore = create<AuthState>((set, get) => {
 
     signInWithOAuth: async (provider) => {
       clearCartCarryOver();
-      const { error } = await supabase.auth.signInWithOAuth({ provider });
-      return { error: error?.message ?? null };
+      const redirectTo = Linking.createURL('/');
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: { redirectTo, skipBrowserRedirect: true },
+      });
+      if (error) return { error: error.message };
+      if (!data?.url) return { error: 'Sign-in could not be started. Please try again.' };
+
+      const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
+      if (result.type !== 'success') return { error: null };
+
+      const redirect = parseOAuthRedirect(result.url);
+      if (redirect.kind === 'error') return { error: redirect.message };
+      if (redirect.kind === 'code') {
+        const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(redirect.code);
+        return { error: exchangeError?.message ?? null };
+      }
+      if (redirect.kind === 'tokens') {
+        const { error: sessionError } = await supabase.auth.setSession({
+          access_token: redirect.accessToken,
+          refresh_token: redirect.refreshToken,
+        });
+        return { error: sessionError?.message ?? null };
+      }
+      return { error: 'Sign-in did not complete. Please try again.' };
     },
 
     signOut: async () => {

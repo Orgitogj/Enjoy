@@ -40,6 +40,8 @@ export const createSupabaseMock = () => ({
     signUp: jest.fn(),
     signInAnonymously: jest.fn(),
     signInWithOAuth: jest.fn(),
+    exchangeCodeForSession: jest.fn(() => Promise.resolve({ data: {}, error: null })),
+    setSession: jest.fn(() => Promise.resolve({ data: {}, error: null })),
     signOut: jest.fn(() => Promise.resolve({ error: null })),
   },
   channel: jest.fn(() => ({
