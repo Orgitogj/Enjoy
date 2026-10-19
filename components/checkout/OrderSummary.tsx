@@ -1,4 +1,4 @@
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import type { CheckoutSummary } from '@/hooks/useCheckout';
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -8,11 +8,14 @@ export interface OrderSummaryProps {
   etaLabel?: string | null;
 }
 
-export const OrderSummary = ({ summary, etaLabel }: OrderSummaryProps) => (
+export const OrderSummary = ({ summary, etaLabel }: OrderSummaryProps) => {
+  const styles = useStyles();
+  const colors = useThemeColors();
+  return (
   <View style={styles.section}>
     <TouchableOpacity style={styles.summaryHeader} onPress={summary.explainFees}>
       <Text style={styles.summaryHeaderText}>How fees work</Text>
-      <Ionicons name="chevron-forward" size={16} color={Colors.secondary} />
+      <Ionicons name="chevron-forward" size={16} color={colors.primary} />
     </TouchableOpacity>
 
     {!!etaLabel && (
@@ -69,13 +72,14 @@ export const OrderSummary = ({ summary, etaLabel }: OrderSummaryProps) => (
     </View>
   </View>
 );
+};
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   section: {
     paddingVertical: 16,
     paddingHorizontal: 16,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#e8e8e8',
+    borderBottomColor: c.border,
   },
   summaryHeader: {
     flexDirection: 'row',
@@ -86,7 +90,7 @@ const styles = StyleSheet.create({
   summaryHeaderText: {
     fontSize: 14,
     fontWeight: '600',
-    color: Colors.secondary,
+    color: c.primaryText,
   },
   summaryRow: {
     flexDirection: 'row',
@@ -96,36 +100,36 @@ const styles = StyleSheet.create({
   },
   summaryLabel: {
     fontSize: 15,
-    color: '#666',
+    color: c.textMuted,
   },
   summaryValue: {
     fontSize: 15,
-    color: '#000',
+    color: c.textPrimary,
   },
   discountLabel: {
     fontSize: 14,
-    color: '#2C7A4B',
+    color: c.success,
     fontWeight: '600',
   },
   discountValue: {
     fontSize: 14,
-    color: '#2C7A4B',
+    color: c.success,
     fontWeight: '700',
   },
   summaryTotal: {
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#e8e8e8',
+    borderTopColor: c.border,
     marginTop: 4,
   },
   summaryTotalText: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#000',
+    color: c.textPrimary,
   },
   summaryTotalValue: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#000',
+    color: c.textPrimary,
   },
-});
+}));
