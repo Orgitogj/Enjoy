@@ -6,7 +6,7 @@ import {
   VERIFICATION_LABELS,
 } from '@/constants/deliveryStatus';
 import { DocumentUpload } from '@/components/courier/DocumentUpload';
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import { useOrderChatUnreadTotals } from '@/hooks/useOrderChat';
 import {
   useActiveDelivery,
@@ -40,6 +40,8 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const Page = () => {
+  const styles = useStyles();
+  const colors = useThemeColors();
   const router = useRouter();
   const { top } = useSafeAreaInsets();
   const { courier, isLoading, isCourier, isApproved } = useCourierProfile();
@@ -132,7 +134,7 @@ const Page = () => {
         accessibilityRole="button"
         accessibilityLabel="Go back"
         hitSlop={4}>
-        <Ionicons name="chevron-back" size={24} color="#000" />
+        <Ionicons name="chevron-back" size={24} color={colors.textPrimary} />
       </TouchableOpacity>
       <View style={styles.headerText}>
         <Text style={styles.title}>Courier</Text>
@@ -144,7 +146,7 @@ const Page = () => {
         accessibilityRole="button"
         accessibilityLabel="Your earnings"
         hitSlop={4}>
-        <Ionicons name="wallet-outline" size={22} color={Colors.secondary} />
+        <Ionicons name="wallet-outline" size={22} color={colors.primary} />
       </TouchableOpacity>
     </View>
   );
@@ -152,7 +154,7 @@ const Page = () => {
   if (isLoading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator size="large" color={Colors.secondary} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -176,7 +178,7 @@ const Page = () => {
           <TextInput
             style={styles.input}
             placeholder="Full name"
-            placeholderTextColor={Colors.muted}
+            placeholderTextColor={colors.textMuted}
             value={fullName}
             onChangeText={setFullName}
             autoCapitalize="words"
@@ -184,7 +186,7 @@ const Page = () => {
           <TextInput
             style={styles.input}
             placeholder="Phone number"
-            placeholderTextColor={Colors.muted}
+            placeholderTextColor={colors.textMuted}
             value={phone}
             onChangeText={setPhone}
             keyboardType="phone-pad"
@@ -209,7 +211,7 @@ const Page = () => {
             <TextInput
               style={styles.input}
               placeholder="Licence plate"
-              placeholderTextColor={Colors.muted}
+              placeholderTextColor={colors.textMuted}
               value={plate}
               onChangeText={setPlate}
               autoCapitalize="characters"
@@ -221,7 +223,7 @@ const Page = () => {
             onPress={onRegister}
             disabled={register.isPending}>
             {register.isPending ? (
-              <ActivityIndicator color="#fff" />
+              <ActivityIndicator color={colors.primaryForeground} />
             ) : (
               <Text style={styles.primaryButtonText}>Apply</Text>
             )}
@@ -237,7 +239,7 @@ const Page = () => {
         {header}
         <ScrollView contentContainerStyle={styles.content}>
           <View style={styles.reviewCard}>
-            <Ionicons name="hourglass-outline" size={44} color={Colors.muted} />
+            <Ionicons name="hourglass-outline" size={44} color={colors.textMuted} />
             <Text style={styles.emptyTitle}>
               {VERIFICATION_LABELS[courier!.verification_status]}
             </Text>
@@ -290,7 +292,7 @@ const Page = () => {
             </Text>
 
             <View style={styles.stopRow}>
-              <Ionicons name="restaurant-outline" size={16} color={Colors.muted} />
+              <Ionicons name="restaurant-outline" size={16} color={colors.textMuted} />
               <Text style={styles.stopText}>
                 {activeDelivery.restaurant?.address ?? 'Pickup'}
               </Text>
@@ -307,7 +309,7 @@ const Page = () => {
             </View>
 
             <View style={styles.stopRow}>
-              <Ionicons name="location-outline" size={16} color={Colors.muted} />
+              <Ionicons name="location-outline" size={16} color={colors.textMuted} />
               <Text style={styles.stopText}>{activeDelivery.dropoff_address ?? 'Customer'}</Text>
               <TouchableOpacity
                 onPress={() =>
@@ -335,7 +337,7 @@ const Page = () => {
                 onPress={() => router.push(`/order/chat?id=${activeDelivery.order_id}`)}
                 accessibilityRole="button"
                 testID="courier-open-chat">
-                <Ionicons name="chatbubble-ellipses-outline" size={18} color={Colors.secondary} />
+                <Ionicons name="chatbubble-ellipses-outline" size={18} color={colors.primary} />
                 <Text style={styles.chatButtonText}>Message the customer</Text>
                 {courierUnread > 0 && (
                   <View style={styles.chatBadge}>
@@ -353,7 +355,7 @@ const Page = () => {
                 onPress={onAdvance}
                 disabled={advance.isPending}>
                 {advance.isPending ? (
-                  <ActivityIndicator color="#fff" />
+                  <ActivityIndicator color={colors.primaryForeground} />
                 ) : (
                   <Text style={styles.primaryButtonText}>
                     {COURIER_NEXT_STEP[activeDelivery.status]!.label}
@@ -426,7 +428,7 @@ const Page = () => {
             <Ionicons
               name={isOnline ? 'bicycle-outline' : 'moon-outline'}
               size={44}
-              color={Colors.muted}
+              color={colors.textMuted}
             />
             <Text style={styles.emptyTitle}>{isOnline ? 'Waiting for offers' : 'You are offline'}</Text>
             <Text style={styles.emptyText}>
@@ -441,7 +443,7 @@ const Page = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   chatButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -449,27 +451,27 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 14,
     borderRadius: 12,
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: c.selectedBackground,
     marginBottom: 10,
   },
-  chatButtonText: { flex: 1, fontSize: 15, fontWeight: '600', color: Colors.secondary },
+  chatButtonText: { flex: 1, fontSize: 15, fontWeight: '600', color: c.primaryText },
   chatBadge: {
     minWidth: 20,
     height: 20,
     borderRadius: 10,
     paddingHorizontal: 5,
-    backgroundColor: '#B32433',
+    backgroundColor: c.dangerSolid,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  chatBadgeText: { color: '#fff', fontSize: 11, fontWeight: '700' },
+  chatBadgeText: { color: c.primaryForeground, fontSize: 11, fontWeight: '700' },
   reviewCard: {
     alignItems: 'center',
     gap: 6,
     paddingVertical: 24,
     paddingHorizontal: 16,
   },
-  container: { flex: 1, backgroundColor: Colors.background },
+  container: { flex: 1, backgroundColor: c.background },
   centered: {
     flex: 1,
     justifyContent: 'center',
@@ -482,91 +484,91 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 12,
     paddingBottom: 12,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#e6e6e6',
+    borderBottomColor: c.border,
   },
   iconButton: { width: 40, height: 40, justifyContent: 'center', alignItems: 'center' },
   headerText: { flex: 1, alignItems: 'center' },
-  title: { fontSize: 17, fontWeight: '700', color: '#000' },
-  subtitle: { fontSize: 13, color: Colors.muted, marginTop: 2 },
+  title: { fontSize: 17, fontWeight: '700', color: c.textPrimary },
+  subtitle: { fontSize: 13, color: c.textMuted, marginTop: 2 },
   content: { padding: 16, gap: 12, paddingBottom: 40 },
   form: { padding: 16, gap: 12, paddingBottom: 40 },
-  formTitle: { fontSize: 24, fontWeight: '700', color: '#000' },
-  formHint: { fontSize: 14, color: Colors.muted, lineHeight: 20, marginBottom: 4 },
-  label: { fontSize: 13, fontWeight: '600', color: Colors.muted, marginTop: 4 },
+  formTitle: { fontSize: 24, fontWeight: '700', color: c.textPrimary },
+  formHint: { fontSize: 14, color: c.textMuted, lineHeight: 20, marginBottom: 4 },
+  label: { fontSize: 13, fontWeight: '600', color: c.textMuted, marginTop: 4 },
   input: {
     borderWidth: 1,
-    borderColor: '#e0e0e0',
-    backgroundColor: '#fff',
+    borderColor: c.border,
+    backgroundColor: c.surface,
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 12,
     fontSize: 15,
-    color: '#000',
+    color: c.textPrimary,
   },
   vehicleRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   vehicleChip: {
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 20,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: c.border,
   },
-  vehicleChipActive: { backgroundColor: Colors.secondary, borderColor: Colors.secondary },
-  vehicleText: { fontSize: 13, fontWeight: '600', color: '#000' },
-  vehicleTextActive: { color: '#fff' },
+  vehicleChipActive: { backgroundColor: c.primary, borderColor: c.primary },
+  vehicleText: { fontSize: 13, fontWeight: '600', color: c.textPrimary },
+  vehicleTextActive: { color: c.primaryForeground },
   statusCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderRadius: 14,
     padding: 16,
     gap: 12,
   },
   statusText: { flex: 1 },
-  statusTitle: { fontSize: 17, fontWeight: '700', color: '#000' },
-  statusHint: { fontSize: 13, color: Colors.muted, marginTop: 2 },
-  card: { backgroundColor: '#fff', borderRadius: 14, padding: 16, gap: 8 },
+  statusTitle: { fontSize: 17, fontWeight: '700', color: c.textPrimary },
+  statusHint: { fontSize: 13, color: c.textMuted, marginTop: 2 },
+  card: { backgroundColor: c.surface, borderRadius: 14, padding: 16, gap: 8 },
   cardLabel: {
     fontSize: 11,
     fontWeight: '700',
     letterSpacing: 0.6,
     textTransform: 'uppercase',
-    color: Colors.secondary,
+    color: c.primaryText,
   },
-  cardTitle: { fontSize: 18, fontWeight: '700', color: '#000' },
-  cardStatus: { fontSize: 14, color: Colors.muted },
+  cardTitle: { fontSize: 18, fontWeight: '700', color: c.textPrimary },
+  cardStatus: { fontSize: 14, color: c.textMuted },
   stopRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 },
-  stopText: { flex: 1, fontSize: 14, color: '#000' },
-  navigate: { fontSize: 13, fontWeight: '700', color: Colors.secondary },
+  stopText: { flex: 1, fontSize: 14, color: c.textPrimary },
+  navigate: { fontSize: 13, fontWeight: '700', color: c.primaryText },
   itemsBox: {
-    backgroundColor: '#f7f7f7',
+    backgroundColor: c.surfaceMuted,
     borderRadius: 10,
     padding: 12,
     gap: 4,
     marginTop: 4,
   },
-  itemLine: { fontSize: 13, color: '#000' },
+  itemLine: { fontSize: 13, color: c.textPrimary },
   offerHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  countdown: { fontSize: 13, fontWeight: '700', color: '#c1272d' },
+  countdown: { fontSize: 13, fontWeight: '700', color: c.danger },
   offerMeta: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginTop: 4 },
-  offerMetaText: { fontSize: 13, color: Colors.muted, fontWeight: '600' },
+  offerMetaText: { fontSize: 13, color: c.textMuted, fontWeight: '600' },
   offerActions: { flexDirection: 'row', gap: 8, marginTop: 8 },
   action: { flex: 1, paddingVertical: 13, borderRadius: 10, alignItems: 'center' },
-  actionPrimary: { backgroundColor: Colors.secondary },
-  actionPrimaryText: { color: '#fff', fontSize: 15, fontWeight: '700' },
-  actionGhost: { backgroundColor: '#f4f4f4' },
-  actionGhostText: { color: Colors.muted, fontSize: 15, fontWeight: '700' },
+  actionPrimary: { backgroundColor: c.primary },
+  actionPrimaryText: { color: c.primaryForeground, fontSize: 15, fontWeight: '700' },
+  actionGhost: { backgroundColor: c.surfaceMuted },
+  actionGhostText: { color: c.textMuted, fontSize: 15, fontWeight: '700' },
   primaryButton: {
-    backgroundColor: Colors.secondary,
+    backgroundColor: c.primary,
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
     marginTop: 8,
   },
-  primaryButtonText: { color: '#fff', fontSize: 16, fontWeight: '700' },
+  primaryButtonText: { color: c.primaryForeground, fontSize: 16, fontWeight: '700' },
   buttonDisabled: { opacity: 0.6 },
   emptyBox: {
     alignItems: 'center',
@@ -574,8 +576,8 @@ const styles = StyleSheet.create({
     paddingVertical: 48,
     paddingHorizontal: 24,
   },
-  emptyTitle: { fontSize: 17, fontWeight: '700', color: '#000', marginTop: 8 },
-  emptyText: { fontSize: 14, color: Colors.muted, textAlign: 'center', lineHeight: 20 },
-});
+  emptyTitle: { fontSize: 17, fontWeight: '700', color: c.textPrimary, marginTop: 8 },
+  emptyText: { fontSize: 14, color: c.textMuted, textAlign: 'center', lineHeight: 20 },
+}));
 
 export default Page;

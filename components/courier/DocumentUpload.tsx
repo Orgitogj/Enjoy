@@ -1,11 +1,11 @@
 import { DOCUMENT_LABELS, REQUIRED_DOCUMENTS, VERIFICATION_LABELS } from '@/constants/deliveryStatus';
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import { useCourierDocuments, useSubmitCourierDocument } from '@/hooks/useCourier';
 import type { CourierDocumentKind, CourierVehicleType } from '@/types/database';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { useState } from 'react';
-import { ActivityIndicator, Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Text, TouchableOpacity, View } from 'react-native';
 
 const PICKER_OPTIONS: ImagePicker.ImagePickerOptions = {
   mediaTypes: 'images',
@@ -14,6 +14,8 @@ const PICKER_OPTIONS: ImagePicker.ImagePickerOptions = {
 };
 
 export const DocumentUpload = ({ vehicleType }: { vehicleType: CourierVehicleType }) => {
+  const colors = useThemeColors();
+  const styles = useStyles();
   const { data: documents, isLoading } = useCourierDocuments();
   const submit = useSubmitCourierDocument();
   const [uploading, setUploading] = useState<CourierDocumentKind | null>(null);
@@ -64,7 +66,7 @@ export const DocumentUpload = ({ vehicleType }: { vehicleType: CourierVehicleTyp
   };
 
   if (isLoading) {
-    return <ActivityIndicator color={Colors.secondary} style={styles.loader} />;
+    return <ActivityIndicator color={colors.primary} style={styles.loader} />;
   }
 
   return (
@@ -89,7 +91,7 @@ export const DocumentUpload = ({ vehicleType }: { vehicleType: CourierVehicleTyp
                     : 'cloud-upload-outline'
               }
               size={22}
-              color={document?.status === 'approved' ? '#1b7f3b' : Colors.muted}
+              color={document?.status === 'approved' ? colors.success : colors.textMuted}
             />
 
             <View style={styles.body}>
@@ -105,7 +107,7 @@ export const DocumentUpload = ({ vehicleType }: { vehicleType: CourierVehicleTyp
               disabled={isUploading || submit.isPending}
               onPress={() => onPress(kind)}>
               {isUploading ? (
-                <ActivityIndicator size="small" color={Colors.secondary} />
+                <ActivityIndicator size="small" color={colors.primary} />
               ) : (
                 <Text style={styles.buttonText}>{document ? 'Replace' : 'Upload'}</Text>
               )}
@@ -117,30 +119,30 @@ export const DocumentUpload = ({ vehicleType }: { vehicleType: CourierVehicleTyp
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   container: { gap: 10, width: '100%' },
   loader: { marginVertical: 16 },
-  title: { fontSize: 16, fontWeight: '700', color: '#000' },
-  hint: { fontSize: 13, color: Colors.muted, lineHeight: 18 },
+  title: { fontSize: 16, fontWeight: '700', color: c.textPrimary },
+  hint: { fontSize: 13, color: c.textMuted, lineHeight: 18 },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderRadius: 12,
     padding: 12,
   },
   body: { flex: 1, gap: 2 },
-  label: { fontSize: 14, fontWeight: '600', color: '#000' },
-  status: { fontSize: 12, color: Colors.muted },
-  notes: { fontSize: 12, color: '#c1272d', marginTop: 2 },
+  label: { fontSize: 14, fontWeight: '600', color: c.textPrimary },
+  status: { fontSize: 12, color: c.textMuted },
+  notes: { fontSize: 12, color: c.danger, marginTop: 2 },
   button: {
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 8,
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: c.selectedBackground,
     minWidth: 78,
     alignItems: 'center',
   },
-  buttonText: { color: Colors.secondary, fontSize: 13, fontWeight: '700' },
-});
+  buttonText: { color: c.primaryText, fontSize: 13, fontWeight: '700' },
+}));
