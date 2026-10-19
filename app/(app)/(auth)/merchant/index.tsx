@@ -1,6 +1,6 @@
 import { OrderStatusBadge } from '@/components/OrderStatusBadge';
 import { MERCHANT_ACTIONS, type MerchantAction } from '@/constants/orderStatus';
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import { usePlatformSettings } from '@/hooks/usePlatformSettings';
 import { useManagedRestaurants, useMerchantOrders, useTransitionOrder } from '@/hooks/useMerchant';
 import type { MerchantOrder } from '@/types/database';
@@ -37,6 +37,8 @@ const MANAGE_LINKS: {
 ];
 
 const Page = () => {
+  const styles = useStyles();
+  const colors = useThemeColors();
   const router = useRouter();
   const { top } = useSafeAreaInsets();
   const { restaurants, isLoading: restaurantsLoading } = useManagedRestaurants();
@@ -123,7 +125,7 @@ const Page = () => {
           <Ionicons
             name={item.delivery_mode === 'pickup' ? 'bag-handle-outline' : 'bicycle-outline'}
             size={15}
-            color={Colors.muted}
+            color={colors.textMuted}
           />
           <Text style={styles.meta}>
             {item.delivery_mode === 'pickup'
@@ -134,7 +136,7 @@ const Page = () => {
 
         {item.scheduled_for && (
           <View style={styles.metaRow}>
-            <Ionicons name="time-outline" size={15} color={Colors.muted} />
+            <Ionicons name="time-outline" size={15} color={colors.textMuted} />
             <Text style={styles.meta}>
               Scheduled for {new Date(item.scheduled_for).toLocaleString()}
             </Text>
@@ -143,7 +145,7 @@ const Page = () => {
 
         {item.leave_at_door && (
           <View style={styles.metaRow}>
-            <Ionicons name="home-outline" size={15} color={Colors.muted} />
+            <Ionicons name="home-outline" size={15} color={colors.textMuted} />
             <Text style={styles.meta}>Leave at the door</Text>
           </View>
         )}
@@ -161,7 +163,7 @@ const Page = () => {
             <TextInput
               style={styles.reasonInput}
               placeholder="Reason for the customer"
-              placeholderTextColor={Colors.muted}
+              placeholderTextColor={colors.textMuted}
               value={reason}
               onChangeText={setReason}
               autoFocus
@@ -209,7 +211,7 @@ const Page = () => {
   if (restaurantsLoading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator size="large" color={Colors.secondary} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -217,7 +219,7 @@ const Page = () => {
   if (restaurants.length === 0) {
     return (
       <View style={[styles.centered, { paddingTop: top }]}>
-        <Ionicons name="storefront-outline" size={52} color={Colors.muted} />
+        <Ionicons name="storefront-outline" size={52} color={colors.textMuted} />
         <Text style={styles.emptyTitle}>No restaurant linked</Text>
         <Text style={styles.emptyText}>
           This account does not manage a restaurant yet. An administrator has to add you as a member
@@ -241,7 +243,7 @@ const Page = () => {
           accessibilityRole="button"
           accessibilityLabel="Go back"
           hitSlop={4}>
-          <Ionicons name="chevron-back" size={24} color="#000" />
+          <Ionicons name="chevron-back" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
         <View style={styles.headerText}>
           <Text style={styles.title}>{activeRestaurant?.name ?? 'Orders'}</Text>
@@ -253,7 +255,7 @@ const Page = () => {
           accessibilityRole="button"
           accessibilityLabel="Reviews"
           testID="merchant-reviews-link">
-          <Ionicons name="star-outline" size={22} color={Colors.secondary} />
+          <Ionicons name="star-outline" size={22} color={colors.primary} />
         </TouchableOpacity>
       </View>
 
@@ -285,7 +287,7 @@ const Page = () => {
             accessibilityRole="button"
             accessibilityLabel={link.label}
             testID={`merchant-link-${link.key}`}>
-            <Ionicons name={link.icon} size={18} color={Colors.secondary} />
+            <Ionicons name={link.icon} size={18} color={colors.primary} />
             <Text style={styles.manageText}>{link.label}</Text>
           </TouchableOpacity>
         ))}
@@ -293,7 +295,7 @@ const Page = () => {
 
       {activeRestaurant?.is_paused && (
         <View style={styles.pausedBanner} testID="merchant-paused-banner">
-          <Ionicons name="pause-circle" size={16} color="#8A6100" />
+          <Ionicons name="pause-circle" size={16} color={colors.warning} />
           <Text style={styles.pausedText}>
             Your store is paused, so customers cannot order right now.
           </Text>
@@ -315,7 +317,7 @@ const Page = () => {
 
       {isLoading ? (
         <View style={styles.centered}>
-          <ActivityIndicator size="large" color={Colors.secondary} />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       ) : error ? (
         <View style={styles.centered}>
@@ -328,11 +330,11 @@ const Page = () => {
           renderItem={renderOrder}
           contentContainerStyle={styles.list}
           refreshControl={
-            <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={Colors.secondary} />
+            <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={colors.primary} />
           }
           ListEmptyComponent={
             <View style={styles.centered}>
-              <Ionicons name="receipt-outline" size={48} color={Colors.muted} />
+              <Ionicons name="receipt-outline" size={48} color={colors.textMuted} />
               <Text style={styles.emptyTitle}>
                 {showHistory ? 'No completed orders' : 'No live orders'}
               </Text>
@@ -349,8 +351,8 @@ const Page = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
+const useStyles = createThemedStyles((c) => ({
+  container: { flex: 1, backgroundColor: c.background },
   centered: {
     flex: 1,
     justifyContent: 'center',
@@ -364,26 +366,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 12,
     paddingBottom: 12,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#e6e6e6',
+    borderBottomColor: c.border,
   },
   backButton: { width: 40, height: 40, justifyContent: 'center', alignItems: 'center' },
   headerText: { flex: 1, alignItems: 'center' },
-  title: { fontSize: 17, fontWeight: '700', color: '#000' },
-  subtitle: { fontSize: 13, color: Colors.muted, marginTop: 2 },
+  title: { fontSize: 17, fontWeight: '700', color: c.textPrimary },
+  subtitle: { fontSize: 13, color: c.textMuted, marginTop: 2 },
   chipRow: { gap: 8, paddingHorizontal: 16, paddingVertical: 12 },
   chip: {
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: c.border,
   },
-  chipActive: { backgroundColor: Colors.secondary, borderColor: Colors.secondary },
-  chipText: { fontSize: 13, color: '#000', fontWeight: '600' },
-  chipTextActive: { color: '#fff' },
+  chipActive: { backgroundColor: c.primary, borderColor: c.primary },
+  chipText: { fontSize: 13, color: c.textPrimary, fontWeight: '600' },
+  chipTextActive: { color: c.primaryForeground },
   manageRow: { flexDirection: 'row', gap: 8, paddingHorizontal: 16, paddingTop: 12 },
   manageButton: {
     flex: 1,
@@ -393,9 +395,9 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingVertical: 10,
     borderRadius: 10,
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: c.selectedBackground,
   },
-  manageText: { fontSize: 13, fontWeight: '700', color: Colors.secondary },
+  manageText: { fontSize: 13, fontWeight: '700', color: c.primaryText },
   pausedBanner: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -405,68 +407,68 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
     borderRadius: 10,
-    backgroundColor: '#FFF3D6',
+    backgroundColor: c.warningSoft,
   },
-  pausedText: { flex: 1, fontSize: 12, color: '#8A6100' },
+  pausedText: { flex: 1, fontSize: 12, color: c.warning },
   tabs: { flexDirection: 'row', gap: 8, paddingHorizontal: 16, paddingVertical: 12 },
   tab: {
     flex: 1,
     paddingVertical: 10,
     borderRadius: 10,
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
   },
-  tabActive: { backgroundColor: Colors.primaryLight },
-  tabText: { fontSize: 14, fontWeight: '600', color: Colors.muted },
-  tabTextActive: { color: Colors.secondary },
+  tabActive: { backgroundColor: c.selectedBackground },
+  tabText: { fontSize: 14, fontWeight: '600', color: c.textMuted },
+  tabTextActive: { color: c.primaryText },
   list: { padding: 16, gap: 12, paddingBottom: 40 },
-  card: { backgroundColor: '#fff', borderRadius: 14, padding: 14, gap: 8 },
+  card: { backgroundColor: c.surface, borderRadius: 14, padding: 14, gap: 8 },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   cardHeaderLeft: { gap: 2 },
-  orderId: { fontSize: 15, fontWeight: '700', color: '#000' },
-  time: { fontSize: 12, color: Colors.muted },
+  orderId: { fontSize: 15, fontWeight: '700', color: c.textPrimary },
+  time: { fontSize: 12, color: c.textMuted },
   items: { gap: 8, paddingVertical: 4 },
   itemRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
-  itemQty: { fontSize: 14, fontWeight: '700', color: Colors.secondary, minWidth: 26 },
+  itemQty: { fontSize: 14, fontWeight: '700', color: c.primaryText, minWidth: 26 },
   itemBody: { flex: 1 },
-  itemName: { fontSize: 14, color: '#000', fontWeight: '600' },
-  itemAddons: { fontSize: 12, color: Colors.muted, marginTop: 2 },
-  itemPrice: { fontSize: 14, color: '#000' },
+  itemName: { fontSize: 14, color: c.textPrimary, fontWeight: '600' },
+  itemAddons: { fontSize: 12, color: c.textMuted, marginTop: 2 },
+  itemPrice: { fontSize: 14, color: c.textPrimary },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  meta: { fontSize: 13, color: Colors.muted, flex: 1 },
+  meta: { fontSize: 13, color: c.textMuted, flex: 1 },
   totalRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: '#ececec',
+    borderTopColor: c.border,
     paddingTop: 8,
     marginTop: 2,
   },
-  totalLabel: { fontSize: 14, fontWeight: '600', color: '#000' },
-  totalValue: { fontSize: 15, fontWeight: '700', color: '#000' },
+  totalLabel: { fontSize: 14, fontWeight: '600', color: c.textPrimary },
+  totalValue: { fontSize: 15, fontWeight: '700', color: c.textPrimary },
   actions: { flexDirection: 'row', gap: 8, marginTop: 4 },
   action: { flex: 1, paddingVertical: 12, borderRadius: 10, alignItems: 'center' },
-  actionPrimary: { backgroundColor: Colors.secondary },
-  actionPrimaryText: { color: '#fff', fontSize: 14, fontWeight: '700' },
-  actionGhost: { backgroundColor: '#f4f4f4' },
-  actionGhostText: { color: Colors.muted, fontSize: 14, fontWeight: '700' },
-  actionDestructive: { backgroundColor: '#fbe9e9' },
-  actionDestructiveText: { color: '#c1272d', fontSize: 14, fontWeight: '700' },
+  actionPrimary: { backgroundColor: c.primary },
+  actionPrimaryText: { color: c.primaryForeground, fontSize: 14, fontWeight: '700' },
+  actionGhost: { backgroundColor: c.surfaceMuted },
+  actionGhostText: { color: c.textMuted, fontSize: 14, fontWeight: '700' },
+  actionDestructive: { backgroundColor: c.dangerSoft },
+  actionDestructiveText: { color: c.danger, fontSize: 14, fontWeight: '700' },
   reasonBox: { gap: 8, marginTop: 4 },
-  reasonLabel: { fontSize: 13, color: Colors.muted },
+  reasonLabel: { fontSize: 13, color: c.textMuted },
   reasonInput: {
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: c.border,
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 14,
-    color: '#000',
+    color: c.textPrimary,
   },
-  emptyTitle: { fontSize: 17, fontWeight: '700', color: '#000', marginTop: 10 },
-  emptyText: { fontSize: 14, color: Colors.muted, textAlign: 'center', lineHeight: 20 },
+  emptyTitle: { fontSize: 17, fontWeight: '700', color: c.textPrimary, marginTop: 10 },
+  emptyText: { fontSize: 14, color: c.textMuted, textAlign: 'center', lineHeight: 20 },
   backLink: { marginTop: 14 },
-  backLinkText: { color: Colors.secondary, fontSize: 15, fontWeight: '600' },
-});
+  backLinkText: { color: c.primaryText, fontSize: 15, fontWeight: '600' },
+}));
 
 export default Page;

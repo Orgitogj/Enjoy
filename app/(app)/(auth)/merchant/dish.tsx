@@ -1,19 +1,10 @@
-import { MerchantScreen, merchantStyles } from '@/components/merchant/MerchantScreen';
-import { Colors } from '@/constants/theme';
+import { MerchantScreen, useMerchantStyles } from '@/components/merchant/MerchantScreen';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import { useMerchantMenu, useUpdateDish } from '@/hooks/useMerchant';
 import type { Dish, Restaurant } from '@/types/database';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
-import {
-  ActivityIndicator,
-  ScrollView,
-  StyleSheet,
-  Switch,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ActivityIndicator, ScrollView, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 const NAME_MAX = 80;
 const DESCRIPTION_MAX = 500;
@@ -24,6 +15,9 @@ const priceOf = (value: string): number | null => {
 };
 
 const DishForm = ({ dish, restaurant }: { dish: Dish; restaurant: Restaurant }) => {
+  const merchantStyles = useMerchantStyles();
+  const colors = useThemeColors();
+  const styles = useStyles();
   const router = useRouter();
   const update = useUpdateDish(restaurant.id);
 
@@ -78,7 +72,7 @@ const DishForm = ({ dish, restaurant }: { dish: Dish; restaurant: Restaurant }) 
           value={name}
           onChangeText={(value) => setName(value.slice(0, NAME_MAX))}
           placeholder="Dish name"
-          placeholderTextColor={Colors.muted}
+          placeholderTextColor={colors.textMuted}
           testID="dish-name"
         />
         {!!nameProblem && <Text style={merchantStyles.error}>{nameProblem}</Text>}
@@ -89,7 +83,7 @@ const DishForm = ({ dish, restaurant }: { dish: Dish; restaurant: Restaurant }) 
           value={description}
           onChangeText={(value) => setDescription(value.slice(0, DESCRIPTION_MAX))}
           placeholder="What is in it"
-          placeholderTextColor={Colors.muted}
+          placeholderTextColor={colors.textMuted}
           multiline
           testID="dish-description"
         />
@@ -104,7 +98,7 @@ const DishForm = ({ dish, restaurant }: { dish: Dish; restaurant: Restaurant }) 
           onChangeText={setPrice}
           keyboardType="decimal-pad"
           placeholder="0.00"
-          placeholderTextColor={Colors.muted}
+          placeholderTextColor={colors.textMuted}
           testID="dish-price"
         />
         {!!priceProblem && <Text style={merchantStyles.error}>{priceProblem}</Text>}
@@ -116,7 +110,7 @@ const DishForm = ({ dish, restaurant }: { dish: Dish; restaurant: Restaurant }) 
           <Switch
             value={isAvailable}
             onValueChange={setIsAvailable}
-            trackColor={{ false: Colors.light, true: Colors.primary }}
+            trackColor={{ false: colors.disabled, true: colors.primary }}
             accessibilityLabel="On the menu"
             testID="dish-available"
           />
@@ -126,7 +120,7 @@ const DishForm = ({ dish, restaurant }: { dish: Dish; restaurant: Restaurant }) 
           <Switch
             value={isPopular}
             onValueChange={setIsPopular}
-            trackColor={{ false: Colors.light, true: Colors.primary }}
+            trackColor={{ false: colors.disabled, true: colors.primary }}
             accessibilityLabel="Show as popular"
             testID="dish-popular"
           />
@@ -156,6 +150,9 @@ const DishForm = ({ dish, restaurant }: { dish: Dish; restaurant: Restaurant }) 
 };
 
 const DishBody = ({ restaurant }: { restaurant: Restaurant }) => {
+  const styles = useStyles();
+  const colors = useThemeColors();
+  const merchantStyles = useMerchantStyles();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const { data, isLoading } = useMerchantMenu(restaurant.id);
 
@@ -167,7 +164,7 @@ const DishBody = ({ restaurant }: { restaurant: Restaurant }) => {
   if (isLoading) {
     return (
       <View style={styles.centered} testID="dish-loading">
-        <ActivityIndicator size="large" color={Colors.secondary} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -189,7 +186,7 @@ const Page = () => (
   </MerchantScreen>
 );
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   multiline: { minHeight: 90, textAlignVertical: 'top' },
   switchRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   centered: {
@@ -199,6 +196,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     gap: 10,
   },
-});
+}));
 
 export default Page;

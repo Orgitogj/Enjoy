@@ -1,19 +1,12 @@
-import { MerchantScreen, merchantStyles } from '@/components/merchant/MerchantScreen';
-import { Colors } from '@/constants/theme';
+import { MerchantScreen, useMerchantStyles } from '@/components/merchant/MerchantScreen';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import { useMerchantMenu, useSetDishAvailable } from '@/hooks/useMerchant';
 import type { Dish, MerchantMenuCategory, Restaurant } from '@/types/database';
 import { Ionicons } from '@expo/vector-icons';
 import { FlashList, type ListRenderItemInfo } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
-import {
-  ActivityIndicator,
-  StyleSheet,
-  Switch,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Switch, Text, TouchableOpacity, View } from 'react-native';
 
 type MenuRow =
   | { kind: 'category'; id: string; name: string; subtitle: string | null; count: number }
@@ -32,6 +25,9 @@ const toRows = (categories: MerchantMenuCategory[]): MenuRow[] =>
   ]);
 
 const MenuBody = ({ restaurant }: { restaurant: Restaurant }) => {
+  const styles = useStyles();
+  const merchantStyles = useMerchantStyles();
+  const colors = useThemeColors();
   const router = useRouter();
   const { data, isLoading, error, refetch, isRefetching } = useMerchantMenu(restaurant.id);
   const setAvailable = useSetDishAvailable(restaurant.id);
@@ -91,20 +87,20 @@ const MenuBody = ({ restaurant }: { restaurant: Restaurant }) => {
           <Switch
             value={dish.is_available}
             onValueChange={(next) => onToggle(dish, next)}
-            trackColor={{ false: Colors.light, true: Colors.primary }}
+            trackColor={{ false: colors.disabled, true: colors.primary }}
             accessibilityLabel={`${dish.name} is on the menu`}
             testID={`merchant-dish-switch-${dish.id}`}
           />
         </View>
       );
     },
-    [failedDishId, onToggle, restaurant.id, router]
+    [failedDishId, onToggle, restaurant.id, router, styles, merchantStyles, colors]
   );
 
   if (isLoading) {
     return (
       <View style={styles.centered} testID="merchant-menu-loading">
-        <ActivityIndicator size="large" color={Colors.secondary} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -112,7 +108,7 @@ const MenuBody = ({ restaurant }: { restaurant: Restaurant }) => {
   if (error) {
     return (
       <View style={styles.centered}>
-        <Ionicons name="cloud-offline-outline" size={44} color={Colors.muted} />
+        <Ionicons name="cloud-offline-outline" size={44} color={colors.textMuted} />
         <Text style={merchantStyles.mutedText}>We could not load your menu.</Text>
         <TouchableOpacity
           style={merchantStyles.ghostButton}
@@ -128,7 +124,7 @@ const MenuBody = ({ restaurant }: { restaurant: Restaurant }) => {
   if (rows.length === 0) {
     return (
       <View style={styles.centered}>
-        <Ionicons name="restaurant-outline" size={44} color={Colors.muted} />
+        <Ionicons name="restaurant-outline" size={44} color={colors.textMuted} />
         <Text style={merchantStyles.mutedText}>
           This menu is empty. An administrator can add your categories and dishes.
         </Text>
@@ -151,7 +147,10 @@ const MenuBody = ({ restaurant }: { restaurant: Restaurant }) => {
   );
 };
 
-const RowSeparator = () => <View style={styles.separator} />;
+const RowSeparator = () => {
+  const styles = useStyles();
+  return <View style={styles.separator} />;
+};
 
 const Page = () => (
   <MerchantScreen title="Menu">
@@ -159,7 +158,7 @@ const Page = () => (
   </MerchantScreen>
 );
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   list: { padding: 16, paddingBottom: 48 },
   separator: { height: 10 },
   categoryRow: {
@@ -172,12 +171,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderRadius: 14,
     padding: 14,
   },
   dishBody: { flex: 1, gap: 2 },
-  dishName: { fontSize: 15, fontWeight: '700', color: '#000' },
+  dishName: { fontSize: 15, fontWeight: '700', color: c.textPrimary },
   centered: {
     flex: 1,
     justifyContent: 'center',
@@ -185,6 +184,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     gap: 10,
   },
-});
+}));
 
 export default Page;

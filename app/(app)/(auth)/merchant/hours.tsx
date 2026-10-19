@@ -1,19 +1,10 @@
-import { MerchantScreen, merchantStyles } from '@/components/merchant/MerchantScreen';
-import { Colors } from '@/constants/theme';
+import { MerchantScreen, useMerchantStyles } from '@/components/merchant/MerchantScreen';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import { useRestaurantHours, useSetRestaurantHours } from '@/hooks/useMerchant';
 import type { HoursRange, Restaurant } from '@/types/database';
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  ScrollView,
-  StyleSheet,
-  Switch,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ActivityIndicator, ScrollView, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/;
@@ -72,6 +63,9 @@ export const weekProblem = (week: DayDraft[]): string | null => {
 };
 
 const HoursBody = ({ restaurant }: { restaurant: Restaurant }) => {
+  const styles = useStyles();
+  const colors = useThemeColors();
+  const merchantStyles = useMerchantStyles();
   const { data, isLoading } = useRestaurantHours(restaurant.id);
   const save = useSetRestaurantHours(restaurant.id);
   const [week, setWeek] = useState<DayDraft[]>(emptyWeek);
@@ -107,7 +101,7 @@ const HoursBody = ({ restaurant }: { restaurant: Restaurant }) => {
   if (isLoading) {
     return (
       <View style={styles.centered} testID="hours-loading">
-        <ActivityIndicator size="large" color={Colors.secondary} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -126,7 +120,7 @@ const HoursBody = ({ restaurant }: { restaurant: Restaurant }) => {
             <Switch
               value={day.isOpen}
               onValueChange={(isOpen) => update(index, { isOpen })}
-              trackColor={{ false: Colors.light, true: Colors.primary }}
+              trackColor={{ false: colors.disabled, true: colors.primary }}
               accessibilityLabel={`Open on ${DAYS[index]}`}
               testID={`hours-open-${index}`}
             />
@@ -141,7 +135,7 @@ const HoursBody = ({ restaurant }: { restaurant: Restaurant }) => {
                   value={day.opensAt}
                   onChangeText={(opensAt) => update(index, { opensAt })}
                   placeholder="09:00"
-                  placeholderTextColor={Colors.muted}
+                  placeholderTextColor={colors.textMuted}
                   maxLength={5}
                   accessibilityLabel={`${DAYS[index]} opening time`}
                   testID={`hours-opens-${index}`}
@@ -154,7 +148,7 @@ const HoursBody = ({ restaurant }: { restaurant: Restaurant }) => {
                   value={day.closesAt}
                   onChangeText={(closesAt) => update(index, { closesAt })}
                   placeholder="22:00"
-                  placeholderTextColor={Colors.muted}
+                  placeholderTextColor={colors.textMuted}
                   maxLength={5}
                   accessibilityLabel={`${DAYS[index]} closing time`}
                   testID={`hours-closes-${index}`}
@@ -177,7 +171,7 @@ const HoursBody = ({ restaurant }: { restaurant: Restaurant }) => {
       )}
       {saved && (
         <View style={styles.savedRow} testID="hours-saved">
-          <Ionicons name="checkmark-circle" size={18} color={Colors.secondary} />
+          <Ionicons name="checkmark-circle" size={18} color={colors.primary} />
           <Text style={merchantStyles.label}>Your opening hours are live.</Text>
         </View>
       )}
@@ -204,12 +198,12 @@ const Page = () => (
   </MerchantScreen>
 );
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   dayHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   timeRow: { flexDirection: 'row', gap: 12 },
   timeField: { flex: 1, gap: 4 },
   savedRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32 },
-});
+}));
 
 export default Page;

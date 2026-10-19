@@ -1,4 +1,4 @@
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import { useManagedRestaurants } from '@/hooks/useMerchant';
 import type { Restaurant } from '@/types/database';
 import { Ionicons } from '@expo/vector-icons';
@@ -28,6 +28,8 @@ export const useMerchantRestaurant = (): {
 };
 
 export const MerchantScreen = ({ title, subtitle, children }: MerchantScreenProps) => {
+  const styles = useStyles();
+  const colors = useThemeColors();
   const router = useRouter();
   const { top } = useSafeAreaInsets();
   const { restaurant, isLoading } = useMerchantRestaurant();
@@ -41,7 +43,7 @@ export const MerchantScreen = ({ title, subtitle, children }: MerchantScreenProp
           accessibilityRole="button"
           accessibilityLabel="Go back"
           hitSlop={4}>
-          <Ionicons name="chevron-back" size={24} color="#000" />
+          <Ionicons name="chevron-back" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
         <View style={styles.headerText}>
           <Text style={styles.title}>{title}</Text>
@@ -52,13 +54,13 @@ export const MerchantScreen = ({ title, subtitle, children }: MerchantScreenProp
 
       {isLoading ? (
         <View style={styles.centered} testID="merchant-screen-loading">
-          <ActivityIndicator size="large" color={Colors.secondary} />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       ) : restaurant ? (
         children(restaurant)
       ) : (
         <View style={styles.centered}>
-          <Ionicons name="storefront-outline" size={48} color={Colors.muted} />
+          <Ionicons name="storefront-outline" size={48} color={colors.textMuted} />
           <Text style={styles.emptyTitle}>No restaurant linked</Text>
           <Text style={styles.emptyText}>
             An administrator has to add you as a member before you can manage a menu.
@@ -69,62 +71,62 @@ export const MerchantScreen = ({ title, subtitle, children }: MerchantScreenProp
   );
 };
 
-export const merchantStyles = StyleSheet.create({
+export const useMerchantStyles = createThemedStyles((c) => ({
   content: { padding: 16, gap: 12, paddingBottom: 48 },
-  card: { backgroundColor: '#fff', borderRadius: 14, padding: 14, gap: 10 },
-  cardTitle: { fontSize: 15, fontWeight: '700', color: '#000' },
-  label: { fontSize: 13, color: Colors.muted },
+  card: { backgroundColor: c.surface, borderRadius: 14, padding: 14, gap: 10 },
+  cardTitle: { fontSize: 15, fontWeight: '700', color: c.textPrimary },
+  label: { fontSize: 13, color: c.textMuted },
   sectionTitle: {
     fontSize: 13,
     fontWeight: '700',
-    color: Colors.muted,
+    color: c.textMuted,
     letterSpacing: 0.4,
     textTransform: 'uppercase',
   },
   input: {
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: c.border,
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 14,
-    color: '#000',
-    backgroundColor: '#fff',
+    color: c.textPrimary,
+    backgroundColor: c.surface,
   },
   primaryButton: {
-    backgroundColor: Colors.secondary,
+    backgroundColor: c.primary,
     borderRadius: 12,
     paddingVertical: 14,
     alignItems: 'center',
   },
-  primaryButtonText: { color: '#fff', fontSize: 15, fontWeight: '700' },
+  primaryButtonText: { color: c.primaryForeground, fontSize: 15, fontWeight: '700' },
   ghostButton: {
-    backgroundColor: '#f4f4f4',
+    backgroundColor: c.surfaceMuted,
     borderRadius: 12,
     paddingVertical: 14,
     alignItems: 'center',
   },
-  ghostButtonText: { color: Colors.muted, fontSize: 15, fontWeight: '700' },
+  ghostButtonText: { color: c.textMuted, fontSize: 15, fontWeight: '700' },
   disabled: { opacity: 0.5 },
-  error: { fontSize: 13, color: '#c1272d' },
-  mutedText: { fontSize: 14, color: Colors.muted, textAlign: 'center' },
-});
+  error: { fontSize: 13, color: c.danger },
+  mutedText: { fontSize: 14, color: c.textMuted, textAlign: 'center' },
+}));
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
+const useStyles = createThemedStyles((c) => ({
+  container: { flex: 1, backgroundColor: c.background },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 12,
     paddingBottom: 12,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#e6e6e6',
+    borderBottomColor: c.border,
   },
   iconButton: { width: 40, height: 40, justifyContent: 'center', alignItems: 'center' },
   headerText: { flex: 1, alignItems: 'center' },
-  title: { fontSize: 17, fontWeight: '700', color: '#000' },
-  subtitle: { fontSize: 13, color: Colors.muted, marginTop: 2 },
+  title: { fontSize: 17, fontWeight: '700', color: c.textPrimary },
+  subtitle: { fontSize: 13, color: c.textMuted, marginTop: 2 },
   centered: {
     flex: 1,
     justifyContent: 'center',
@@ -133,6 +135,6 @@ const styles = StyleSheet.create({
     paddingVertical: 48,
     gap: 6,
   },
-  emptyTitle: { fontSize: 17, fontWeight: '700', color: '#000', marginTop: 10 },
-  emptyText: { fontSize: 14, color: Colors.muted, textAlign: 'center', lineHeight: 20 },
-});
+  emptyTitle: { fontSize: 17, fontWeight: '700', color: c.textPrimary, marginTop: 10 },
+  emptyText: { fontSize: 14, color: c.textMuted, textAlign: 'center', lineHeight: 20 },
+}));

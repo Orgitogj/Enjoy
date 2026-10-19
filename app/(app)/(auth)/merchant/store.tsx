@@ -1,10 +1,10 @@
-import { MerchantScreen, merchantStyles } from '@/components/merchant/MerchantScreen';
-import { Colors } from '@/constants/theme';
+import { MerchantScreen, useMerchantStyles } from '@/components/merchant/MerchantScreen';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import { useSetPrepTime, useSetStorePaused } from '@/hooks/useMerchant';
 import type { Restaurant } from '@/types/database';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 
 const PREP_MINUTES = [10, 15, 20, 25, 30, 45, 60, 90];
 const MINIMUM_PAUSE_MS = 5 * 60 * 1000;
@@ -35,6 +35,9 @@ export const describePause = (restaurant: Restaurant, now: Date): string => {
 };
 
 const StoreBody = ({ restaurant }: { restaurant: Restaurant }) => {
+  const merchantStyles = useMerchantStyles();
+  const styles = useStyles();
+  const colors = useThemeColors();
   const pause = useSetStorePaused(restaurant.id);
   const prep = useSetPrepTime(restaurant.id);
   const [problem, setProblem] = useState<string | null>(null);
@@ -64,7 +67,7 @@ const StoreBody = ({ restaurant }: { restaurant: Restaurant }) => {
           <Ionicons
             name={isPaused ? 'pause-circle' : 'checkmark-circle'}
             size={22}
-            color={isPaused ? '#c1272d' : Colors.secondary}
+            color={isPaused ? colors.danger : colors.primary}
           />
           <Text style={merchantStyles.cardTitle} testID="store-status">
             {describePause(restaurant, new Date())}
@@ -150,7 +153,7 @@ const Page = () => (
   </MerchantScreen>
 );
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   statusRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   pauseList: { gap: 10 },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
@@ -158,13 +161,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: c.border,
   },
-  chipActive: { backgroundColor: Colors.secondary, borderColor: Colors.secondary },
-  chipText: { fontSize: 13, color: '#000', fontWeight: '600' },
-  chipTextActive: { color: '#fff' },
-});
+  chipActive: { backgroundColor: c.primary, borderColor: c.primary },
+  chipText: { fontSize: 13, color: c.textPrimary, fontWeight: '600' },
+  chipTextActive: { color: c.primaryForeground },
+}));
 
 export default Page;
