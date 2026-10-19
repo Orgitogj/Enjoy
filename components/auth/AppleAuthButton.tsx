@@ -1,12 +1,21 @@
+import PressableScale from '@/components/ui/PressableScale';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { useThemeScheme } from '@/constants/theme';
+import { StyleSheet, Text } from 'react-native';
 
 const AppleAuthButton = ({ onPress }: { onPress?: () => void }) => {
+  const onDark = useThemeScheme() === 'dark';
+  const foreground = onDark ? '#000' : '#fff';
+
   return (
-    <TouchableOpacity style={styles.appleButton} onPress={onPress}>
-      <Ionicons name="logo-apple" size={18} color={'#fff'}></Ionicons>
-      <Text style={styles.appleButtonText}>Sign in with apple</Text>
-    </TouchableOpacity>
+    <PressableScale
+      style={[styles.appleButton, { backgroundColor: onDark ? '#fff' : '#000' }]}
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel="Sign in with Apple">
+      <Ionicons name="logo-apple" size={18} color={foreground}></Ionicons>
+      <Text style={[styles.appleButtonText, { color: foreground }]}>Sign in with Apple</Text>
+    </PressableScale>
   );
 };
 
@@ -15,17 +24,16 @@ export default AppleAuthButton;
 const styles = StyleSheet.create({
   appleButton: {
     width: '100%',
-    backgroundColor: '#000',
+    minHeight: 52,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 17,
+    paddingVertical: 15,
     paddingHorizontal: 14,
-    borderRadius: 12,
-    gap: 4,
+    borderRadius: 14,
+    gap: 6,
   },
   appleButtonText: {
-    color: '#fff',
     fontSize: 18,
     fontWeight: '600',
   },
