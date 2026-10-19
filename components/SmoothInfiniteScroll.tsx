@@ -1,3 +1,5 @@
+import { useThemeColors } from '@/constants/theme';
+import { useReduceMotion } from '@/hooks/useReduceMotion';
 import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Animated, {
@@ -12,25 +14,25 @@ import Animated, {
 
 const iconDataSets = {
   set1: [
-    { emoji: '🍕', color: '#FFE5CC' },
-    { emoji: '🍔', color: '#F4D03F' },
-    { emoji: '🍟', color: '#F8D7DA' },
-    { emoji: '🌮', color: '#D5EDDA' },
-    { emoji: '🍗', color: '#FADBD8' },
+    { emoji: '🍕', tint: 0 },
+    { emoji: '🍔', tint: 1 },
+    { emoji: '🍟', tint: 2 },
+    { emoji: '🌮', tint: 3 },
+    { emoji: '🍗', tint: 4 },
   ],
   set2: [
-    { emoji: '🎮', color: '#D1ECF1' },
-    { emoji: '🎧', color: '#E2E3E5' },
-    { emoji: '☕', color: '#F4D03F' },
-    { emoji: '🍿', color: '#FFE5CC' },
-    { emoji: '🥤', color: '#F8D7DA' },
+    { emoji: '🍜', tint: 3 },
+    { emoji: '🥗', tint: 4 },
+    { emoji: '☕', tint: 1 },
+    { emoji: '🍣', tint: 0 },
+    { emoji: '🥤', tint: 2 },
   ],
   set3: [
-    { emoji: '🍰', color: '#FADBD8' },
-    { emoji: '🍦', color: '#D1ECF1' },
-    { emoji: '🍪', color: '#FFE5CC' },
-    { emoji: '🎲', color: '#D5EDDA' },
-    { emoji: '🕹️', color: '#E2E3E5' },
+    { emoji: '🍰', tint: 2 },
+    { emoji: '🍦', tint: 4 },
+    { emoji: '🍪', tint: 0 },
+    { emoji: '🥐', tint: 3 },
+    { emoji: '🍩', tint: 1 },
   ],
 };
 
@@ -49,6 +51,8 @@ const SmoothInfiniteScroll = ({
 }: SmoothInfiniteScrollProps) => {
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
   const scrollY = useSharedValue(0);
+  const colors = useThemeColors();
+  const reduceMotion = useReduceMotion();
 
   const iconData = iconDataSets[iconSet];
   const items = [...iconData, ...iconData];
@@ -57,6 +61,7 @@ const SmoothInfiniteScroll = ({
   const totalWrapHeight = totalContentHeight + iconData.length * GAP;
 
   useEffect(() => {
+    if (reduceMotion) return;
     const duration = (totalWrapHeight / SCROLL_SPEED) * 1000;
 
     if (scrollDirection === 'down') {
@@ -78,7 +83,7 @@ const SmoothInfiniteScroll = ({
     return () => {
       cancelAnimation(scrollY);
     };
-  }, [scrollDirection, totalWrapHeight, scrollY]);
+  }, [scrollDirection, totalWrapHeight, scrollY, reduceMotion]);
 
   useAnimatedReaction(
     () => scrollY.value,
@@ -106,9 +111,11 @@ const SmoothInfiniteScroll = ({
       contentContainerStyle={styles.container}
       ref={scrollRef}
       scrollEnabled={false}
-      showsVerticalScrollIndicator={false}>
+      showsVerticalScrollIndicator={false}
+      accessible={false}
+      importantForAccessibility="no-hide-descendants">
       {items.map((item, idx) => (
-        <View key={idx} style={[styles.iconContainer, { backgroundColor: item.color }]}>
+        <View key={idx} style={[styles.iconContainer, { backgroundColor: colors.decorativeTints[item.tint] }]}>
           <Text style={{ fontSize: 40 }}>{item.emoji}</Text>
         </View>
       ))}
@@ -128,7 +135,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 20,
     marginHorizontal: 5,
-    boxShadow: '0px -2px 10px rgba(0, 0, 0, 0.1)',
+    boxShadow: '0px -2px 10px rgba(25, 21, 18, 0.08)',
   },
 });
 export default SmoothInfiniteScroll;
