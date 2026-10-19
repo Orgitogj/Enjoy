@@ -1,22 +1,15 @@
-import { Colors, Fonts } from '@/constants/theme';
+import { createThemedStyles, Fonts, useThemeColors } from '@/constants/theme';
 import { useAddressSelectionStore } from '@/hooks/use-address-store';
 import { useAddresses } from '@/hooks/useAddresses';
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 const Page = () => {
+  const styles = useStyles();
+  const colors = useThemeColors();
   const router = useRouter();
   const { addresses, isLoading, addAddress, removeAddress } = useAddresses();
   const { selectedAddressId, selectAddress } = useAddressSelectionStore();
@@ -79,16 +72,16 @@ const Page = () => {
         disabled={isLocating}>
         <View style={styles.locationItemIcon}>
           {isLocating ? (
-            <ActivityIndicator size="small" color={Colors.secondary} />
+            <ActivityIndicator size="small" color={colors.primary} />
           ) : (
-            <Ionicons name="locate-outline" size={18} color="#000" />
+            <Ionicons name="locate-outline" size={18} color={colors.textPrimary} />
           )}
         </View>
         <Text style={styles.locationText}>Use my current location</Text>
       </TouchableOpacity>
 
       {isLoading ? (
-        <ActivityIndicator style={{ marginTop: 16 }} color={Colors.secondary} />
+        <ActivityIndicator style={{ marginTop: 16 }} color={colors.primary} />
       ) : (
         addresses.map((address) => (
           <View key={address.id} style={styles.locationItem}>
@@ -99,7 +92,7 @@ const Page = () => {
                 router.dismiss();
               }}>
               <View style={styles.locationItemIcon}>
-                <Ionicons name="location-outline" size={18} color="#000" />
+                <Ionicons name="location-outline" size={18} color={colors.textPrimary} />
               </View>
               <View style={styles.addressInfo}>
                 <Text style={styles.addressText}>{address.label}</Text>
@@ -107,7 +100,7 @@ const Page = () => {
               </View>
             </TouchableOpacity>
             {address.id === selectedAddressId && (
-              <Ionicons name="checkmark-circle" size={20} color={Colors.secondary} />
+              <Ionicons name="checkmark-circle" size={20} color={colors.primary} />
             )}
             <TouchableOpacity
               onPress={() => removeAddress(address.id)}
@@ -115,7 +108,7 @@ const Page = () => {
               accessibilityRole="button"
               accessibilityLabel={`Remove ${address.label}`}
               hitSlop={8}>
-              <Ionicons name="trash-outline" size={18} color={Colors.muted} />
+              <Ionicons name="trash-outline" size={18} color={colors.textMuted} />
             </TouchableOpacity>
           </View>
         ))
@@ -123,7 +116,7 @@ const Page = () => {
 
       <TouchableOpacity style={styles.locationItem} onPress={() => setShowForm((v) => !v)}>
         <View style={styles.locationItemIcon}>
-          <Ionicons name={showForm ? 'close' : 'add'} size={18} color="#000" />
+          <Ionicons name={showForm ? 'close' : 'add'} size={18} color={colors.textPrimary} />
         </View>
         <Text style={styles.locationText}>Add new address</Text>
       </TouchableOpacity>
@@ -151,13 +144,14 @@ const Page = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: c.background,
     padding: 20,
   },
   title: {
+    color: c.textPrimary,
     fontFamily: Fonts.brandBold,
     fontSize: 32,
     fontWeight: 900,
@@ -168,7 +162,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: c.border,
     gap: 16,
   },
   addressTouchArea: {
@@ -183,23 +177,23 @@ const styles = StyleSheet.create({
   locationItemIcon: {
     padding: 8,
     borderRadius: 20,
-    backgroundColor: Colors.light,
+    backgroundColor: c.surfaceMuted,
   },
   locationText: {
     fontSize: 16,
-    color: '#000',
+    color: c.textPrimary,
   },
   addressInfo: {
     flex: 1,
   },
   addressText: {
     fontSize: 16,
-    color: '#000',
+    color: c.textPrimary,
     marginBottom: 2,
   },
   cityText: {
     fontSize: 14,
-    color: '#999',
+    color: c.textMuted,
   },
   form: {
     paddingTop: 12,
@@ -207,26 +201,26 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: '#e6e6e6',
+    borderColor: c.border,
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 14,
-    color: '#000',
+    color: c.textPrimary,
   },
   saveButton: {
     alignSelf: 'flex-start',
-    backgroundColor: Colors.secondary,
+    backgroundColor: c.primary,
     borderRadius: 10,
     paddingHorizontal: 14,
     paddingVertical: 10,
     marginTop: 4,
   },
   saveButtonText: {
-    color: '#fff',
+    color: c.primaryForeground,
     fontSize: 14,
     fontWeight: '600',
   },
-});
+}));
 
 export default Page;

@@ -1,4 +1,4 @@
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import { useFilterStore } from '@/hooks/use-filters-store';
 import { useRestaurantsInBounds } from '@/hooks/useRestaurants';
 import type { MapBounds } from '@/services/restaurantService';
@@ -36,6 +36,8 @@ const regionToBounds = (region: Region) => ({
 });
 
 const Page = () => {
+  const styles = useStyles();
+  const colors = useThemeColors();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const mapRef = useRef<MapView>(null);
@@ -108,7 +110,7 @@ const Page = () => {
           accessibilityRole="button"
           accessibilityLabel="Close map"
           hitSlop={4}>
-          <Ionicons name="chevron-back" size={22} color={Colors.muted} />
+          <Ionicons name="chevron-back" size={22} color={colors.textMuted} />
         </TouchableOpacity>
         <View style={styles.headerRight}>
           <Link href={'/(app)/(auth)/(modal)/filter'} asChild>
@@ -117,7 +119,7 @@ const Page = () => {
               accessibilityRole="button"
               accessibilityLabel="Filter restaurants"
               hitSlop={4}>
-              <Ionicons name="filter" size={22} />
+              <Ionicons name="filter" size={22} color={colors.textPrimary} />
             </TouchableOpacity>
           </Link>
           <TouchableOpacity
@@ -126,7 +128,7 @@ const Page = () => {
             accessibilityRole="button"
             accessibilityLabel="Center on my location"
             hitSlop={4}>
-            <Ionicons name="locate-outline" size={22} />
+            <Ionicons name="locate-outline" size={22} color={colors.textPrimary} />
           </TouchableOpacity>
         </View>
       </View>
@@ -147,7 +149,7 @@ const Page = () => {
                 longitude: restaurant.longitude!,
               }}
               title={restaurant.name}
-              pinColor={restaurant.id === selectedId ? Colors.primary : Colors.muted}
+              pinColor={restaurant.id === selectedId ? colors.primary : colors.textMuted}
               onPress={() => markerSelected(restaurant.id)}
             />
           ))}
@@ -155,14 +157,14 @@ const Page = () => {
 
       {restaurantsLoading && (
         <View style={styles.statusPill}>
-          <ActivityIndicator size="small" color={Colors.secondary} />
+          <ActivityIndicator size="small" color={colors.primary} />
           <Text style={styles.statusPillText}>Loading venues</Text>
         </View>
       )}
 
       {!restaurantsLoading && restaurantsFetching && (
         <View style={styles.statusPill}>
-          <ActivityIndicator size="small" color={Colors.secondary} />
+          <ActivityIndicator size="small" color={colors.primary} />
           <Text style={styles.statusPillText}>Updating this area</Text>
         </View>
       )}
@@ -209,7 +211,7 @@ const Page = () => {
                   {restaurant.description}
                 </Text>
                 <View style={styles.cardFooter}>
-                  <Ionicons name="bicycle-outline" size={14} color="#666" />
+                  <Ionicons name="bicycle-outline" size={14} color={colors.textMuted} />
                   <Text style={styles.cardFooterText}>
                     {restaurant.delivery_fee === 0
                       ? 'Free delivery'
@@ -226,7 +228,7 @@ const Page = () => {
 };
 export default Page;
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   header: {
     position: 'absolute',
     top: 0,
@@ -240,7 +242,7 @@ const styles = StyleSheet.create({
   backButton: {
     width: 40,
     height: 40,
-    backgroundColor: Colors.background,
+    backgroundColor: c.surface,
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
@@ -258,7 +260,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 20,
@@ -266,16 +268,16 @@ const styles = StyleSheet.create({
   },
   statusPillText: {
     fontSize: 13,
-    color: Colors.muted,
+    color: c.textMuted,
   },
   statusPillAction: {
     fontSize: 13,
     fontWeight: '700',
-    color: Colors.secondary,
+    color: c.primaryText,
   },
   cardSelected: {
     borderWidth: 2,
-    borderColor: Colors.primary,
+    borderColor: c.primary,
   },
   footerScroll: {
     position: 'absolute',
@@ -291,7 +293,7 @@ const styles = StyleSheet.create({
   },
   card: {
     width: 280,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderRadius: 16,
     boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.15)',
     flexDirection: 'row',
@@ -317,11 +319,11 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#000',
+    color: c.textPrimary,
     flex: 1,
   },
   woltBadge: {
-    backgroundColor: '#009de0',
+    backgroundColor: c.primary,
     borderRadius: 4,
     paddingHorizontal: 6,
     paddingVertical: 2,
@@ -329,11 +331,11 @@ const styles = StyleSheet.create({
   woltBadgeText: {
     fontSize: 10,
     fontWeight: '700',
-    color: '#fff',
+    color: c.primaryForeground,
   },
   cardDescription: {
     fontSize: 13,
-    color: '#666',
+    color: c.textMuted,
     marginBottom: 6,
   },
   cardFooter: {
@@ -343,6 +345,6 @@ const styles = StyleSheet.create({
   },
   cardFooterText: {
     fontSize: 12,
-    color: '#666',
+    color: c.textMuted,
   },
-});
+}));
