@@ -1,4 +1,5 @@
-import { Colors, Fonts } from '@/constants/theme';
+import PressableScale from '@/components/ui/PressableScale';
+import { createThemedStyles, Fonts, useThemeColors } from '@/constants/theme';
 import useAuthStore from '@/hooks/use-auth-store';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -7,7 +8,6 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -24,6 +24,13 @@ const Page = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [infoMessage, setInfoMessage] = useState<string | null>(null);
+  const [focusedField, setFocusedField] = useState<'name' | 'email' | 'password' | null>(null);
+  const colors = useThemeColors();
+  const styles = useStyles();
+  const inputStyle = (field: 'name' | 'email' | 'password') => [
+    styles.input,
+    focusedField === field && styles.inputFocused,
+  ];
 
   const handleSubmit = async () => {
     if (!email.trim() || !password) {
@@ -69,25 +76,35 @@ const Page = () => {
         accessibilityRole="button"
         accessibilityLabel="Close"
         hitSlop={4}>
-        <Ionicons name="close" size={24} color={'#000'} />
+        <Ionicons name="close" size={24} color={colors.textPrimary} />
       </TouchableOpacity>
 
-      <Text style={styles.title}>{mode === 'signin' ? 'Log in' : 'Create account'}</Text>
+      <Text style={styles.title} accessibilityRole="header">{mode === 'signin' ? 'Log in' : 'Create account'}</Text>
 
       {mode === 'signup' && (
         <TextInput
-          style={styles.input}
+          style={inputStyle('name')}
           placeholder="Full name"
-          placeholderTextColor={Colors.muted}
+          placeholderTextColor={colors.textMuted}
+          accessibilityLabel="Full name"
+          autoComplete="name"
+          textContentType="name"
+          onFocus={() => setFocusedField('name')}
+          onBlur={() => setFocusedField(null)}
           autoCapitalize="words"
           value={fullName}
           onChangeText={setFullName}
         />
       )}
       <TextInput
-        style={styles.input}
+        style={inputStyle('email')}
         placeholder="Email"
-        placeholderTextColor={Colors.muted}
+        placeholderTextColor={colors.textMuted}
+        accessibilityLabel="Email"
+        autoComplete="email"
+        textContentType="emailAddress"
+        onFocus={() => setFocusedField('email')}
+        onBlur={() => setFocusedField(null)}
         autoCapitalize="none"
         autoCorrect={false}
         keyboardType="email-address"
@@ -95,32 +112,49 @@ const Page = () => {
         onChangeText={setEmail}
       />
       <TextInput
-        style={styles.input}
+        style={inputStyle('password')}
         placeholder="Password"
-        placeholderTextColor={Colors.muted}
+        placeholderTextColor={colors.textMuted}
+        accessibilityLabel="Password"
+        autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
+        textContentType={mode === 'signin' ? 'password' : 'newPassword'}
+        onFocus={() => setFocusedField('password')}
+        onBlur={() => setFocusedField(null)}
         secureTextEntry
         value={password}
         onChangeText={setPassword}
       />
 
-      {infoMessage && <Text style={styles.infoText}>{infoMessage}</Text>}
-      {error && <Text style={styles.errorText}>{error}</Text>}
+      {infoMessage && (
+        <Text style={styles.infoText} accessibilityLiveRegion="polite">
+          {infoMessage}
+        </Text>
+      )}
+      {error && (
+        <Text style={styles.errorText} accessibilityRole="alert" accessibilityLiveRegion="polite">
+          <Ionicons name="alert-circle" size={15} color={colors.danger} /> {error}
+        </Text>
+      )}
 
-      <TouchableOpacity
+      <PressableScale
         style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]}
         onPress={handleSubmit}
-        disabled={isSubmitting}>
+        disabled={isSubmitting}
+        accessibilityRole="button"
+        accessibilityLabel={mode === 'signin' ? 'Log in' : 'Create account'}
+        accessibilityState={{ disabled: isSubmitting, busy: isSubmitting }}>
         {isSubmitting ? (
-          <ActivityIndicator color="#fff" />
+          <ActivityIndicator color={colors.primaryForeground} />
         ) : (
           <Text style={styles.submitButtonText}>
             {mode === 'signin' ? 'Log in' : 'Create account'}
           </Text>
         )}
-      </TouchableOpacity>
+      </PressableScale>
 
       <TouchableOpacity
         style={styles.switchModeButton}
+        accessibilityRole="button"
         onPress={() => {
           setError(null);
           setMode(mode === 'signin' ? 'signup' : 'signin');
@@ -135,14 +169,14 @@ const Page = () => {
 
 export default Page;
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   container: {
     flex: 1,
     padding: 14,
-    backgroundColor: '#fff',
+    backgroundColor: c.background,
   },
   closeBtn: {
-    backgroundColor: Colors.light,
+    backgroundColor: c.surfaceMuted,
     borderRadius: 40,
     padding: 8,
     alignSelf: 'flex-end',
@@ -151,56 +185,64 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 30,
     fontFamily: Fonts.brandBlack,
+    color: c.textPrimary,
     marginVertical: 22,
     paddingHorizontal: 6,
   },
   input: {
-    borderWidth: 1,
-    borderColor: Colors.light,
+    borderWidth: 1.5,
+    borderColor: c.border,
+    backgroundColor: c.inputBackground,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 16,
-    color: '#000',
+    color: c.textPrimary,
     marginBottom: 12,
     marginHorizontal: 6,
   },
+  inputFocused: {
+    borderColor: c.focus,
+  },
   infoText: {
-    color: Colors.secondary,
+    color: c.success,
     fontSize: 14,
     marginBottom: 12,
     marginHorizontal: 6,
   },
   errorText: {
-    color: '#ff4646',
+    color: c.danger,
     fontSize: 14,
     marginBottom: 12,
     marginHorizontal: 6,
   },
   submitButton: {
-    backgroundColor: Colors.secondary,
-    paddingVertical: 17,
-    borderRadius: 12,
+    backgroundColor: c.primary,
+    minHeight: 54,
+    paddingVertical: 15,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
     marginHorizontal: 6,
     marginTop: 4,
   },
   submitButtonDisabled: {
-    opacity: 0.7,
+    backgroundColor: c.primaryPressed,
   },
   submitButtonText: {
-    color: '#fff',
+    color: c.primaryForeground,
     fontSize: 18,
-    fontWeight: '600',
+    fontFamily: Fonts.brandBold,
   },
   switchModeButton: {
-    marginTop: 16,
+    marginTop: 12,
+    minHeight: 44,
+    justifyContent: 'center',
     alignItems: 'center',
   },
   switchModeText: {
-    color: Colors.secondary,
+    color: c.link,
     fontSize: 15,
-    fontWeight: '600',
+    fontFamily: Fonts.brandBold,
   },
-});
+}));
