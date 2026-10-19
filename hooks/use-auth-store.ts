@@ -8,6 +8,8 @@ interface AuthState {
   user: User | null;
   isLoading: boolean;
   isAnonymous: boolean;
+  restoreFailed: boolean;
+  retryRestore: () => void;
   signInWithEmail: (email: string, password: string) => Promise<{ error: string | null }>;
   signUpWithEmail: (
     email: string,
@@ -41,21 +43,36 @@ export const consumeCartCarryOver = (previousUserId: string | null, now = Date.n
 };
 
 const useAuthStore = create<AuthState>((set, get) => {
-  supabase.auth.getSession().then(({ data }) => {
-    set({
-      session: data.session,
-      user: data.session?.user ?? null,
-      isAnonymous: !!data.session?.user?.is_anonymous,
-      isLoading: false,
-    });
-  });
+  let authEventSeen = false;
+  let latestAttempt = 0;
+
+  const restoreSession = async (): Promise<void> => {
+    const attempt = ++latestAttempt;
+    try {
+      const { data } = await supabase.auth.getSession();
+      if (authEventSeen || !get().isLoading) return;
+      set({
+        session: data.session,
+        user: data.session?.user ?? null,
+        isAnonymous: !!data.session?.user?.is_anonymous,
+        isLoading: false,
+        restoreFailed: false,
+      });
+    } catch {
+      if (!authEventSeen && get().isLoading && attempt === latestAttempt) set({ restoreFailed: true });
+    }
+  };
+
+  void restoreSession();
 
   supabase.auth.onAuthStateChange((_event, session) => {
+    authEventSeen = true;
     set({
       session,
       user: session?.user ?? null,
       isAnonymous: !!session?.user?.is_anonymous,
       isLoading: false,
+      restoreFailed: false,
     });
   });
 
@@ -64,6 +81,12 @@ const useAuthStore = create<AuthState>((set, get) => {
     user: null,
     isLoading: true,
     isAnonymous: false,
+    restoreFailed: false,
+    retryRestore: () => {
+      if (!get().isLoading) return;
+      set({ restoreFailed: false });
+      void restoreSession();
+    },
 
     signInWithEmail: async (email, password) => {
       clearCartCarryOver();
