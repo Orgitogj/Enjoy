@@ -1,5 +1,5 @@
 import { RestaurantSelector } from '@/components/promotions/RestaurantSelector';
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import type { PromotionDraft } from '@/services/promotionService';
 import type { AdminPromotion, DiscountType } from '@/types/database';
 import {
@@ -11,15 +11,7 @@ import {
 } from '@/utils/datetime';
 import { Ionicons } from '@expo/vector-icons';
 import { useMemo, useState } from 'react';
-import {
-  ActivityIndicator,
-  StyleSheet,
-  Switch,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 export interface PromotionFormState {
   code: string;
@@ -182,6 +174,8 @@ export const PromotionForm = ({
   error,
   isEditing,
 }: PromotionFormProps) => {
+  const styles = useStyles();
+  const colors = useThemeColors();
   const [showSchedule, setShowSchedule] = useState(
     () => !!form.startDate || !!form.endDate
   );
@@ -203,7 +197,7 @@ export const PromotionForm = ({
         value={form.code}
         onChangeText={(text) => set({ code: text.toUpperCase() })}
         placeholder="CODE"
-        placeholderTextColor={Colors.muted}
+        placeholderTextColor={colors.textMuted}
         autoCapitalize="characters"
         autoCorrect={false}
         editable={!isSaving}
@@ -215,7 +209,7 @@ export const PromotionForm = ({
         value={form.description}
         onChangeText={(text) => set({ description: text })}
         placeholder="Description customers see"
-        placeholderTextColor={Colors.muted}
+        placeholderTextColor={colors.textMuted}
         editable={!isSaving}
         testID="promotion-description-input"
       />
@@ -247,7 +241,7 @@ export const PromotionForm = ({
           value={form.discountValue}
           onChangeText={(text) => set({ discountValue: text })}
           placeholder={form.discountType === 'percentage' ? 'Percent off' : 'Amount off'}
-          placeholderTextColor={Colors.muted}
+          placeholderTextColor={colors.textMuted}
           keyboardType="decimal-pad"
           editable={!isSaving}
           testID="promotion-value-input"
@@ -258,7 +252,7 @@ export const PromotionForm = ({
             value={form.maxDiscount}
             onChangeText={(text) => set({ maxDiscount: text })}
             placeholder="Max discount"
-            placeholderTextColor={Colors.muted}
+            placeholderTextColor={colors.textMuted}
             keyboardType="decimal-pad"
             editable={!isSaving}
             testID="promotion-max-discount-input"
@@ -272,7 +266,7 @@ export const PromotionForm = ({
           value={form.minSubtotal}
           onChangeText={(text) => set({ minSubtotal: text })}
           placeholder="Min basket"
-          placeholderTextColor={Colors.muted}
+          placeholderTextColor={colors.textMuted}
           keyboardType="decimal-pad"
           editable={!isSaving}
           testID="promotion-min-subtotal-input"
@@ -282,7 +276,7 @@ export const PromotionForm = ({
           value={form.maxRedemptions}
           onChangeText={(text) => set({ maxRedemptions: text })}
           placeholder="Total uses"
-          placeholderTextColor={Colors.muted}
+          placeholderTextColor={colors.textMuted}
           keyboardType="number-pad"
           editable={!isSaving}
           testID="promotion-max-redemptions-input"
@@ -294,7 +288,7 @@ export const PromotionForm = ({
         value={form.maxPerCustomer}
         onChangeText={(text) => set({ maxPerCustomer: text })}
         placeholder="Uses per customer"
-        placeholderTextColor={Colors.muted}
+        placeholderTextColor={colors.textMuted}
         keyboardType="number-pad"
         editable={!isSaving}
         testID="promotion-max-per-customer-input"
@@ -316,7 +310,7 @@ export const PromotionForm = ({
         onPress={() => setShowSchedule((open) => !open)}
         accessibilityRole="button"
         testID="promotion-schedule-toggle">
-        <Ionicons name="calendar-outline" size={16} color={Colors.secondary} />
+        <Ionicons name="calendar-outline" size={16} color={colors.primary} />
         <Text style={styles.scheduleToggleText}>
           {showSchedule ? 'Hide schedule' : 'Add a schedule'}
         </Text>
@@ -335,7 +329,7 @@ export const PromotionForm = ({
               value={form.startDate}
               onChangeText={(text) => set({ startDate: text })}
               placeholder="YYYY-MM-DD"
-              placeholderTextColor={Colors.muted}
+              placeholderTextColor={colors.textMuted}
               autoCapitalize="none"
               editable={!isSaving}
               testID="promotion-start-date"
@@ -345,7 +339,7 @@ export const PromotionForm = ({
               value={form.startTime}
               onChangeText={(text) => set({ startTime: text })}
               placeholder="HH:MM"
-              placeholderTextColor={Colors.muted}
+              placeholderTextColor={colors.textMuted}
               editable={!isSaving}
               testID="promotion-start-time"
             />
@@ -358,7 +352,7 @@ export const PromotionForm = ({
               value={form.endDate}
               onChangeText={(text) => set({ endDate: text })}
               placeholder="YYYY-MM-DD"
-              placeholderTextColor={Colors.muted}
+              placeholderTextColor={colors.textMuted}
               autoCapitalize="none"
               editable={!isSaving}
               testID="promotion-end-date"
@@ -368,7 +362,7 @@ export const PromotionForm = ({
               value={form.endTime}
               onChangeText={(text) => set({ endTime: text })}
               placeholder="HH:MM"
-              placeholderTextColor={Colors.muted}
+              placeholderTextColor={colors.textMuted}
               editable={!isSaving}
               testID="promotion-end-time"
             />
@@ -393,8 +387,8 @@ export const PromotionForm = ({
           value={form.isActive}
           onValueChange={(isActive) => set({ isActive })}
           disabled={isSaving}
-          trackColor={{ false: Colors.light, true: Colors.primary }}
-          thumbColor="#fff"
+          trackColor={{ false: colors.disabled, true: colors.primary }}
+          thumbColor={colors.primaryForeground}
           testID="promotion-active-switch"
         />
       </View>
@@ -422,7 +416,7 @@ export const PromotionForm = ({
           accessibilityState={{ disabled: isSaving }}
           testID="save-promotion">
           {isSaving ? (
-            <ActivityIndicator color="#fff" />
+            <ActivityIndicator color={colors.primaryForeground} />
           ) : (
             <Text style={styles.saveButtonText}>{isEditing ? 'Save changes' : 'Create'}</Text>
           )}
@@ -432,10 +426,11 @@ export const PromotionForm = ({
   );
 };
 
-const styles = StyleSheet.create({
-  form: { padding: 16, gap: 10, backgroundColor: '#fff' },
+const useStyles = createThemedStyles((c) => ({
+  form: { padding: 16, gap: 10, backgroundColor: c.surface },
   input: {
-    backgroundColor: Colors.background,
+    color: c.textPrimary,
+    backgroundColor: c.inputBackground,
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 12,
@@ -448,41 +443,41 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 16,
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: c.selectedBackground,
   },
-  typeChipActive: { backgroundColor: Colors.primary },
-  typeChipText: { fontSize: 13, color: Colors.secondary },
-  typeChipTextActive: { color: '#fff', fontWeight: '700' },
-  fieldLabel: { fontSize: 13, fontWeight: '600', color: Colors.muted },
+  typeChipActive: { backgroundColor: c.primary },
+  typeChipText: { fontSize: 13, color: c.primaryText },
+  typeChipTextActive: { color: c.primaryForeground, fontWeight: '700' },
+  fieldLabel: { fontSize: 13, fontWeight: '600', color: c.textMuted },
   scheduleToggle: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 4 },
-  scheduleToggleText: { fontSize: 14, fontWeight: '700', color: Colors.secondary },
+  scheduleToggleText: { fontSize: 14, fontWeight: '700', color: c.primaryText },
   scheduleBlock: {
     gap: 8,
     padding: 12,
     borderRadius: 10,
-    backgroundColor: Colors.background,
+    backgroundColor: c.surface,
   },
-  timezoneText: { fontSize: 12, color: Colors.muted },
-  previewText: { fontSize: 12, color: Colors.secondary },
-  inlineError: { fontSize: 12, color: '#B32433' },
+  timezoneText: { fontSize: 12, color: c.textMuted },
+  previewText: { fontSize: 12, color: c.primaryText },
+  inlineError: { fontSize: 12, color: c.danger },
   activeRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  formError: { fontSize: 13, color: '#B32433' },
+  formError: { fontSize: 13, color: c.danger },
   actions: { flexDirection: 'row', gap: 10 },
   cancelButton: {
     flex: 1,
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: c.selectedBackground,
     borderRadius: 10,
     paddingVertical: 14,
     alignItems: 'center',
   },
-  cancelButtonText: { color: Colors.secondary, fontWeight: '700' },
+  cancelButtonText: { color: c.primaryText, fontWeight: '700' },
   saveButton: {
     flex: 2,
-    backgroundColor: Colors.primary,
+    backgroundColor: c.primary,
     borderRadius: 10,
     paddingVertical: 14,
     alignItems: 'center',
   },
-  saveButtonText: { color: '#fff', fontWeight: '700' },
+  saveButtonText: { color: c.primaryForeground, fontWeight: '700' },
   disabled: { opacity: 0.6 },
-});
+}));

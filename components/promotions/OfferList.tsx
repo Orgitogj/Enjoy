@@ -1,4 +1,4 @@
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import { useActivePromotions } from '@/hooks/usePromotions';
 import { describePromotion } from '@/services/promotionService';
 import type { Promotion } from '@/types/database';
@@ -23,6 +23,8 @@ const formatEnds = (promotion: Promotion) => {
 };
 
 export const OfferList = ({ restaurantId, title = 'Offers' }: OfferListProps) => {
+  const styles = useStyles();
+  const colors = useThemeColors();
   const { data, isLoading, error, refetch } = useActivePromotions(restaurantId);
 
   if (isLoading) {
@@ -30,7 +32,7 @@ export const OfferList = ({ restaurantId, title = 'Offers' }: OfferListProps) =>
       <View style={styles.section}>
         <Text style={styles.title}>{title}</Text>
         <View style={styles.state} testID="offers-loading">
-          <ActivityIndicator color={Colors.secondary} />
+          <ActivityIndicator color={colors.primary} />
         </View>
       </View>
     );
@@ -68,7 +70,7 @@ export const OfferList = ({ restaurantId, title = 'Offers' }: OfferListProps) =>
         renderItem={({ item }) => (
           <View style={styles.card} testID={`offer-${item.code}`}>
             <View style={styles.cardHeader}>
-              <Ionicons name="pricetag" size={14} color={Colors.secondary} />
+              <Ionicons name="pricetag" size={14} color={colors.primary} />
               <Text style={styles.code}>{item.code}</Text>
             </View>
             <Text style={styles.headline}>{describePromotion(item)}</Text>
@@ -85,9 +87,10 @@ export const OfferList = ({ restaurantId, title = 'Offers' }: OfferListProps) =>
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   section: { marginBottom: 24 },
   title: {
+    color: c.textPrimary,
     fontSize: 20,
     fontWeight: '700',
     paddingHorizontal: 16,
@@ -95,20 +98,20 @@ const styles = StyleSheet.create({
   },
   list: { paddingHorizontal: 16, gap: 12 },
   state: { paddingHorizontal: 16, gap: 6 },
-  mutedText: { fontSize: 13, color: Colors.muted },
-  retryText: { fontSize: 13, fontWeight: '700', color: Colors.secondary },
+  mutedText: { fontSize: 13, color: c.textMuted },
+  retryText: { fontSize: 13, fontWeight: '700', color: c.primaryText },
   card: {
     width: 220,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderRadius: 12,
     padding: 14,
     gap: 6,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: Colors.light,
+    borderColor: c.border,
   },
   cardHeader: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  code: { fontSize: 13, fontWeight: '800', color: Colors.secondary, letterSpacing: 0.5 },
-  headline: { fontSize: 16, fontWeight: '700', color: '#000' },
-  description: { fontSize: 13, color: Colors.muted },
-  terms: { fontSize: 12, color: Colors.muted },
-});
+  code: { fontSize: 13, fontWeight: '800', color: c.primaryText, letterSpacing: 0.5 },
+  headline: { fontSize: 16, fontWeight: '700', color: c.textPrimary },
+  description: { fontSize: 13, color: c.textMuted },
+  terms: { fontSize: 12, color: c.textMuted },
+}));
