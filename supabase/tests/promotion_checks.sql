@@ -630,4 +630,52 @@ begin
 end;
 $$;
 
+do $$
+begin
+  insert into public.promotions (code, description, discount_type, discount_value, max_redemptions)
+  values ('SOLDOUT', 'single use', 'fixed', 2, 1);
+
+  perform pg_temp.act_as((select id from t_promo where key = 'customer_a'));
+  perform pg_temp.place_order('SOLDOUT');
+end;
+$$;
+
+do $$
+declare v_rows int;
+begin
+  perform pg_temp.act_as((select id from t_promo where key = 'customer_b'));
+  set local role authenticated;
+  select count(*) into v_rows from public.active_promotions(null) where code = 'SOLDOUT';
+  perform pg_temp.assert(v_rows = 0,
+    'an offer used up by another customer is hidden from the offers list');
+  select count(*) into v_rows from public.active_promotions(null) where code = 'CAPPED';
+  perform pg_temp.assert(v_rows = 1, 'offers with capacity left stay in the list');
+  reset role;
+end;
+$$;
+
+do $$
+declare v_rows int;
+begin
+  perform set_config('request.jwt.claims', json_build_object('role', 'anon')::text, true);
+  set local role anon;
+  select count(*) into v_rows from public.active_promotions(null);
+  perform pg_temp.assert(v_rows > 0, 'signed-out visitors can read the offers list');
+  select count(*) into v_rows from public.active_promotions(null) where code = 'SOLDOUT';
+  perform pg_temp.assert(v_rows = 0, 'signed-out visitors do not see used-up offers');
+  reset role;
+end;
+$$;
+
+do $$
+begin
+  perform pg_temp.assert(
+    not has_table_privilege('anon', 'public.promotion_redemptions', 'SELECT'),
+    'anon still cannot read redemption rows directly');
+  perform pg_temp.assert(
+    public.promotion_has_capacity(gen_random_uuid()) = false,
+    'an unknown promotion reports no capacity');
+end;
+$$;
+
 rollback;
