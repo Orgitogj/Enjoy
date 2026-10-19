@@ -3,7 +3,7 @@ import { createThemedStyles, Fonts, useThemeColors } from '@/constants/theme';
 import useAuthStore from '@/hooks/use-auth-store';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -26,6 +26,8 @@ const Page = () => {
   const [error, setError] = useState<string | null>(null);
   const [infoMessage, setInfoMessage] = useState<string | null>(null);
   const [focusedField, setFocusedField] = useState<'name' | 'email' | 'password' | null>(null);
+  const emailInput = useRef<TextInput>(null);
+  const passwordInput = useRef<TextInput>(null);
   const colors = useThemeColors();
   const styles = useStyles();
   const inputStyle = (field: 'name' | 'email' | 'password') => [
@@ -97,12 +99,16 @@ const Page = () => {
           textContentType="name"
           onFocus={() => setFocusedField('name')}
           onBlur={() => setFocusedField(null)}
+          returnKeyType="next"
+          submitBehavior="submit"
+          onSubmitEditing={() => emailInput.current?.focus()}
           autoCapitalize="words"
           value={fullName}
           onChangeText={setFullName}
         />
       )}
       <TextInput
+        ref={emailInput}
         style={inputStyle('email')}
         placeholder="Email"
         placeholderTextColor={colors.textMuted}
@@ -114,10 +120,14 @@ const Page = () => {
         autoCapitalize="none"
         autoCorrect={false}
         keyboardType="email-address"
+        returnKeyType="next"
+        submitBehavior="submit"
+        onSubmitEditing={() => passwordInput.current?.focus()}
         value={email}
         onChangeText={setEmail}
       />
       <TextInput
+        ref={passwordInput}
         style={inputStyle('password')}
         placeholder="Password"
         placeholderTextColor={colors.textMuted}
@@ -127,6 +137,8 @@ const Page = () => {
         onFocus={() => setFocusedField('password')}
         onBlur={() => setFocusedField(null)}
         secureTextEntry
+        returnKeyType="go"
+        onSubmitEditing={handleSubmit}
         value={password}
         onChangeText={setPassword}
       />
