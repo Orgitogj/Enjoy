@@ -2,12 +2,12 @@ import { CategoryList } from '@/components/CategoryList';
 import { OfferList } from '@/components/promotions/OfferList';
 import RestaurantHeader from '@/components/RestaurantHeader';
 import RestaurantList from '@/components/RestaurantList';
-import { Fonts } from '@/constants/theme';
+import { createThemedStyles, Fonts } from '@/constants/theme';
 import { useFilterStore } from '@/hooks/use-filters-store';
 import { useRestaurantEtaLabels } from '@/hooks/useDeliveryEta';
 import { useRestaurants } from '@/hooks/useRestaurants';
 import { useCallback, useMemo, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { useSharedValue } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -26,6 +26,7 @@ const RestaurantListPage = ({
   showCategories = true,
   showOffers = true,
 }: RestaurantListPageProps) => {
+  const styles = useStyles();
   const insets = useSafeAreaInsets();
   const scrollOffset = useSharedValue(0);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
@@ -101,11 +102,12 @@ const RestaurantListPage = ({
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   container: {
     flex: 1,
   },
   pageTitle: {
+    color: c.textPrimary,
     fontFamily: Fonts.brandBlack,
     fontSize: 30,
     marginBottom: 16,
@@ -113,16 +115,17 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 15,
-    color: '#666',
+    color: c.textMuted,
     marginTop: -8,
     marginBottom: 16,
     paddingHorizontal: 16,
   },
   allRestaurantsTitle: {
+    color: c.textPrimary,
     fontFamily: Fonts.brandBold,
     fontSize: 20,
     marginBottom: 8,
     paddingHorizontal: 16,
   },
-});
+}));
 export default RestaurantListPage;
