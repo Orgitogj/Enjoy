@@ -1,9 +1,10 @@
-import { Fonts } from '@/constants/theme';
+import { Fonts, useThemeColors } from '@/constants/theme';
 import { Stack } from 'expo-router';
 
 const Page = () => {
+  const colors = useThemeColors();
   return (
-    <Stack screenOptions={{ contentStyle: { backgroundColor: '#fff' } }}>
+    <Stack screenOptions={{ contentStyle: { backgroundColor: colors.background } }}>
       <Stack.Screen
         name="index"
         options={{
@@ -13,7 +14,7 @@ const Page = () => {
           headerLargeTitleStyle: {
             fontFamily: Fonts.brandBold,
             fontWeight: '900',
-            color: '#000',
+            color: colors.textPrimary,
           },
         }}
       />

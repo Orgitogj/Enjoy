@@ -1,7 +1,10 @@
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter,Stack } from 'expo-router';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 const Layout = () => {
+  const colors = useThemeColors();
+  const styles = useStyles();
   const router = useRouter();
 
   return (
@@ -20,7 +23,7 @@ const Layout = () => {
           title: 'Order history',
           headerShown: false,
           contentStyle: {
-            backgroundColor: '#fff',
+            backgroundColor: colors.background,
           },
         }}
       />
@@ -29,7 +32,7 @@ const Layout = () => {
         options={{
           headerShown: false,
           contentStyle: {
-            backgroundColor: '#fff',
+            backgroundColor: colors.background,
           },
         }}
       />
@@ -39,7 +42,7 @@ const Layout = () => {
           title: '',
           headerBackButtonDisplayMode: 'minimal',
           contentStyle: {
-            backgroundColor: '#fff',
+            backgroundColor: colors.background,
           },
         }}
       />
@@ -48,7 +51,7 @@ const Layout = () => {
         options={{
           title: 'Messages',
           contentStyle: {
-            backgroundColor: '#fff',
+            backgroundColor: colors.background,
           },
         }}
       />
@@ -57,7 +60,7 @@ const Layout = () => {
         options={{
           title: 'Order again',
           contentStyle: {
-            backgroundColor: '#fff',
+            backgroundColor: colors.background,
           },
         }}
       />
@@ -66,7 +69,7 @@ const Layout = () => {
         options={{
           title: 'Rate your order',
           contentStyle: {
-            backgroundColor: '#fff',
+            backgroundColor: colors.background,
           },
         }}
       />
@@ -75,7 +78,7 @@ const Layout = () => {
         options={{
           title: 'Report a problem',
           contentStyle: {
-            backgroundColor: '#fff',
+            backgroundColor: colors.background,
           },
         }}
       />
@@ -84,7 +87,7 @@ const Layout = () => {
         options={{
           title: 'Your reports',
           contentStyle: {
-            backgroundColor: '#fff',
+            backgroundColor: colors.background,
           },
         }}
       />
@@ -93,7 +96,7 @@ const Layout = () => {
         options={{
           title: 'Your report',
           contentStyle: {
-            backgroundColor: '#fff',
+            backgroundColor: colors.background,
           },
         }}
       />
@@ -106,7 +109,7 @@ const Layout = () => {
           sheetGrabberVisible: true,
           sheetAllowedDetents: [0.5],
           contentStyle: {
-            backgroundColor: '#fff',
+            backgroundColor: colors.background,
           },
           headerRight: () => (
             <TouchableOpacity
@@ -115,7 +118,7 @@ const Layout = () => {
               accessibilityRole="button"
               accessibilityLabel="Close"
               hitSlop={8}>
-              <Ionicons name="close" size={28} color={'#000'} />
+              <Ionicons name="close" size={28} color={colors.textPrimary} />
             </TouchableOpacity>
           ),
         }}
@@ -123,9 +126,9 @@ const Layout = () => {
     </Stack>
   );
 };
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   closeButton: {
     marginLeft: 4,
   },
-});
+}));
 export default Layout;

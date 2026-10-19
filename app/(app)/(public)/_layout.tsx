@@ -1,9 +1,11 @@
+import { useThemeColors } from '@/constants/theme';
 import { Stack } from 'expo-router';
 
 const Layout = () => {
+  const colors = useThemeColors();
   return (
     <Stack>
-      <Stack.Screen name='index' options={{headerShown:false,contentStyle:{backgroundColor:'#fff'}}}/>
+      <Stack.Screen name='index' options={{headerShown:false,contentStyle:{backgroundColor:colors.background}}}/>
       <Stack.Screen name='other-options' options={{headerShown:false,
       presentation:'formSheet',
       title:'',
