@@ -1,4 +1,4 @@
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import type { Dish } from '@/types/database';
 import { useCartStore } from '@/hooks/use-cartstore';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -10,6 +10,8 @@ interface RecommendedDishProps {
 }
 
 export const RecommendedDish = ({ dish }: RecommendedDishProps) => {
+  const styles = useStyles();
+  const colors = useThemeColors();
   const { addItem, canAddFromRestaurant, clearCart, setSelectedRestaurant } = useCartStore();
 
   const handleAddToCart = () => {
@@ -45,7 +47,7 @@ export const RecommendedDish = ({ dish }: RecommendedDishProps) => {
           activeOpacity={0.9}
           accessibilityRole="button"
           accessibilityLabel={`Add ${dish.name} to your order`}>
-          <Ionicons name="add" size={22} color={Colors.secondary} style={styles.addButtonIcon} />
+          <Ionicons name="add" size={22} color={colors.primary} style={styles.addButtonIcon} />
         </TouchableOpacity>
       </View>
       <View style={styles.content}>
@@ -58,14 +60,14 @@ export const RecommendedDish = ({ dish }: RecommendedDishProps) => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   container: {
     width: '48%',
     aspectRatio: 1,
-    backgroundColor: '#fff',
+    backgroundColor: c.background,
     borderRadius: 12,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: '#e8e8e8',
+    borderColor: c.border,
     overflow: 'hidden',
     marginBottom: 12,
     boxShadow: '0px 2px 6px rgba(0, 0, 0, 0.08)',
@@ -77,7 +79,7 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: '100%',
-    backgroundColor: '#e0e0e0',
+    backgroundColor: c.surfaceMuted,
   },
   addButton: {
     position: 'absolute',
@@ -86,7 +88,7 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: Colors.primaryLight,
+    backgroundColor: c.selectedBackground,
     boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.12)',
   },
   addButtonIcon: {
@@ -103,13 +105,13 @@ const styles = StyleSheet.create({
   price: {
     fontSize: 14,
     fontWeight: '700',
-    color: Colors.secondary,
+    color: c.primaryText,
     marginBottom: 4,
   },
   name: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#000',
+    color: c.textPrimary,
     lineHeight: 18,
   },
-});
+}));
