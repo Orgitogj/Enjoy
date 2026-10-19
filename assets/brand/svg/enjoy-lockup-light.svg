@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1900 460" role="img" aria-labelledby="title">
+  <title id="title">ENJOY logo for light surfaces</title>
+  <text x="40" y="330" fill="#191512" font-family="Nunito, DejaVu Sans, sans-serif" font-size="300" font-weight="900" letter-spacing="4">ENJ</text>
+  <g transform="translate(650 24) scale(.4)">
+    <path d="M650 190a330 330 0 1 1-276 0" fill="none" stroke="#C44720" stroke-width="132" stroke-linecap="round"/>
+    <path d="M338 574c42 92 104 138 174 138s132-46 174-138" fill="none" stroke="#C44720" stroke-width="82" stroke-linecap="round"/>
+  </g>
+  <text x="1070" y="330" fill="#191512" font-family="Nunito, DejaVu Sans, sans-serif" font-size="300" font-weight="900">Y</text>
+</svg>
