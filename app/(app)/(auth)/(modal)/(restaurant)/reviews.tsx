@@ -1,23 +1,18 @@
 import { RatingStars } from '@/components/reviews/RatingStars';
 import { ReviewCard } from '@/components/reviews/ReviewCard';
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import { useRestaurantReviews, useReviewSummary } from '@/hooks/useReviews';
 import { useRestaurant } from '@/hooks/useRestaurants';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useCallback } from 'react';
-import {
-  ActivityIndicator,
-  FlatList,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ActivityIndicator, FlatList, Text, TouchableOpacity, View } from 'react-native';
 
 const RATING_ROWS = [5, 4, 3, 2, 1];
 
 const Page = () => {
+  const styles = useStyles();
+  const colors = useThemeColors();
   const { id } = useLocalSearchParams<{ id: string }>();
   const restaurantId = id ?? '';
 
@@ -58,7 +53,7 @@ const Page = () => {
   const header = (
     <View style={styles.summaryCard}>
       {summaryLoading ? (
-        <ActivityIndicator color={Colors.secondary} />
+        <ActivityIndicator color={colors.primary} />
       ) : summaryError ? (
         <Text style={styles.mutedText}>Ratings are unavailable right now.</Text>
       ) : (
@@ -96,7 +91,7 @@ const Page = () => {
     if (isLoading) {
       return (
         <View style={styles.state} testID="reviews-loading">
-          <ActivityIndicator size="large" color={Colors.secondary} />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       );
     }
@@ -104,7 +99,7 @@ const Page = () => {
     if (error) {
       return (
         <View style={styles.state}>
-          <Ionicons name="cloud-offline-outline" size={40} color={Colors.muted} />
+          <Ionicons name="cloud-offline-outline" size={40} color={colors.textMuted} />
           <Text style={styles.mutedText}>We could not load the reviews.</Text>
           <TouchableOpacity style={styles.retryButton} onPress={retryAll} accessibilityRole="button">
             <Text style={styles.retryButtonText}>Try again</Text>
@@ -115,7 +110,7 @@ const Page = () => {
 
     return (
       <View style={styles.state}>
-        <Ionicons name="chatbubble-ellipses-outline" size={40} color={Colors.muted} />
+        <Ionicons name="chatbubble-ellipses-outline" size={40} color={colors.textMuted} />
         <Text style={styles.mutedText}>No reviews yet. Order and be the first.</Text>
       </View>
     );
@@ -140,7 +135,7 @@ const Page = () => {
         ListFooterComponent={
           isFetchingNextPage ? (
             <View style={styles.footer}>
-              <ActivityIndicator color={Colors.secondary} />
+              <ActivityIndicator color={colors.primary} />
             </View>
           ) : isFetchNextPageError ? (
             <View style={styles.footer}>
@@ -159,42 +154,42 @@ const Page = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
+const useStyles = createThemedStyles((c) => ({
+  container: { flex: 1, backgroundColor: c.background },
   listContent: { padding: 16, gap: 12 },
   emptyContent: { flexGrow: 1, padding: 16 },
   summaryCard: {
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
     gap: 6,
     marginBottom: 4,
   },
-  average: { fontSize: 36, fontWeight: '800', color: '#000' },
-  mutedText: { fontSize: 13, color: Colors.muted, textAlign: 'center' },
+  average: { fontSize: 36, fontWeight: '800', color: c.textPrimary },
+  mutedText: { fontSize: 13, color: c.textMuted, textAlign: 'center' },
   breakdown: { alignSelf: 'stretch', marginTop: 10, gap: 6 },
   breakdownRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  breakdownLabel: { width: 12, fontSize: 12, color: Colors.muted },
+  breakdownLabel: { width: 12, fontSize: 12, color: c.textMuted },
   breakdownTrack: {
     flex: 1,
     flexDirection: 'row',
     height: 6,
     borderRadius: 3,
-    backgroundColor: Colors.light,
+    backgroundColor: c.surfaceMuted,
     overflow: 'hidden',
   },
-  breakdownFill: { backgroundColor: '#f5a623' },
-  breakdownCount: { width: 24, textAlign: 'right', fontSize: 12, color: Colors.muted },
+  breakdownFill: { backgroundColor: c.rating },
+  breakdownCount: { width: 24, textAlign: 'right', fontSize: 12, color: c.textMuted },
   state: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 8, padding: 24 },
   footer: { paddingVertical: 20, alignItems: 'center', gap: 8 },
   retryButton: {
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 20,
-    backgroundColor: Colors.primary,
+    backgroundColor: c.primary,
   },
-  retryButtonText: { color: '#fff', fontWeight: '600' },
-});
+  retryButtonText: { color: c.primaryForeground, fontWeight: '600' },
+}));
 
 export default Page;

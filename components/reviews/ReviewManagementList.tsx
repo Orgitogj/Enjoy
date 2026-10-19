@@ -1,5 +1,5 @@
 import { RatingStars } from '@/components/reviews/RatingStars';
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import { useManagedReviews, useModerateReview, useRespondToReview } from '@/hooks/useReviews';
 import type { ManagedReview, ReviewStatus } from '@/types/database';
 import { Ionicons } from '@expo/vector-icons';
@@ -34,6 +34,8 @@ export const ReviewManagementList = ({
   canModerate = false,
   enabled = true,
 }: ReviewManagementListProps) => {
+  const styles = useStyles();
+  const colors = useThemeColors();
   const { data, isLoading, error, refetch, isRefetching } = useManagedReviews(restaurantId, enabled);
   const respond = useRespondToReview(restaurantId ?? undefined);
   const moderate = useModerateReview(restaurantId ?? undefined);
@@ -75,7 +77,7 @@ export const ReviewManagementList = ({
   if (isLoading) {
     return (
       <View style={styles.state} testID="managed-reviews-loading">
-        <ActivityIndicator color={Colors.secondary} />
+        <ActivityIndicator color={colors.primary} />
       </View>
     );
   }
@@ -96,7 +98,7 @@ export const ReviewManagementList = ({
   if (reviews.length === 0) {
     return (
       <View style={styles.state}>
-        <Ionicons name="chatbubble-ellipses-outline" size={32} color={Colors.muted} />
+        <Ionicons name="chatbubble-ellipses-outline" size={32} color={colors.textMuted} />
         <Text style={styles.mutedText}>No reviews yet.</Text>
       </View>
     );
@@ -133,7 +135,7 @@ export const ReviewManagementList = ({
                 value={replyText}
                 onChangeText={(text) => setReplyText(text.slice(0, 1000))}
                 placeholder="Write a response"
-                placeholderTextColor={Colors.muted}
+                placeholderTextColor={colors.textMuted}
                 multiline
                 editable={!respond.isPending}
                 testID={`reply-input-${item.id}`}
@@ -227,61 +229,62 @@ export const ReviewManagementList = ({
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   listContent: { padding: 16, gap: 12 },
   state: { padding: 24, alignItems: 'center', gap: 8 },
-  mutedText: { fontSize: 13, color: Colors.muted, textAlign: 'center' },
+  mutedText: { fontSize: 13, color: c.textMuted, textAlign: 'center' },
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderRadius: 12,
     padding: 14,
     gap: 8,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: Colors.light,
+    borderColor: c.border,
   },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  name: { fontSize: 15, fontWeight: '700', color: '#000' },
+  name: { fontSize: 15, fontWeight: '700', color: c.textPrimary },
   statusBadge: {
-    backgroundColor: '#E5F3EA',
+    backgroundColor: c.successSoft,
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 10,
   },
-  statusBadgeMuted: { backgroundColor: '#FBE9EB' },
-  statusBadgeText: { fontSize: 11, fontWeight: '600', color: '#333' },
-  body: { fontSize: 14, color: '#333', lineHeight: 20 },
-  moderationReason: { fontSize: 12, color: '#B32433' },
-  response: { backgroundColor: Colors.background, borderRadius: 10, padding: 10, gap: 4 },
-  responseTitle: { fontSize: 12, fontWeight: '700', color: Colors.secondary },
-  responseBody: { fontSize: 13, color: '#333' },
+  statusBadgeMuted: { backgroundColor: c.dangerSoft },
+  statusBadgeText: { fontSize: 11, fontWeight: '600', color: c.textSecondary },
+  body: { fontSize: 14, color: c.textSecondary, lineHeight: 20 },
+  moderationReason: { fontSize: 12, color: c.danger },
+  response: { backgroundColor: c.surfaceMuted, borderRadius: 10, padding: 10, gap: 4 },
+  responseTitle: { fontSize: 12, fontWeight: '700', color: c.primaryText },
+  responseBody: { fontSize: 13, color: c.textSecondary },
   replyBox: { gap: 8 },
   replyInput: {
+    color: c.textPrimary,
     minHeight: 70,
-    backgroundColor: Colors.background,
+    backgroundColor: c.inputBackground,
     borderRadius: 10,
     padding: 10,
     fontSize: 14,
     textAlignVertical: 'top',
   },
   replyActions: { flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', gap: 16 },
-  primaryAction: { fontSize: 13, fontWeight: '700', color: Colors.secondary },
-  secondaryAction: { fontSize: 13, color: Colors.muted },
+  primaryAction: { fontSize: 13, fontWeight: '700', color: c.primaryText },
+  secondaryAction: { fontSize: 13, color: c.textMuted },
   moderationRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
   smallButton: {
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 16,
-    backgroundColor: Colors.secondary,
+    backgroundColor: c.primary,
   },
-  warningButton: { backgroundColor: '#8A6100' },
-  destructiveButton: { backgroundColor: '#B32433' },
-  smallButtonText: { color: '#fff', fontSize: 13, fontWeight: '600' },
+  warningButton: { backgroundColor: c.warningSolid },
+  destructiveButton: { backgroundColor: c.dangerSolid },
+  smallButtonText: { color: c.primaryForeground, fontSize: 13, fontWeight: '600' },
   disabled: { opacity: 0.5 },
   retryButton: {
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 20,
-    backgroundColor: Colors.primary,
+    backgroundColor: c.primary,
   },
-  retryButtonText: { color: '#fff', fontWeight: '600' },
-});
+  retryButtonText: { color: c.primaryForeground, fontWeight: '600' },
+}));
