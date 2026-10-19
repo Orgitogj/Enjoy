@@ -1,6 +1,7 @@
 import { usePushRegistration } from '@/hooks/useNotifications';
 import { useNotificationRouting } from '@/hooks/useNotificationRouting';
 import { useSessionIsolation } from '@/hooks/useSessionIsolation';
+import StartupGate from '@/components/brand/StartupGate';
 import { useThemeColors, useThemeScheme } from '@/constants/theme';
 import { whenAppearanceRestored } from '@/hooks/use-appearance-store';
 import { DarkTheme, DefaultTheme, ThemeProvider, type Theme } from '@react-navigation/native';
@@ -38,6 +39,8 @@ const STRIPE_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY;
 
 void SplashScreen.preventAutoHideAsync();
 
+const STARTUP_ASSET_TIMEOUT_MS = 4000;
+
 const AppShell = () => {
   useSessionIsolation();
   usePushRegistration();
@@ -74,17 +77,17 @@ export default Sentry.wrap(function RootLayout() {
     Nunito_700Bold,
     Nunito_900Black,
   });
+  const [assetsTimedOut, setAssetsTimedOut] = useState(false);
   const [appearanceRestored, setAppearanceRestored] = useState(false);
   const scheme = useThemeScheme();
   const colors = useThemeColors();
 
-  useEffect(() => whenAppearanceRestored(() => setAppearanceRestored(true)), []);
-
-  const isReady = (fontsLoaded || !!fontError) && appearanceRestored;
-
   useEffect(() => {
-    if (isReady) void SplashScreen.hideAsync();
-  }, [isReady]);
+    const timer = setTimeout(() => setAssetsTimedOut(true), STARTUP_ASSET_TIMEOUT_MS);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => whenAppearanceRestored(() => setAppearanceRestored(true)), []);
 
   useEffect(() => {
     void SystemUI.setBackgroundColorAsync(colors.background).catch(() => undefined);
@@ -106,7 +109,10 @@ export default Sentry.wrap(function RootLayout() {
     };
   }, [scheme, colors]);
 
-  if (!isReady) return null;
+  const fontsSettled = fontsLoaded || !!fontError || assetsTimedOut;
+  const appearanceSettled = appearanceRestored || assetsTimedOut;
+
+  if (!fontsSettled || !appearanceSettled) return null;
 
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.background }}>
@@ -114,7 +120,9 @@ export default Sentry.wrap(function RootLayout() {
         <QueryClientProvider client={queryClient}>
           <ThemeProvider value={navigationTheme}>
             <StatusBar style={colors.statusBar} />
-            <AppShell />
+            <StartupGate fontsSettled={fontsSettled}>
+              <AppShell />
+            </StartupGate>
           </ThemeProvider>
         </QueryClientProvider>
       </SafeAreaProvider>
