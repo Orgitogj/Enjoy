@@ -1,4 +1,4 @@
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import { useCartStore } from '@/hooks/use-cartstore';
 import { useDish } from '@/hooks/useMenu';
 import { useRestaurant } from '@/hooks/useRestaurants';
@@ -6,16 +6,11 @@ import type { SelectedAddon } from '@/types/database';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { useRef, useState } from 'react';
+import { ActivityIndicator, Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import Animated, { FadeIn, ZoomIn } from 'react-native-reanimated';
+import PressableScale from '@/components/ui/PressableScale';
+import { useReduceMotion } from '@/hooks/useReduceMotion';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const DIETARY_BADGES: Record<string, string> = {
@@ -24,6 +19,8 @@ const DIETARY_BADGES: Record<string, string> = {
 };
 
 const Page = () => {
+  const styles = useStyles();
+  const colors = useThemeColors();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const cartStore = useCartStore();
@@ -34,6 +31,9 @@ const Page = () => {
 
   const [quantity, setQuantity] = useState(1);
   const [selectedAddonIds, setSelectedAddonIds] = useState<string[]>([]);
+  const hasAdded = useRef(false);
+  const reduceMotion = useReduceMotion();
+  const tick = reduceMotion ? FadeIn.duration(120) : ZoomIn.duration(160);
 
   const addonOptions = dish?.addons ?? [];
 
@@ -44,7 +44,7 @@ const Page = () => {
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={Colors.secondary} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -81,6 +81,8 @@ const Page = () => {
       .map((option) => ({ id: option.id, name: option.name, priceDelta: option.price_delta }));
 
   const addToCart = () => {
+    if (hasAdded.current) return;
+    hasAdded.current = true;
     cartStore.setSelectedRestaurant(restaurant ?? cartStore.selectedRestaurant);
     cartStore.addItem(dish, quantity, buildSelectedAddons());
     router.dismiss();
@@ -118,7 +120,7 @@ const Page = () => {
           accessibilityRole="button"
           accessibilityLabel="Close"
           hitSlop={4}>
-          <Ionicons name="close" size={24} color="#000" />
+          <Ionicons name="close" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
 
         <ScrollView
@@ -167,7 +169,11 @@ const Page = () => {
                     activeOpacity={0.8}>
                     <View style={styles.checkboxLeft}>
                       <View style={[styles.checkbox, isSelected && styles.checkboxSelected]}>
-                        {isSelected && <Ionicons name="checkmark" size={16} color="#fff" />}
+                        {isSelected && (
+                          <Animated.View entering={tick}>
+                            <Ionicons name="checkmark" size={16} color={colors.primaryForeground} />
+                          </Animated.View>
+                        )}
                       </View>
                       <Text style={styles.checkboxLabel}>{option.name}</Text>
                     </View>
@@ -185,7 +191,8 @@ const Page = () => {
       <View style={[styles.bottomBar, { paddingBottom: 24 + insets.bottom }]}>
 
         <View style={styles.quantityControls}>
-          <TouchableOpacity
+          <PressableScale
+            pressedScale={0.9}
             style={styles.quantityButton}
             onPress={handleDecrement}
             accessibilityRole="button"
@@ -194,9 +201,12 @@ const Page = () => {
             testID="dish-quantity-decrease"
             hitSlop={4}>
             <Text style={styles.quantityButtonText}>−</Text>
-          </TouchableOpacity>
-          <Text style={styles.quantityText}>{quantity}</Text>
-          <TouchableOpacity
+          </PressableScale>
+          <Animated.Text key={quantity} entering={tick} style={styles.quantityText}>
+            {quantity}
+          </Animated.Text>
+          <PressableScale
+            pressedScale={0.9}
             style={styles.quantityButton}
             onPress={handleIncrement}
             accessibilityRole="button"
@@ -204,27 +214,31 @@ const Page = () => {
             testID="dish-quantity-increase"
             hitSlop={4}>
             <Text style={styles.quantityButtonText}>+</Text>
-          </TouchableOpacity>
+          </PressableScale>
         </View>
 
-        <TouchableOpacity style={styles.addButton} onPress={onAddToOrder}>
+        <PressableScale
+          style={styles.addButton}
+          onPress={onAddToOrder}
+          accessibilityRole="button"
+          accessibilityLabel={`Add ${quantity} to order, ${totalPrice.toFixed(2)} euros`}>
           <Text style={styles.addButtonText}>Add to order</Text>
           <Text style={styles.addButtonPrice}>{totalPrice.toFixed(2)} €</Text>
-        </TouchableOpacity>
+        </PressableScale>
       </View>
     </View>
   );
 };
 export default Page;
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   page: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: c.background,
   },
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: c.background,
   },
   scrollView: {
     flex: 1,
@@ -236,17 +250,17 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: c.background,
   },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: c.background,
   },
   errorText: {
     fontSize: 16,
-    color: '#ff4444',
+    color: c.danger,
   },
   closeButton: {
     position: 'absolute',
@@ -255,7 +269,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 10,
@@ -270,7 +284,7 @@ const styles = StyleSheet.create({
     width: 200,
     height: 200,
     borderRadius: 100,
-    backgroundColor: '#e0e0e0',
+    backgroundColor: c.surfaceMuted,
   },
   infoSection: {
     paddingHorizontal: 20,
@@ -279,7 +293,7 @@ const styles = StyleSheet.create({
   dishName: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#000',
+    color: c.textPrimary,
     marginBottom: 12,
   },
   priceRow: {
@@ -292,10 +306,10 @@ const styles = StyleSheet.create({
   price: {
     fontSize: 18,
     fontWeight: '600',
-    color: Colors.secondary,
+    color: c.primaryText,
   },
   popularBadge: {
-    backgroundColor: Colors.secondary,
+    backgroundColor: c.primary,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 6,
@@ -303,11 +317,11 @@ const styles = StyleSheet.create({
   popularText: {
     fontSize: 10,
     fontWeight: '700',
-    color: '#fff',
+    color: c.primaryForeground,
     letterSpacing: 0.5,
   },
   veganBadge: {
-    backgroundColor: '#4caf50',
+    backgroundColor: c.successSolid,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 6,
@@ -315,19 +329,19 @@ const styles = StyleSheet.create({
   veganText: {
     fontSize: 10,
     fontWeight: '700',
-    color: '#fff',
+    color: c.primaryForeground,
     letterSpacing: 0.5,
   },
   description: {
     fontSize: 15,
-    color: '#333',
+    color: c.textSecondary,
     lineHeight: 22,
   },
   optionsSection: {
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderTopWidth: 8,
-    borderTopColor: '#f5f5f5',
+    borderTopColor: c.border,
   },
   optionHeader: {
     flexDirection: 'row',
@@ -338,11 +352,11 @@ const styles = StyleSheet.create({
   optionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#000',
+    color: c.textPrimary,
   },
   optionPrice: {
     fontSize: 14,
-    color: '#666',
+    color: c.textMuted,
     fontWeight: '500',
   },
   checkboxOption: {
@@ -361,17 +375,17 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 6,
     borderWidth: 2,
-    borderColor: Colors.secondary,
+    borderColor: c.primary,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'transparent',
   },
   checkboxSelected: {
-    backgroundColor: Colors.secondary,
+    backgroundColor: c.primary,
   },
   checkboxLabel: {
     fontSize: 16,
-    color: '#000',
+    color: c.textPrimary,
   },
   bottomBar: {
     position: 'absolute',
@@ -379,11 +393,11 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     zIndex: 20,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     paddingHorizontal: 20,
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
+    borderTopColor: c.border,
     flexDirection: 'row',
     gap: 12,
     boxShadow: '0px -2px 10px rgba(0, 0, 0, 0.1)',
@@ -391,7 +405,7 @@ const styles = StyleSheet.create({
   quantityControls: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: c.surfaceMuted,
     borderRadius: 12,
     paddingHorizontal: 4,
   },
@@ -404,18 +418,18 @@ const styles = StyleSheet.create({
   quantityButtonText: {
     fontSize: 24,
     fontWeight: '600',
-    color: Colors.secondary,
+    color: c.primaryText,
   },
   quantityText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#000',
+    color: c.textPrimary,
     minWidth: 30,
     textAlign: 'center',
   },
   addButton: {
     flex: 1,
-    backgroundColor: Colors.secondary,
+    backgroundColor: c.primary,
     borderRadius: 12,
     paddingVertical: 16,
     paddingHorizontal: 20,
@@ -426,11 +440,11 @@ const styles = StyleSheet.create({
   addButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#fff',
+    color: c.primaryForeground,
   },
   addButtonPrice: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#fff',
+    color: c.primaryForeground,
   },
-});
+}));
