@@ -1,4 +1,5 @@
-import { Colors } from '@/constants/theme';
+import FadeInView from '@/components/ui/FadeInView';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import { useDishSearch } from '@/hooks/useMenu';
 import { useRestaurants } from '@/hooks/useRestaurants';
 import type { Dish, Restaurant } from '@/types/database';
@@ -6,15 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import {
-  ActivityIndicator,
-  FlatList,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ActivityIndicator, FlatList, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 type SearchRow =
   | { kind: 'section'; title: string }
@@ -22,6 +15,8 @@ type SearchRow =
   | { kind: 'dish'; dish: Dish };
 
 const Search = () => {
+  const styles = useStyles();
+  const colors = useThemeColors();
   const router = useRouter();
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
@@ -119,7 +114,7 @@ const Search = () => {
     if (isLoading) {
       return (
         <View style={styles.centered} testID="search-loading">
-          <ActivityIndicator size="large" color={Colors.secondary} />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       );
     }
@@ -127,7 +122,7 @@ const Search = () => {
     if (error) {
       return (
         <View style={styles.centered}>
-          <Ionicons name="cloud-offline-outline" size={40} color={Colors.muted} />
+          <Ionicons name="cloud-offline-outline" size={40} color={colors.textMuted} />
           <Text style={styles.emptyText}>We could not run that search.</Text>
           <TouchableOpacity style={styles.retryButton} onPress={retry} accessibilityRole="button">
             <Text style={styles.retryButtonText}>Try again</Text>
@@ -137,25 +132,25 @@ const Search = () => {
     }
 
     return (
-      <View style={styles.centered}>
-        <Ionicons name="search-outline" size={40} color={Colors.muted} />
+      <FadeInView style={styles.centered}>
+        <Ionicons name="search-outline" size={40} color={colors.textMuted} />
         <Text style={styles.emptyText}>
           {isSearching ? `No results for "${debouncedQuery}".` : 'Start typing to search.'}
         </Text>
-      </View>
+      </FadeInView>
     );
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.searchBar}>
-        <Ionicons name="search" size={20} color={Colors.muted} />
+        <Ionicons name="search" size={20} color={colors.textMuted} />
         <TextInput
           value={query}
           onChangeText={setQuery}
           placeholder="Search restaurants, dishes or cuisines"
           style={styles.input}
-          placeholderTextColor={Colors.muted}
+          placeholderTextColor={colors.textMuted}
           autoCapitalize="none"
           returnKeyType="search"
           testID="search-input"
@@ -166,7 +161,7 @@ const Search = () => {
             accessibilityRole="button"
             accessibilityLabel="Clear search"
             hitSlop={12}>
-            <Ionicons name="close-circle" size={18} color={Colors.muted} />
+            <Ionicons name="close-circle" size={18} color={colors.textMuted} />
           </TouchableOpacity>
         )}
       </View>
@@ -191,7 +186,7 @@ const Search = () => {
         ListFooterComponent={
           loadingMoreRestaurants ? (
             <View style={styles.footer}>
-              <ActivityIndicator color={Colors.secondary} />
+              <ActivityIndicator color={colors.primary} />
             </View>
           ) : null
         }
@@ -200,33 +195,33 @@ const Search = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
+const useStyles = createThemedStyles((c) => ({
+  container: { flex: 1, backgroundColor: c.background },
   centered: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: Colors.background,
+    backgroundColor: c.background,
     paddingHorizontal: 24,
     gap: 8,
   },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     margin: 16,
     paddingHorizontal: 12,
     paddingVertical: 10,
     borderRadius: 14,
     gap: 8,
   },
-  input: { flex: 1, fontSize: 15 },
+  input: { color: c.textPrimary, flex: 1, fontSize: 15 },
   content: { paddingHorizontal: 16, paddingBottom: 24 },
   emptyContent: { flexGrow: 1 },
-  sectionTitle: { fontSize: 16, fontWeight: '700', color: '#000', marginBottom: 8, marginTop: 4 },
+  sectionTitle: { fontSize: 16, fontWeight: '700', color: c.textPrimary, marginBottom: 8, marginTop: 4 },
   card: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderRadius: 16,
     padding: 10,
     marginBottom: 12,
@@ -234,19 +229,19 @@ const styles = StyleSheet.create({
   },
   image: { width: 70, height: 70, borderRadius: 12 },
   cardContent: { flex: 1, justifyContent: 'center' },
-  name: { fontSize: 16, fontWeight: '700', marginBottom: 4 },
-  description: { fontSize: 13, color: '#666', marginBottom: 4 },
-  meta: { fontSize: 12, color: Colors.muted },
-  emptyText: { textAlign: 'center', color: Colors.muted },
+  name: { color: c.textPrimary, fontSize: 16, fontWeight: '700', marginBottom: 4 },
+  description: { fontSize: 13, color: c.textMuted, marginBottom: 4 },
+  meta: { fontSize: 12, color: c.textMuted },
+  emptyText: { textAlign: 'center', color: c.textMuted },
   retryButton: {
     marginTop: 8,
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 20,
-    backgroundColor: Colors.primary,
+    backgroundColor: c.primary,
   },
-  retryButtonText: { color: '#fff', fontWeight: '600' },
+  retryButtonText: { color: c.primaryForeground, fontWeight: '600' },
   footer: { paddingVertical: 20 },
-});
+}));
 
 export default Search;
