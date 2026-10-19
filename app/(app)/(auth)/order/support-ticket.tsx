@@ -1,6 +1,6 @@
 import { SupportConversation } from '@/components/support/SupportConversation';
 import { SupportRefundList } from '@/components/support/SupportRefundList';
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import {
   useSupportConversation,
   useSupportRefunds,
@@ -25,6 +25,8 @@ import {
 } from 'react-native';
 
 const Page = () => {
+  const styles = useStyles();
+  const colors = useThemeColors();
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const ticketId = id ?? '';
@@ -47,7 +49,7 @@ const Page = () => {
     return (
       <View style={styles.state} testID="support-ticket-loading">
         <Stack.Screen options={{ title: 'Your report' }} />
-        <ActivityIndicator size="large" color={Colors.secondary} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -56,7 +58,7 @@ const Page = () => {
     return (
       <View style={styles.state} testID="support-ticket-unavailable">
         <Stack.Screen options={{ title: 'Your report' }} />
-        <Ionicons name="lock-closed-outline" size={40} color={Colors.muted} />
+        <Ionicons name="lock-closed-outline" size={40} color={colors.textMuted} />
         <Text style={styles.mutedText}>That report is not available on this account.</Text>
         <TouchableOpacity
           style={styles.primaryButton}
@@ -119,39 +121,39 @@ const Page = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
+const useStyles = createThemedStyles((c) => ({
+  container: { flex: 1, backgroundColor: c.background },
   state: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
     padding: 24,
-    backgroundColor: Colors.background,
+    backgroundColor: c.background,
   },
   header: {
     gap: 6,
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: Colors.light,
+    borderBottomColor: c.border,
   },
   headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  title: { fontSize: 18, fontWeight: '800', color: '#000' },
-  status: { fontSize: 12, fontWeight: '700', color: Colors.secondary },
-  sectionTitle: { fontSize: 14, fontWeight: '700', color: '#000' },
-  meta: { fontSize: 13, color: Colors.muted },
+  title: { fontSize: 18, fontWeight: '800', color: c.textPrimary },
+  status: { fontSize: 12, fontWeight: '700', color: c.primaryText },
+  sectionTitle: { fontSize: 14, fontWeight: '700', color: c.textPrimary },
+  meta: { fontSize: 13, color: c.textMuted },
   itemList: { gap: 2 },
   refundBlock: { gap: 6, paddingTop: 8 },
-  mutedText: { fontSize: 14, color: Colors.muted, textAlign: 'center' },
+  mutedText: { fontSize: 14, color: c.textMuted, textAlign: 'center' },
   primaryButton: {
-    backgroundColor: Colors.primary,
+    backgroundColor: c.primary,
     borderRadius: 12,
     paddingVertical: 14,
     paddingHorizontal: 24,
     alignItems: 'center',
   },
-  primaryButtonText: { color: '#fff', fontSize: 15, fontWeight: '700' },
-});
+  primaryButtonText: { color: c.primaryForeground, fontSize: 15, fontWeight: '700' },
+}));
 
 export default Page;
