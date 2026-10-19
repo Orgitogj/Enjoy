@@ -1,4 +1,4 @@
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import type { CheckoutSchedule } from '@/hooks/useCheckout';
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -7,13 +7,16 @@ export interface ScheduleSectionProps {
   schedule: CheckoutSchedule;
 }
 
-export const ScheduleSection = ({ schedule }: ScheduleSectionProps) => (
+export const ScheduleSection = ({ schedule }: ScheduleSectionProps) => {
+  const styles = useStyles();
+  const colors = useThemeColors();
+  return (
   <View style={styles.section}>
     <Text style={styles.sectionHeader}>When?</Text>
 
     {schedule.hasSelection && schedule.choice === 'schedule' && (
       <View style={styles.scheduleSummary}>
-        <Ionicons name="time-outline" size={16} color={Colors.secondary} />
+        <Ionicons name="time-outline" size={16} color={colors.primary} />
         <Text style={styles.scheduleSummaryText}>{schedule.label}</Text>
       </View>
     )}
@@ -47,18 +50,19 @@ export const ScheduleSection = ({ schedule }: ScheduleSectionProps) => (
     </TouchableOpacity>
   </View>
 );
+};
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   section: {
     paddingVertical: 16,
     paddingHorizontal: 16,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#e8e8e8',
+    borderBottomColor: c.border,
   },
   sectionHeader: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#000',
+    color: c.textPrimary,
     marginBottom: 16,
   },
   scheduleSummary: {
@@ -68,13 +72,13 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     paddingVertical: 8,
     paddingHorizontal: 10,
-    backgroundColor: '#f1f8fe',
+    backgroundColor: c.selectedBackground,
     borderRadius: 10,
   },
   scheduleSummaryText: {
     fontSize: 14,
     fontWeight: '600',
-    color: Colors.secondary,
+    color: c.primaryText,
   },
   radioRow: {
     flexDirection: 'row',
@@ -95,7 +99,7 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: Colors.secondary,
+    borderColor: c.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -103,15 +107,15 @@ const styles = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: Colors.secondary,
+    backgroundColor: c.primary,
   },
   radioLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#000',
+    color: c.textPrimary,
   },
   radioSubtext: {
     fontSize: 14,
-    color: '#666',
+    color: c.textMuted,
   },
-});
+}));

@@ -1,4 +1,4 @@
-import { Colors } from '@/constants/theme';
+import { createThemedStyles, useThemeColors } from '@/constants/theme';
 import type { CheckoutAddress, CheckoutDelivery } from '@/hooks/useCheckout';
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -8,7 +8,10 @@ export interface AddressSectionProps {
   address: CheckoutAddress;
 }
 
-export const AddressSection = ({ delivery, address }: AddressSectionProps) => (
+export const AddressSection = ({ delivery, address }: AddressSectionProps) => {
+  const styles = useStyles();
+  const colors = useThemeColors();
+  return (
   <>
     <View style={styles.section}>
       <View style={styles.pickerContainer}>
@@ -42,7 +45,7 @@ export const AddressSection = ({ delivery, address }: AddressSectionProps) => (
         <View style={styles.row}>
           <View style={styles.rowLeft}>
             <View style={styles.addressIcon}>
-              <Ionicons name="location-outline" size={18} color={Colors.secondary} />
+              <Ionicons name="location-outline" size={18} color={colors.primary} />
             </View>
             <View style={styles.addressTextContainer}>
               <Text style={styles.sectionTitle}>Choose a delivery address</Text>
@@ -54,7 +57,7 @@ export const AddressSection = ({ delivery, address }: AddressSectionProps) => (
           <Ionicons
             name={address.isOpen ? 'chevron-up' : 'chevron-forward'}
             size={20}
-            color="#999"
+            color={colors.textMuted}
           />
         </View>
 
@@ -69,7 +72,7 @@ export const AddressSection = ({ delivery, address }: AddressSectionProps) => (
                   {address.isLocating ? 'Locating…' : 'Use current location'}
                 </Text>
               </View>
-              <Ionicons name="locate-outline" size={18} color={Colors.secondary} />
+              <Ionicons name="locate-outline" size={18} color={colors.primary} />
             </TouchableOpacity>
             {address.addresses.map((option) => {
               const isSelected = option.id === address.selectedId;
@@ -90,7 +93,7 @@ export const AddressSection = ({ delivery, address }: AddressSectionProps) => (
                     <Text style={styles.addressOptionDetail}>{option.address_line}</Text>
                   </View>
                   {isSelected && (
-                    <Ionicons name="checkmark-circle" size={20} color={Colors.secondary} />
+                    <Ionicons name="checkmark-circle" size={20} color={colors.primary} />
                   )}
                 </TouchableOpacity>
               );
@@ -101,7 +104,7 @@ export const AddressSection = ({ delivery, address }: AddressSectionProps) => (
         {address.isOpen && (
           <View style={styles.addressActions}>
             <TouchableOpacity style={styles.secondaryAction} onPress={address.toggleForm}>
-              <Ionicons name="add-circle-outline" size={16} color={Colors.secondary} />
+              <Ionicons name="add-circle-outline" size={16} color={colors.primary} />
               <Text style={styles.secondaryActionText}>Add new address</Text>
             </TouchableOpacity>
             {address.isFormOpen && (
@@ -129,13 +132,14 @@ export const AddressSection = ({ delivery, address }: AddressSectionProps) => (
     )}
   </>
 );
+};
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((c) => ({
   section: {
     paddingVertical: 16,
     paddingHorizontal: 16,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#e8e8e8',
+    borderBottomColor: c.border,
   },
   row: {
     flexDirection: 'row',
@@ -151,18 +155,18 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#000',
+    color: c.textPrimary,
     marginBottom: 4,
   },
   sectionSubtitle: {
     fontSize: 14,
-    color: '#999',
+    color: c.textMuted,
   },
   addressIcon: {
     width: 34,
     height: 34,
     borderRadius: 17,
-    backgroundColor: '#f1f8fe',
+    backgroundColor: c.selectedBackground,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -186,7 +190,7 @@ const styles = StyleSheet.create({
   secondaryActionText: {
     fontSize: 14,
     fontWeight: '600',
-    color: Colors.secondary,
+    color: c.primaryText,
   },
   addressForm: {
     gap: 8,
@@ -194,22 +198,22 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: '#e6e6e6',
+    borderColor: c.border,
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 14,
-    color: '#000',
+    color: c.textPrimary,
   },
   saveAddressButton: {
     alignSelf: 'flex-start',
-    backgroundColor: Colors.secondary,
+    backgroundColor: c.primary,
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 10,
   },
   saveAddressButtonText: {
-    color: '#fff',
+    color: c.primaryForeground,
     fontSize: 14,
     fontWeight: '600',
   },
@@ -219,13 +223,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 12,
     borderRadius: 12,
-    backgroundColor: '#f7f7f7',
+    backgroundColor: c.surfaceMuted,
     borderWidth: 1,
-    borderColor: '#ececec',
+    borderColor: c.border,
   },
   addressOptionActive: {
-    borderColor: Colors.secondary,
-    backgroundColor: '#f1f8fe',
+    borderColor: c.primary,
+    backgroundColor: c.selectedBackground,
   },
   addressOptionTextContainer: {
     flex: 1,
@@ -233,19 +237,19 @@ const styles = StyleSheet.create({
   addressOptionLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#000',
+    color: c.textPrimary,
     marginBottom: 2,
   },
   addressOptionLabelActive: {
-    color: Colors.secondary,
+    color: c.primaryText,
   },
   addressOptionDetail: {
     fontSize: 13,
-    color: '#666',
+    color: c.textMuted,
   },
   pickerContainer: {
     flexDirection: 'row',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: c.surfaceMuted,
     borderRadius: 12,
     padding: 4,
   },
@@ -256,16 +260,16 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   pickerOptionActive: {
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
     boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.08)',
   },
   pickerOptionText: {
     fontSize: 15,
     fontWeight: '500',
-    color: '#666',
+    color: c.textMuted,
   },
   pickerOptionTextActive: {
-    color: '#000',
+    color: c.textPrimary,
     fontWeight: '600',
   },
-});
+}));
