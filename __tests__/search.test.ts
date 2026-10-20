@@ -32,7 +32,7 @@ describe('restaurant search goes to the server', () => {
       categoryId: 'category-1',
       cuisines: ['Japanese'],
       priceTier: '€€',
-      woltPlusOnly: true,
+      enjoyPlusOnly: true,
       sort: 'Rating',
     });
 
@@ -41,7 +41,7 @@ describe('restaurant search goes to the server', () => {
       p_category_id: 'category-1',
       p_cuisines: ['Japanese'],
       p_price_tier: '€€',
-      p_wolt_plus_only: true,
+      p_enjoy_plus_only: true,
       p_sort: 'Rating',
       p_limit: 20,
       p_offset: 0,

@@ -43,7 +43,7 @@ const Page = () => {
   const mapRef = useRef<MapView>(null);
   const carouselRef = useRef<ScrollView>(null);
 
-  const { selectedCuisines, selectedPrice, woltPlusOnly, selectedSort } = useFilterStore();
+  const { selectedCuisines, selectedPrice, enjoyPlusOnly, selectedSort } = useFilterStore();
   const [bounds, setBounds] = useState<MapBounds | null>(regionToBounds(DEFAULT_REGION));
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -56,7 +56,7 @@ const Page = () => {
   } = useRestaurantsInBounds(bounds, {
     cuisines: selectedCuisines.length ? selectedCuisines : undefined,
     priceTier: selectedPrice,
-    woltPlusOnly,
+    enjoyPlusOnly,
     sort: selectedSort,
   });
 
@@ -201,9 +201,9 @@ const Page = () => {
                   <Text style={styles.cardTitle} numberOfLines={1}>
                     {restaurant.name}
                   </Text>
-                  {restaurant.tags.includes('Wolt+') && (
-                    <View style={styles.woltBadge}>
-                      <Text style={styles.woltBadgeText}>W+</Text>
+                  {restaurant.tags.includes('ENJOY+') && (
+                    <View style={styles.enjoyBadge}>
+                      <Text style={styles.enjoyBadgeText}>E+</Text>
                     </View>
                   )}
                 </View>
@@ -322,13 +322,13 @@ const useStyles = createThemedStyles((c) => ({
     color: c.textPrimary,
     flex: 1,
   },
-  woltBadge: {
+  enjoyBadge: {
     backgroundColor: c.primary,
     borderRadius: 4,
     paddingHorizontal: 6,
     paddingVertical: 2,
   },
-  woltBadgeText: {
+  enjoyBadgeText: {
     fontSize: 10,
     fontWeight: '700',
     color: c.primaryForeground,

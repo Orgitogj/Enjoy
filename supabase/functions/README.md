@@ -90,7 +90,7 @@ this is not in a migration:
 ```sql
 select vault.create_secret('<service-role-key>', 'service_role_key');
 
-select cron.schedule('wolt-send-push', '30 seconds', $job$
+select cron.schedule('enjoy-send-push', '30 seconds', $job$
   select net.http_post(
     url := 'https://<project-ref>.supabase.co/functions/v1/send-push',
     headers := jsonb_build_object(
@@ -132,7 +132,7 @@ the intent is already fully refunded by someone else, the job settles without re
 
 ### Scheduling
 
-Migration `0026` registers the pg_cron job `wolt-reconcile-payments` (every five minutes), which
+Migration `0026` registers the pg_cron job `enjoy-reconcile-payments` (every five minutes; `0032` gives it that name), which
 calls `public.invoke_reconcile_payments()`. That function reads the function base URL and the service
 role key from **Supabase Vault**, so no credential appears in a committed migration, in a log line or
 in the client bundle. It no-ops with a notice where `pg_cron`, `pg_net` or Vault are unavailable, so
@@ -141,7 +141,7 @@ local verification runs unaffected.
 Store the secrets once per environment:
 
 ```bash
-SUPABASE_DB_URL='postgres://...' WOLT_FUNCTIONS_URL='https://<project-ref>.supabase.co/functions/v1' SUPABASE_SERVICE_ROLE_KEY='<service role key>' npm run configure:refund-worker
+SUPABASE_DB_URL='postgres://...' ENJOY_FUNCTIONS_URL='https://<project-ref>.supabase.co/functions/v1' SUPABASE_SERVICE_ROLE_KEY='<service role key>' npm run configure:refund-worker
 ```
 
 The script is idempotent: it updates the Vault entries when they already exist and reports whether

@@ -14,11 +14,11 @@ const Page = () => {
   const {
     selectedCuisines,
     selectedPrice,
-    woltPlusOnly,
+    enjoyPlusOnly,
     selectedSort,
     toggleCuisine,
     setSelectedPrice,
-    setWoltPlusOnly,
+    setEnjoyPlusOnly,
     setSelectedSort,
     clearFilters,
   } = useFilterStore();
@@ -74,10 +74,10 @@ const Page = () => {
         </View>
 
         <View style={[styles.filterSection, styles.toggleSection]}>
-          <Text style={styles.toggleText}>Only show Wolt+ venues</Text>
+          <Text style={styles.toggleText}>Only show ENJOY+ venues</Text>
           <Switch
-            value={woltPlusOnly}
-            onValueChange={setWoltPlusOnly}
+            value={enjoyPlusOnly}
+            onValueChange={setEnjoyPlusOnly}
             trackColor={{ false: colors.disabled, true: colors.primary }}
             thumbColor={colors.primaryForeground}
           />

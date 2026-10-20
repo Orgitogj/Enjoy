@@ -14,13 +14,13 @@ const plugin = (name: string) =>
   expo.plugins.find((entry: unknown) => Array.isArray(entry) && entry[0] === name)?.[1];
 
 describe('ENJOY app configuration', () => {
-  it('shows ENJOY as the app name without touching identifiers', () => {
+  it('uses ENJOY for the app name and every identifier', () => {
     expect(expo.name).toBe('ENJOY');
-    expect(expo.slug).toBe('WOLT');
-    expect(expo.scheme).toBe('wolt');
-    expect(expo.ios.bundleIdentifier).toBe('com.orgito.WOLT');
-    expect(expo.android.package).toBe('com.orgito.WOLT');
-    expect(plugin('@stripe/stripe-react-native').merchantIdentifier).toBe('merchant.com.orgito.WOLT');
+    expect(expo.slug).toBe('enjoy');
+    expect(expo.scheme).toBe('enjoy');
+    expect(expo.ios.bundleIdentifier).toBe('com.orgito.enjoy');
+    expect(expo.android.package).toBe('com.orgito.enjoy');
+    expect(plugin('@stripe/stripe-react-native').merchantIdentifier).toBe('merchant.com.orgito.enjoy');
     expect(expo.extra.eas.projectId).toBe('a3a1dfe0-c29d-4fa0-92ae-729b5fbbb81f');
   });
 

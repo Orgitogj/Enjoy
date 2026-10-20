@@ -24,7 +24,7 @@ export const usePayForOrder = () => {
           customerId: intent.customer_id,
           customerEphemeralKeySecret: intent.ephemeral_key,
           allowsDelayedPaymentMethods: false,
-          returnURL: 'wolt://order',
+          returnURL: 'enjoy://order',
         });
 
         if (initError) {
