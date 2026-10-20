@@ -30,7 +30,7 @@ const RestaurantListPage = ({
   const insets = useSafeAreaInsets();
   const scrollOffset = useSharedValue(0);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
-  const { selectedCuisines, selectedPrice, woltPlusOnly, selectedSort } = useFilterStore();
+  const { selectedCuisines, selectedPrice, enjoyPlusOnly, selectedSort } = useFilterStore();
 
   const {
     restaurants,
@@ -45,7 +45,7 @@ const RestaurantListPage = ({
     categoryId: selectedCategoryId ?? undefined,
     cuisines: selectedCuisines.length ? selectedCuisines : undefined,
     priceTier: selectedPrice,
-    woltPlusOnly,
+    enjoyPlusOnly,
     sort: selectedSort,
   });
 
@@ -53,7 +53,7 @@ const RestaurantListPage = ({
   const etaLabels = useRestaurantEtaLabels(restaurantIds);
 
   const hasActiveFilters =
-    !!selectedCategoryId || selectedCuisines.length > 0 || !!selectedPrice || woltPlusOnly;
+    !!selectedCategoryId || selectedCuisines.length > 0 || !!selectedPrice || enjoyPlusOnly;
 
   const onEndReached = useCallback(() => {
     if (hasNextPage && !isFetchingNextPage && !isFetchNextPageError) {

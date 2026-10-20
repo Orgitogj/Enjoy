@@ -13,11 +13,11 @@ export const PRICE_TIERS: PriceTier[] = ['€', '€€', '€€€', '€€�
 export interface RestaurantFilterState {
   selectedCuisines: string[];
   selectedPrice: PriceTier | null;
-  woltPlusOnly: boolean;
+  enjoyPlusOnly: boolean;
   selectedSort: RestaurantSort;
   toggleCuisine: (cuisine: string) => void;
   setSelectedPrice: (price: PriceTier | null) => void;
-  setWoltPlusOnly: (value: boolean) => void;
+  setEnjoyPlusOnly: (value: boolean) => void;
   setSelectedSort: (sort: RestaurantSort) => void;
   clearFilters: () => void;
 }
@@ -25,7 +25,7 @@ export interface RestaurantFilterState {
 const initialState = {
   selectedCuisines: [] as string[],
   selectedPrice: null as PriceTier | null,
-  woltPlusOnly: false,
+  enjoyPlusOnly: false,
   selectedSort: 'Recommended' as RestaurantSort,
 };
 
@@ -38,7 +38,7 @@ export const useFilterStore = create<RestaurantFilterState>((set) => ({
         : [...state.selectedCuisines, cuisine],
     })),
   setSelectedPrice: (selectedPrice) => set({ selectedPrice }),
-  setWoltPlusOnly: (woltPlusOnly) => set({ woltPlusOnly }),
+  setEnjoyPlusOnly: (enjoyPlusOnly) => set({ enjoyPlusOnly }),
   setSelectedSort: (selectedSort) => set({ selectedSort }),
   clearFilters: () => set(initialState),
 }));

@@ -10,7 +10,7 @@ export interface RestaurantFilters {
   categoryId?: string;
   cuisines?: string[];
   priceTier?: PriceTier | null;
-  woltPlusOnly?: boolean;
+  enjoyPlusOnly?: boolean;
   sort?: RestaurantSort;
 }
 
@@ -39,7 +39,7 @@ export const restaurantService = {
       p_category_id: filters.categoryId ?? null,
       p_cuisines: filters.cuisines?.length ? filters.cuisines : null,
       p_price_tier: filters.priceTier ?? null,
-      p_wolt_plus_only: filters.woltPlusOnly ?? false,
+      p_enjoy_plus_only: filters.enjoyPlusOnly ?? false,
       p_sort: filters.sort ?? 'Recommended',
       p_limit: limit,
       p_offset: offset,
@@ -65,7 +65,7 @@ export const restaurantService = {
       p_max_lng: bounds.maxLng,
       p_cuisines: filters.cuisines?.length ? filters.cuisines : null,
       p_price_tier: filters.priceTier ?? null,
-      p_wolt_plus_only: filters.woltPlusOnly ?? false,
+      p_enjoy_plus_only: filters.enjoyPlusOnly ?? false,
       p_sort: filters.sort ?? 'Recommended',
       p_limit: limit,
     });

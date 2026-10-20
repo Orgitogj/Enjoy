@@ -20,9 +20,9 @@ create temporary table t_search_ids (
 insert into public.restaurants
   (name, description, rating, delivery_fee, delivery_time_min, cuisines, tags, is_open)
 values
-  ('Sushi Garden', 'Fresh nigiri and maki', 4.8, 1.00, 20, array['Japanese'], array['Wolt+'], true),
+  ('Sushi Garden', 'Fresh nigiri and maki', 4.8, 1.00, 20, array['Japanese'], array['ENJOY+'], true),
   ('Pizza Napoli', 'Wood fired pizza', 4.2, 2.00, 35, array['Italian'], array['Popular'], true),
-  ('Burger Barn', 'Smash burgers and fries', 3.9, 4.00, 15, array['American'], array['Wolt+'], true),
+  ('Burger Barn', 'Smash burgers and fries', 3.9, 4.00, 15, array['American'], array['ENJOY+'], true),
   ('Green Bowl', 'Vegan poke bowls', 4.5, 3.00, 25, array['Vegan','Japanese'], array['New'], true);
 
 insert into t_search_ids (key, id)
@@ -117,7 +117,7 @@ begin
 
   perform pg_temp.assert(
     (select count(*) from public.search_restaurants(null, null, null, null, true, 'Recommended', 50, 0)) = 2,
-    'the wolt plus filter only keeps tagged restaurants');
+    'the enjoy plus filter only keeps tagged restaurants');
 
   perform pg_temp.assert(
     (select count(*) from public.search_restaurants('garden', v_category, array['Japanese'], '€', true, 'Recommended', 50, 0)) = 1,

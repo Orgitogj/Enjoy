@@ -64,7 +64,7 @@ jest.mock('@/hooks/use-filters-store', () => ({
   useFilterStore: () => ({
     selectedCuisines: [],
     selectedPrice: null,
-    woltPlusOnly: false,
+    enjoyPlusOnly: false,
     selectedSort: 'recommended',
   }),
 }));
