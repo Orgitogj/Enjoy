@@ -1,10 +1,10 @@
-# Wolt Clone
+# ENJOY
 
 > A production-style food delivery mobile application built with Expo, React Native, and Supabase.
 
 ## Project Overview
 
-This repository contains a mobile app inspired by the Wolt experience. It demonstrates:
+This repository contains ENJOY, a food delivery mobile app. It demonstrates:
 
 - A polished food delivery app experience for browsing restaurants, menus, and placing orders
 
@@ -101,8 +101,8 @@ Additional database behavior:
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/Orgitogj/Wolt-Clone.git
-cd Wolt-Clone
+git clone https://github.com/Orgitogj/Enjoy.git
+cd Enjoy
 ```
 
 ### 2. Install dependencies
@@ -215,7 +215,7 @@ never touches your real project. The same three checks run in CI.
 
 ## GitHub
 
-Repository: https://github.com/Orgitogj/Wolt-Clone
+Repository: https://github.com/Orgitogj/Enjoy
 
 ## How to Review
 
