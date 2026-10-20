@@ -45,7 +45,7 @@
         "@sentry/react-native/expo",
         {
           "url": "https://sentry.io/",
-          "project": "wolt",
+          "project": "enjoy",
           "organization": "mobile-developing"
         }
       ],
