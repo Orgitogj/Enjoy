@@ -163,7 +163,7 @@ describe('legacy branding guard', () => {
   });
 
   it('shows no Wolt name in user-facing copy', () => {
-    const visible = /(['"`>])[^'"`<]*\bWolt\b(?!\+)[^'"`<]*\1?/;
+    const visible = /(['"`>])[^'"`<]*\bWolt\b[^'"`<]*\1?/;
     const offenders = files.filter((file) => visible.test(fs.readFileSync(path.join(root, file), 'utf8')));
     expect(offenders).toEqual([]);
   });

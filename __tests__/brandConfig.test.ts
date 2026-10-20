@@ -14,7 +14,7 @@ const plugin = (name: string) =>
   expo.plugins.find((entry: unknown) => Array.isArray(entry) && entry[0] === name)?.[1];
 
 describe('ENJOY app configuration', () => {
-  it('shows ENJOY as the app name without touching identifiers', () => {
+  it('uses ENJOY for the app name and every identifier', () => {
     expect(expo.name).toBe('ENJOY');
     expect(expo.slug).toBe('enjoy');
     expect(expo.scheme).toBe('enjoy');
