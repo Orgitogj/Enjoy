@@ -36,6 +36,7 @@ re-running the whole folder against an existing project is safe.
 | `0029_merchant_management.sql` | `restaurants.is_paused`, `paused_until` and `avg_prep_minutes`, the `merchant_actions` audit log, and the merchant RPCs for dish availability, dish edits, opening hours, the store pause, the preparation time and the storefront. Menu and store writes stop being direct table updates: `anon` and `authenticated` lose insert, update and delete on `dishes`, `menu_categories`, `dish_addons`, `restaurant_hours` and `restaurants`, and `is_restaurant_open()` reports a paused store as closed so `create_order` and `validate_cart` both refuse it |
 | `0030_delivery_eta.sql` | `orders.eta_at`, `eta_min_at`, `eta_max_at` and `deliveries.eta_at`, `compute_delivery_eta()` and the `estimate_delivery_eta()` read for the order's own people, `refresh_order_eta()` with a thirty second throttle, the triggers that recompute on an order or delivery status change, a recompute on every courier position, and `quote_delivery_estimate()` / `quote_delivery_estimates()` for an estimate before an order exists |
 | `0031_promotion_capacity.sql` | `promotion_has_capacity()`, a definer check that counts every customer's reserved and consumed redemptions, and `active_promotions()` rewritten on top of it, so the offers list hides used-up promotions for every caller and works for `anon` (it previously failed with "permission denied" on `promotion_redemptions`) |
+| `0032_enjoy_names.sql` | the ENJOY names for what still said Wolt: `search_restaurants()` and `search_restaurants_in_bounds()` take `p_enjoy_plus_only` and match the `ENJOY+` tag (existing `Wolt+` tags are rewritten), `invoke_reconcile_payments()` reads the `enjoy_*` Vault secrets and falls back to the old `wolt_*` ones, and the `wolt-*` pg_cron jobs become `enjoy-*` with their schedules and commands unchanged |
 
 ## Applying
 
@@ -108,15 +109,15 @@ be re-run:
 
 | Job | Schedule | Command |
 | --- | --- | --- |
-| `wolt-dispatch` | every 10 seconds | `advance_dispatch()` |
-| `wolt-expire-unpaid-orders` | every minute | `expire_unpaid_orders()` |
-| `wolt-prune-courier-locations` | 03:30 daily | `prune_courier_locations(30)` |
+| `enjoy-dispatch` | every 10 seconds | `advance_dispatch()` |
+| `enjoy-expire-unpaid-orders` | every minute | `expire_unpaid_orders()` |
+| `enjoy-prune-courier-locations` | 03:30 daily | `prune_courier_locations(30)` |
 
 The migration is a no-op where pg_cron is not an available extension, so it applies against a plain
 Postgres used for the checks. Confirm the jobs landed after applying it:
 
 ```sql
-select jobname, schedule, active from cron.job where jobname like 'wolt-%';
+select jobname, schedule, active from cron.job where jobname like 'enjoy-%';
 select jobname, status, return_message, start_time
   from cron.job_run_details order by start_time desc limit 20;
 ```
@@ -227,7 +228,7 @@ and admins. `platform_net` excludes the informational commission row so it is no
 
 ### Catalogue search
 
-`search_restaurants(search, category_id, cuisines, price_tier, wolt_plus_only, sort, limit, offset)`
+`search_restaurants(search, category_id, cuisines, price_tier, enjoy_plus_only, sort, limit, offset)`
 is the one entry point the app uses to browse and search restaurants. It runs as the caller, so the
 public read policy still decides what comes back, and it returns `setof public.restaurants` so the
 client keeps the row type it already had.
