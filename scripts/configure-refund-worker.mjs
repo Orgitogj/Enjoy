@@ -1,6 +1,6 @@
 import { spawnSync } from 'node:child_process';
 
-const FUNCTIONS_URL = process.env.WOLT_FUNCTIONS_URL;
+const FUNCTIONS_URL = process.env.ENJOY_FUNCTIONS_URL;
 const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const DATABASE_URL = process.env.SUPABASE_DB_URL;
 
@@ -19,46 +19,46 @@ if (!DATABASE_URL) {
       '',
       'Required environment:',
       '  SUPABASE_DB_URL            postgres connection string for the target project',
-      '  WOLT_FUNCTIONS_URL         https://<project-ref>.supabase.co/functions/v1',
+      '  ENJOY_FUNCTIONS_URL        https://<project-ref>.supabase.co/functions/v1',
       '  SUPABASE_SERVICE_ROLE_KEY  the project service role key',
     ].join('\n')
   );
 }
 
 if (!FUNCTIONS_URL || !SERVICE_ROLE_KEY) {
-  fail('Set WOLT_FUNCTIONS_URL and SUPABASE_SERVICE_ROLE_KEY before running this script.');
+  fail('Set ENJOY_FUNCTIONS_URL and SUPABASE_SERVICE_ROLE_KEY before running this script.');
 }
 
 const statement = `
 do $$
 declare
-  v_url text := current_setting('wolt.functions_url');
-  v_key text := current_setting('wolt.service_role_key');
+  v_url text := current_setting('enjoy.functions_url');
+  v_key text := current_setting('enjoy.service_role_key');
 begin
   if to_regnamespace('vault') is null then
     raise exception 'Supabase Vault is not available on this database';
   end if;
 
-  if exists (select 1 from vault.secrets where name = 'wolt_functions_url') then
+  if exists (select 1 from vault.secrets where name = 'enjoy_functions_url') then
     perform vault.update_secret(
-      (select id from vault.secrets where name = 'wolt_functions_url'), v_url);
+      (select id from vault.secrets where name = 'enjoy_functions_url'), v_url);
   else
-    perform vault.create_secret(v_url, 'wolt_functions_url', 'Edge function base url');
+    perform vault.create_secret(v_url, 'enjoy_functions_url', 'Edge function base url');
   end if;
 
-  if exists (select 1 from vault.secrets where name = 'wolt_service_role_key') then
+  if exists (select 1 from vault.secrets where name = 'enjoy_service_role_key') then
     perform vault.update_secret(
-      (select id from vault.secrets where name = 'wolt_service_role_key'), v_key);
+      (select id from vault.secrets where name = 'enjoy_service_role_key'), v_key);
   else
-    perform vault.create_secret(v_key, 'wolt_service_role_key', 'Service role key for workers');
+    perform vault.create_secret(v_key, 'enjoy_service_role_key', 'Service role key for workers');
   end if;
 end
 $$;
 
 select case
-  when exists (select 1 from cron.job where jobname = 'wolt-reconcile-payments')
-    then 'wolt-reconcile-payments is scheduled'
-  else 'wolt-reconcile-payments is NOT scheduled: apply migration 0026 first'
+  when exists (select 1 from cron.job where jobname = 'enjoy-reconcile-payments')
+    then 'enjoy-reconcile-payments is scheduled'
+  else 'enjoy-reconcile-payments is NOT scheduled: apply migrations 0026 and 0032 first'
 end as schedule_state;
 `;
 
@@ -69,8 +69,8 @@ const result = spawnSync(
     '-v',
     'ON_ERROR_STOP=1',
     '-c',
-    `set local wolt.functions_url = '${FUNCTIONS_URL.replace(/'/g, "''")}';
-     set local wolt.service_role_key = '${SERVICE_ROLE_KEY.replace(/'/g, "''")}';
+    `set local enjoy.functions_url = '${FUNCTIONS_URL.replace(/'/g, "''")}';
+     set local enjoy.service_role_key = '${SERVICE_ROLE_KEY.replace(/'/g, "''")}';
      ${statement}`,
   ],
   { encoding: 'utf8' }
