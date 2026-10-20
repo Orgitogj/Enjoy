@@ -20,7 +20,7 @@ describe('ENJOY app configuration', () => {
     expect(expo.scheme).toBe('enjoy');
     expect(expo.ios.bundleIdentifier).toBe('com.orgito.enjoy');
     expect(expo.android.package).toBe('com.orgito.enjoy');
-    expect(plugin('@stripe/stripe-react-native').merchantIdentifier).toBe('merchant.com.orgito.WOLT');
+    expect(plugin('@stripe/stripe-react-native').merchantIdentifier).toBe('merchant.com.orgito.enjoy');
     expect(expo.extra.eas.projectId).toBe('a3a1dfe0-c29d-4fa0-92ae-729b5fbbb81f');
   });
 

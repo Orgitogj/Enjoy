@@ -89,7 +89,7 @@
       [
         "@stripe/stripe-react-native",
         {
-          "merchantIdentifier": "merchant.com.orgito.WOLT",
+          "merchantIdentifier": "merchant.com.orgito.enjoy",
           "enableGooglePay": true
         }
       ],

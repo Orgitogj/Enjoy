@@ -53,7 +53,7 @@ const AppShell = () => {
   return (
     <StripeProvider
       publishableKey={STRIPE_PUBLISHABLE_KEY}
-      merchantIdentifier="merchant.com.orgito.WOLT"
+      merchantIdentifier="merchant.com.orgito.enjoy"
       urlScheme="enjoy">
       <Slot />
     </StripeProvider>
