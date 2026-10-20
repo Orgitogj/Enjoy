@@ -54,7 +54,7 @@ const AppShell = () => {
     <StripeProvider
       publishableKey={STRIPE_PUBLISHABLE_KEY}
       merchantIdentifier="merchant.com.orgito.WOLT"
-      urlScheme="wolt">
+      urlScheme="enjoy">
       <Slot />
     </StripeProvider>
   );

@@ -48,7 +48,7 @@ jest.mock('@shopify/flash-list/dist/recyclerview/utils/measureLayout', () => {
 });
 
 jest.mock('expo-linking', () => ({
-  createURL: (path) => `wolt://${path}`,
+  createURL: (path) => `enjoy://${path}`,
 }));
 
 const mockIconModule = () => {

@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/brand/png/icon-1024.png",
-    "scheme": "wolt",
+    "scheme": "enjoy",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {

@@ -17,7 +17,7 @@ describe('ENJOY app configuration', () => {
   it('shows ENJOY as the app name without touching identifiers', () => {
     expect(expo.name).toBe('ENJOY');
     expect(expo.slug).toBe('WOLT');
-    expect(expo.scheme).toBe('wolt');
+    expect(expo.scheme).toBe('enjoy');
     expect(expo.ios.bundleIdentifier).toBe('com.orgito.WOLT');
     expect(expo.android.package).toBe('com.orgito.WOLT');
     expect(plugin('@stripe/stripe-react-native').merchantIdentifier).toBe('merchant.com.orgito.WOLT');
