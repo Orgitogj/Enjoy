@@ -9,10 +9,10 @@ const ROOT = path.join(__dirname, '..');
 const MIGRATIONS = path.join(ROOT, 'supabase', 'migrations');
 const TESTS = path.join(ROOT, 'supabase', 'tests');
 
-const NETWORK = 'wolt-compat-net';
-const DB_CONTAINER = 'wolt-compat-db';
-const API_CONTAINER = 'wolt-compat-api';
-const DB = 'wolt_compat';
+const NETWORK = 'enjoy-compat-net';
+const DB_CONTAINER = 'enjoy-compat-db';
+const API_CONTAINER = 'enjoy-compat-api';
+const DB = 'enjoy_compat';
 const JWT_SECRET = 'a-string-secret-at-least-thirty-two-characters-long';
 const API_PORT = 3999;
 

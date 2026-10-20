@@ -8,10 +8,10 @@ const ROOT = path.join(__dirname, '..');
 const MIGRATIONS = path.join(ROOT, 'supabase', 'migrations');
 const TESTS = path.join(ROOT, 'supabase', 'tests');
 
-const CONTAINER = 'wolt-db-verify';
+const CONTAINER = 'enjoy-db-verify';
 const IMAGE = 'postgres:16-alpine';
 const PASSWORD = 'verify';
-const DB = 'wolt_verify';
+const DB = 'enjoy_verify';
 
 const docker = (args, options = {}) =>
   execFileSync('docker', args, { encoding: 'utf8', stdio: 'pipe', ...options });

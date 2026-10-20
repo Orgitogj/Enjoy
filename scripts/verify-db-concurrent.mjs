@@ -9,9 +9,9 @@ const ROOT = path.join(__dirname, '..');
 const MIGRATIONS = path.join(ROOT, 'supabase', 'migrations');
 const TESTS = path.join(ROOT, 'supabase', 'tests');
 
-const CONTAINER = 'wolt-db-concurrent';
+const CONTAINER = 'enjoy-db-concurrent';
 const IMAGE = 'postgres:16-alpine';
-const DB = 'wolt_concurrent';
+const DB = 'enjoy_concurrent';
 
 const tryDocker = (args) => spawnSync('docker', args, { encoding: 'utf8' });
 
