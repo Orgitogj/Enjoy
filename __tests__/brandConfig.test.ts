@@ -16,7 +16,7 @@ const plugin = (name: string) =>
 describe('ENJOY app configuration', () => {
   it('shows ENJOY as the app name without touching identifiers', () => {
     expect(expo.name).toBe('ENJOY');
-    expect(expo.slug).toBe('WOLT');
+    expect(expo.slug).toBe('enjoy');
     expect(expo.scheme).toBe('enjoy');
     expect(expo.ios.bundleIdentifier).toBe('com.orgito.enjoy');
     expect(expo.android.package).toBe('com.orgito.enjoy');
